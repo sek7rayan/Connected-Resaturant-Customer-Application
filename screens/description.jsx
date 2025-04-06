@@ -1,11 +1,11 @@
-import React,{useState} from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView} from 'react-native';
 
 const DescriptionScreen = () => {
-  const [incr,setincr] = useState(1);
+  const [incr, setincr] = useState(1);
   return (
     <View style={styles.container}>
-      <ScrollView  contentContainerStyle={styles.content} >
+      <ScrollView contentContainerStyle={styles.content}>
         {/* Header */}
         <View style={styles.header}>
          <View style={{marginTop:'-90%',flexDirection:'row',flex:1,justifyContent:'space-between' }} >
@@ -16,89 +16,98 @@ const DescriptionScreen = () => {
           <TouchableOpacity style={{marginRight:'-60%'}} > 
            <Image source={require('../assets/coeur.png')} />
           </TouchableOpacity>
-
-          </ View>
-           
-
+          </View>
         </View>
 
-       
-       
+        {/* Image and Title */}
+        <View style={styles.imageSection}>
+          <Image 
+            source={require('../assets/pizzaD.png')} 
+            style={styles.foodImage} 
+          />
+          <Text style={styles.foodTitle}>Pizza peperoni</Text>
 
-        {/* Reviews */}
+          <View style={styles.priceQuantityContainer}>
+            <View style={styles.priceContainer}>
+              <Text style={styles.priceText}>350 da</Text>
+            </View>
+           
+            <View style={styles.quantityContainer}>
+              <TouchableOpacity 
+                onPress={() => setincr(incr + 1)}
+              >
+                <Image source={require('../assets/plus.png')} style={styles.imagePM} />
+              </TouchableOpacity>
+
+              <Text style={styles.quantityText}>{incr}</Text>
+
+              <TouchableOpacity 
+                onPress={() => { if (incr > 1) setincr(incr - 1) }}
+              >
+                <Image source={require('../assets/moin.png')} style={styles.imagePM} />
+              </TouchableOpacity>
+            </View>
+              
+              <View style={styles.cartContainer}>
+                  <TouchableOpacity>
+                    <Image 
+                      source={require('../assets/panier.png')} 
+                      style={styles.cartIcon}
+                    />
+                  </TouchableOpacity>
+              </View> 
+
+
+
+          </View>
+        </View>
+
+        {/* Reviews and Calories */}
         <View style={styles.section}>
-          <View style={{marginLeft:'22%',marginTop:'-45%'}} >
-          <Image source={require('../assets/pizzaD.png')} style={{width:'83%',height:'70%',marginLeft:'-2%'}} />
-          <Text style={{ fontFamily:'SF-Pro-Display-Bold',fontWeight:'700',fontSize:30,color:'#082953',marginTop:'-11%'}} > Pizza peperoni </Text>
-
-          <View style={{flexDirection:'row'}} >
-
-          <View style={{borderRadius:15,backgroundColor:'#F4F5F6',width:'27%',marginLeft:'8%',marginTop:'3%'}} >
-            <Text style={{marginLeft:'15%',marginTop:'8%',marginBottom:'6%',color:'#437F40',  fontFamily: 'Poppins-Medium',fontWeight: '500', fontSize: 16, lineHeight: 20,letterSpacing: 0, }} >350 da</Text>
-
-          </View>
-           
-           <View style={{flexDirection:'row',borderRadius:15,backgroundColor:'#F4F5F6',width:'27%',marginLeft:'8%',marginTop:'3%'}} >
-                 
-                 <TouchableOpacity style={{flex:1,alignItems:'center',marginTop:'12%',marginLeft:'-10%'}} 
-                  onPress={()=>setincr(incr + 1) }
-                 
-                 >
-                   <Image source={require('../assets/plus.png')} style={styles.imagePM} />
-                 </TouchableOpacity>
-
-                 <Text style={{marginRight:'7%',marginTop:'5%'}} > {incr} </Text>
-
-                 <TouchableOpacity style={{flex:1,alignItems:'center',marginTop:'12%',marginLeft:'-10%'}} 
-                  onPress={  ()=> { if (incr > 0) {
-                    setincr(incr - 1)
-                  }   } }
-                 
-                 >
-                   <Image source={require('../assets/moin.png')} style={styles.imagePM} />
-                 </TouchableOpacity>
-
-
-           </View>
-
-
-
-          </View>
-
-
-
-          
-          </View>
-
-          
-      
           <View style={styles.reviewsContainer}>
-          <Text style={styles.sectionTitle}>Reviews</Text>
-            
+          <View style={{flexDirection:'column'}}>
+            <Text style={styles.sectionTitle}>Reviews</Text>
+            <View style={styles.ratingText}>
+                <Image source={require('../assets/star.png')} />
+                <Text style={{color: '#FFC107', marginTop:-2}}>4.8</Text>
+             </View>
+             </View>
+             <View style={{flexDirection:'column'}} >
+
             <Text style={styles.sectionTitle}>Calories</Text>
-            
+            <View style={styles.NEWText}>
+                            <Image source={require('../assets/flash.png')} />
+                            <Text style={{
+                              color: '#FFD747',
+                              marginTop: -1,
+                              marginLeft: -2,
+                              fontFamily: 'Poppins-Medium', 
+                              fontWeight: '500', 
+                              fontSize: 11.2,
+                              lineHeight: 13, 
+                              letterSpacing: 0,
+                            }}>2000</Text>
+                          </View>
+
+            </View>
           </View>
         </View>
-
-      
 
         {/* Ingredients */}
         <View style={styles.section}>
-          <Text style={{fontSize: 18,fontWeight: 'bold',marginBottom: '3%'}}>Ingredients</Text>
+          <Text style={styles.sectionHeader}>Ingredients</Text>
           <View style={styles.ingredientsContainer}>
-            <Text style={styles.ingredientItem}></Text>
-            <Text style={styles.ingredientItem}></Text>
-            <Text style={styles.ingredientItem}></Text>
-            <Text style={styles.ingredientItem}></Text>
+            <Text style={styles.ingredientItem}>Tomato sauce, </Text>
+            <Text style={styles.ingredientItem}>Mozzarella cheese, </Text>
+            <Text style={styles.ingredientItem}>Pepperoni, </Text>
+            <Text style={styles.ingredientItem}>Oregano,</Text>
+            <Text style={styles.ingredientItem}>Olive oil.</Text>
           </View>
         </View>
 
-        
-        
-
         {/* Description */}
         <View style={styles.section}>
-          <Text style={{fontSize: 18,fontWeight: 'bold',marginBottom: '3%',}}>Description</Text>
+          <Text style={styles.sectionHeader}>Description</Text>
           <Text style={styles.descriptionText}>
             A timeless favorite, our Classic Margherita Pizza features a thin, crispy crust topped with rich tomato sauce, creamy mozzarella, and fresh basil.
           </Text>
@@ -137,7 +146,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   content: {
-    paddingBottom: '15%', 
+    paddingBottom: 100, // Espace pour la barre de navigation
   },
   header: {
     borderBottomLeftRadius:'50%' ,
@@ -148,93 +157,185 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    marginTop: 50,
+  },
+  backButton: {
+    marginLeft: 10,
+  },
+  heartButton: {
+    marginRight: 10,
+  },
+  imageSection: {
+    alignItems: 'center',
+    marginTop: -100, 
+    marginBottom: 20,
+  },
+  foodImage: {
+    width: 250,
+    height: 200,
+    resizeMode: 'contain',
+  },
+  foodTitle: {
+    fontFamily: 'SF-Pro-Display-Bold',
+    fontWeight: '700',
+    fontSize: 30,
+    color: '#082953',
+    marginTop: 10,
+  },
+  priceQuantityContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 15,
+    marginLeft:50
+  
+  },
+  priceContainer: {
+    borderRadius: 15,
+    backgroundColor: '#F4F5F6',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    marginRight: 15,
+  },
+  priceText: {
+    color: '#437F40',
+    fontFamily: 'Poppins-Medium',
+    fontWeight: '500',
+    fontSize: 16,
+  },
+  quantityContainer: {
+    flexDirection: 'row',
+    borderRadius: 15,
+    backgroundColor: '#F4F5F6',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  quantityText: {
+    marginHorizontal: 10,
+  },
+  imagePM: {
+    tintColor: 'black',
+    width: 20,
+    height: 20,
+  },
+  cartContainer: {
+    marginLeft:55,
+    backgroundColor: '#FFC01D',
+    height: 51,
+    width: 49,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+  },
+  cartIcon: {
+    
+    width: 30,
+    height: 30,
+    resizeMode: 'contain',
+  },
+ 
+  NEWText: {
+    paddingLeft: 4,
+    borderRadius: 10,
+    backgroundColor: '#B02522',
+    width: 44,
+    height: 16,
+    marginLeft: 9,
+    alignItems: 'center',
+    flexDirection: 'row',
+    color: '#FFC107',
+    fontSize: 12,
   },
 
-  imagePM:{
-  tintColor:'black',
-   width:'40%'
-  },
-  
-  
+
+
+
   section: {
-    padding: '5%',
+    padding: 20,
   },
-  sectionTitle: {
-    marginLeft:'7%',
-    flex:1,
-    alignItems:'center',
+  sectionHeader: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: '3%',
-    color:'#9FA4AA'
+    marginBottom: 15,
   },
   reviewsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
   },
-  reviewItem: {
-    fontSize: 14,
-    color: '#555',
+  sectionTitle:{
+   color:'#9FA4AA',
+   fontWeight:'700',
+   fontSize:20
+
   },
-  
+  ratingText: {
+    paddingLeft: 4,
+    borderRadius: 10,
+    backgroundColor: '#FFE9B2',
+    width: 50,
+    height: 20,
+    marginLeft: 15,
+    alignItems: 'center',
+    flexDirection: 'row',
+    color: '#FFC107',
+    fontSize: 12,
+  },
   ingredientsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '50%',
+    flexWrap: 'wrap',
   },
   ingredientItem: {
-    fontSize: 18,
+    fontSize: 16,
+    color: '#9FA4AA',
+    marginRight: 10,
+    marginBottom: 5,
   },
   descriptionText: {
     color: '#9FA4AA',
     fontFamily: 'Poppins-Medium',
     fontWeight: '500',
     fontSize: 15,
-    lineHeight: 15,
-    letterSpacing: 0
-   
+    lineHeight: 22,
   },
   navBar: {
-    paddingTop:'2.5%',
-    paddingBottom:'8%',
+    height: 80,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: '6%',
+    paddingHorizontal: 20,
     borderTopWidth: 1,
     borderColor: '#eee',
     backgroundColor: '#F4F5F6',
     position: 'absolute',
     bottom: 0,
     width: '100%',
+    alignItems: 'center',
   },
   navItem: {
     alignItems: 'center',
-    
   },
   navIcon: {
-    marginTop:'28%',
-    width: '70%',
-    height: '80%',
-    marginBottom: '10%',
+    width: 24,
+    height: 24,
+    marginBottom: 5,
   },
   navItemM: {
-    marginTop: '-15%',
     backgroundColor: '#FFC01D',
-    borderRadius: '50%',
+    borderRadius: 50,
+    width: 70,
+    height: 70,
+    justifyContent: 'center',
     alignItems: 'center',
-    width: '25%',
-    height: '270%',
+    marginTop: -50,
   },
   navIconM: {
-    marginTop: '20%',
-    width: '46%',
-    height: '48%',
+    width: 40,
+    height: 40,
   },
   navText: {
-    
     color: '#555',
     fontSize: 12,
   },

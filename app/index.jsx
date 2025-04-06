@@ -8,7 +8,7 @@ import MyList from '../screens/mylist';
 import Description from '../screens/description';
 
 const App = ()=>{
-  return <SignUp/>
+  return <Description/>
 
 };
 registerRootComponent(App);
