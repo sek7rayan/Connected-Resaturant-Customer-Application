@@ -1,5 +1,21 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, TextInput } from 'react-native';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  TouchableOpacity, 
+  ScrollView, 
+  Image, 
+  TextInput,
+  Dimensions
+} from 'react-native';
+
+// Dimensions
+const {width, height} = Dimensions.get('window');
+
+// Fonctions hp et wp
+const wp = (size) => (width / 100) * size;
+const hp = (size) => (height / 100) * size;
 
 const MyListScreen = () => {
   return (
@@ -59,13 +75,6 @@ const MyListScreen = () => {
         </TouchableOpacity>
       </ScrollView>
 
-      
-
-      
-
-        
-    
-
       {/* Navigation Bar */}
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navItem}>
@@ -93,117 +102,108 @@ const MyListScreen = () => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#fff',
-    },
-    header: {
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-      padding: 20,
-      backgroundColor: '#fff',
-    },
-    headerText: {
-      fontFamily: 'SFProDisplay-Bold',
-      fontWeight: '700',
-      fontSize: 32,
-      lineHeight: 32,
-      letterSpacing: 0,
-    },
-    searchContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: '#eee',
-      borderRadius: 10,
-      width: '85%',
-    },
-    searchInput: {
-      flex: 1,
-      color: '#555',
-      paddingLeft: 25,
-    },
-    cartContainer: {
-      marginRight: -65,
-      backgroundColor: '#FFC01D',
-      height: 51,
-      width: 49,
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: 10,
-    },
-    cartIcon: {
-      width: 25,
-      height: 25,
-      resizeMode: 'contain',
-    },
-    categoryContainer: {
-      paddingHorizontal: 25,
-      backgroundColor: '#fff',
-    },
-    categoryButton: {
-      alignItems: 'center',
-      marginRight: 20,
-    },
-    categoryButtonActive: {
-      alignItems: 'center',
-      marginRight: 20,
-    },
-    categoryImage: {
-      width: 74,
-      height: 82,
-      borderRadius: 10,
-      marginBottom: 5,
-    },
-    categoryText: {
-      fontFamily: 'SFProDisplay-Bold',
-      fontWeight: '700',
-      fontSize: 15,
-      lineHeight: 32,
-      letterSpacing: 0,
-    },
-    sortContainer: {
-      padding: 20,
-      marginTop: -390,
-      marginLeft: 15
-    },
-    
-    navBar: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      padding: 15,
-      borderTopWidth: 1,
-      borderColor: '#eee',
-      backgroundColor: '#F4F5F6',
-    },
-    navItem: {
-      alignItems: 'center',
-    },
-    navIcon: {
-      width: 24,
-      height: 24,
-      marginBottom: 5,
-    },
-    navItemM:{
-      marginTop:-35,
-      backgroundColor:'#FFC01D',
-      borderRadius:'50%',
-      alignItems:'center',
-      width:90,
-      height:90
-    },
-    navIconM:{
-      marginTop:20,
-      width:47,
-      height:47,
-      
-    },
-    navText: {
-      color: '#555',
-      fontSize: 12,
-    },
-  });
-
-
-
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  header: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    padding: hp(2.5),
+    backgroundColor: '#fff',
+  },
+  headerText: {
+    fontFamily: 'SFProDisplay-Bold',
+    fontWeight: '700',
+    fontSize: wp(8.5),
+    lineHeight: hp(4),
+    letterSpacing: 0,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#eee',
+    borderRadius: wp(2.7),
+    width: wp(75),
+  },
+  searchInput: {
+    flex: 1,
+    color: '#555',
+    paddingLeft: wp(6.7),
+    fontSize: wp(4),
+  },
+  cartContainer: {
+    marginRight: wp(-17.3),
+    backgroundColor: '#FFC01D',
+    height: hp(6.3),
+    width: wp(13.1),
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: wp(2.7),
+  },
+  cartIcon: {
+    width: wp(6.7),
+    height: hp(3.1),
+    resizeMode: 'contain',
+  },
+  categoryContainer: {
+    paddingHorizontal: wp(4),
+    backgroundColor: '#fff',
+  },
+  categoryButton: {
+    alignItems: 'center',
+    marginRight: wp(5.3),
+  },
+  categoryButtonActive: {
+    alignItems: 'center',
+    marginRight: wp(5.3),
+  },
+  categoryImage: {
+    width: wp(19.7),
+    height: hp(10.1),
+    borderRadius: wp(2.7),
+    marginBottom: hp(0.6),
+  },
+  categoryText: {
+    fontFamily: 'SFProDisplay-Bold',
+    fontWeight: '700',
+    fontSize: wp(4),
+    lineHeight: hp(4),
+    letterSpacing: 0,
+  },
+  navBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: hp(1.8),
+    borderTopWidth: wp(0.27),
+    borderColor: '#eee',
+    backgroundColor: '#F4F5F6',
+  },
+  navItem: {
+    alignItems: 'center',
+  },
+  navIcon: {
+    width: wp(6),
+    height: hp(3),
+    marginBottom: hp(0.6),
+  },
+  navItemM: {
+    marginTop: hp(-4.5),
+    backgroundColor: '#FFC01D',
+    borderRadius: wp(50),
+    alignItems: 'center',
+    width: wp(22),
+    height: hp(11.1)
+  },
+  navIconM: {
+    marginTop: hp(2.5),
+    width: wp(12.5),
+    height: hp(5.8),
+  },
+  navText: {
+    color: '#555',
+    fontSize: wp(3.2),
+  },
+});
 
 export default MyListScreen;

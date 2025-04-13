@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Pressable } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Pressable,ScrollView } from 'react-native';
+
 
 const SignUpScreen = () => {
   const [password, setPassword] = useState('');
   const [isChecked, setIsChecked] = useState(false);
 
   return (
+   <ScrollView>
     <View style={styles.container}>
       <View style={styles.logoContainer}>
         <Image source={require('../assets/foodie_logo.png')} style={styles.logo} />
         <Text style={styles.title}>Create an account</Text>
       </View>
-     
+      <TextInput placeholder="Last name" style={styles.input} />
+      <TextInput placeholder="First name" style={styles.input} />
+      <TextInput placeholder="Age" style={styles.input} keyboardType="numeric" />
       <TextInput placeholder="E-mail" style={styles.input} />
       <TextInput placeholder="Number" style={styles.input} keyboardType="numeric" />
       <TextInput placeholder="Password" style={styles.input} secureTextEntry onChangeText={setPassword} />
@@ -33,6 +37,7 @@ const SignUpScreen = () => {
       </TouchableOpacity>
       <Text style={styles.signInText}>Already have an account? <Text style={styles.link_sign_in}>Sign in</Text></Text>
     </View>
+  </ScrollView>
   );
 };
 

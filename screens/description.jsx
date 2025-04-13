@@ -1,30 +1,52 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView} from 'react-native';
+import React, {useState, useRef} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Animated, Easing, Modal} from 'react-native';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
 
 const DescriptionScreen = () => {
   const [incr, setincr] = useState(1);
+  const [showAlert, setShowAlert] = useState(false);
+  const slideAnim = useRef(new Animated.Value(hp('100%'))).current;
+
+  const showCartAlert = () => {
+    setShowAlert(true);
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 300,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const hideAlert = () => {
+    Animated.timing(slideAnim, {
+      toValue: hp('100%'),
+      duration: 250,
+      easing: Easing.in(Easing.ease),
+      useNativeDriver: true,
+    }).start(() => setShowAlert(false));
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         {/* Header */}
         <View style={styles.header}>
-         <View style={{marginTop:'-90%',flexDirection:'row',flex:1,justifyContent:'space-between' }} >
-          <TouchableOpacity style={{marginLeft:'-60%'}}> 
-           <Image source={require('../assets/fleche_gauche.png')}  />
+         <View style={styles.headerButtons}>
+          <TouchableOpacity style={styles.backButton}> 
+           <Image source={require('../assets/fleche_gauche.png')} style={styles.headerIcon} />
           </TouchableOpacity>
-
-          <TouchableOpacity style={{marginRight:'-60%'}} > 
-           <Image source={require('../assets/coeur.png')} />
+          <TouchableOpacity style={styles.heartButton}> 
+           <Image source={require('../assets/coeur.png')} style={styles.headerIcon} />
           </TouchableOpacity>
           </View>
         </View>
 
         {/* Image and Title */}
         <View style={styles.imageSection}>
-          <Image 
-            source={require('../assets/pizzaD.png')} 
-            style={styles.foodImage} 
-          />
+          <Image source={require('../assets/pizzaD.png')} style={styles.foodImage} />
           <Text style={styles.foodTitle}>Pizza peperoni</Text>
 
           <View style={styles.priceQuantityContainer}>
@@ -33,62 +55,39 @@ const DescriptionScreen = () => {
             </View>
            
             <View style={styles.quantityContainer}>
-              <TouchableOpacity 
-                onPress={() => setincr(incr + 1)}
-              >
-                <Image source={require('../assets/plus.png')} style={styles.imagePM} />
+              <TouchableOpacity onPress={() => setincr(incr + 1)}>
+                <Image source={require('../assets/plus.png')} style={styles.quantityIcon} />
               </TouchableOpacity>
-
               <Text style={styles.quantityText}>{incr}</Text>
-
-              <TouchableOpacity 
-                onPress={() => { if (incr > 1) setincr(incr - 1) }}
-              >
-                <Image source={require('../assets/moin.png')} style={styles.imagePM} />
+              <TouchableOpacity onPress={() => { if (incr > 1) setincr(incr - 1) }}>
+                <Image source={require('../assets/moin.png')} style={styles.quantityIcon} />
               </TouchableOpacity>
             </View>
               
-              <View style={styles.cartContainer}>
-                  <TouchableOpacity>
-                    <Image 
-                      source={require('../assets/panier.png')} 
-                      style={styles.cartIcon}
-                    />
-                  </TouchableOpacity>
-              </View> 
-
-
-
+            <View style={styles.cartContainer}>
+              <TouchableOpacity onPress={showCartAlert}>
+                <Image source={require('../assets/panier.png')} style={styles.cartIcon} />
+              </TouchableOpacity>
+            </View> 
           </View>
         </View>
 
         {/* Reviews and Calories */}
         <View style={styles.section}>
           <View style={styles.reviewsContainer}>
-          <View style={{flexDirection:'column'}}>
+          <View style={styles.reviewItem}>
             <Text style={styles.sectionTitle}>Reviews</Text>
             <View style={styles.ratingText}>
-                <Image source={require('../assets/star.png')} />
-                <Text style={{color: '#FFC107', marginTop:-2}}>4.8</Text>
+                <Image source={require('../assets/star.png')} style={styles.ratingIcon} />
+                <Text style={styles.ratingValue}>4.8</Text>
              </View>
              </View>
-             <View style={{flexDirection:'column'}} >
-
+             <View style={styles.calorieItem}>
             <Text style={styles.sectionTitle}>Calories</Text>
             <View style={styles.NEWText}>
-                            <Image source={require('../assets/flash.png')} />
-                            <Text style={{
-                              color: '#FFD747',
-                              marginTop: -1,
-                              marginLeft: -2,
-                              fontFamily: 'Poppins-Medium', 
-                              fontWeight: '500', 
-                              fontSize: 11.2,
-                              lineHeight: 13, 
-                              letterSpacing: 0,
-                            }}>2000</Text>
-                          </View>
-
+              <Image source={require('../assets/fire.png')} style={styles.calorieIcon} />
+              <Text style={styles.calorieValue}>2000</Text>
+            </View>
             </View>
           </View>
         </View>
@@ -113,6 +112,50 @@ const DescriptionScreen = () => {
           </Text>
         </View>
       </ScrollView>
+
+      {/* Alert Modal */}
+      <Modal
+        transparent={true}
+        visible={showAlert}
+        onRequestClose={hideAlert}
+        animationType="none"
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1}
+          onPress={hideAlert}
+        >
+          <Animated.View 
+            style={[
+              styles.alertContainer,
+              { transform: [{ translateY: slideAnim }] }
+            ]}
+          >
+            <Image source={require('../assets/valide.png')} style={styles.alertIcon} />
+            <View style={styles.alertContent}>
+               <Text style={styles.alertTitle}>Item added to Chart!</Text>
+               <Text style={styles.alertText}>
+                {incr} Pizza{incr > 1 ? 's' : ''} Peperoni {incr > 1 ? 'have' : 'has'} been added to your cart,
+                check the selected items by checking your chart to validate your order
+              </Text>
+            </View>
+            
+            <TouchableOpacity 
+              onPress={hideAlert}
+              style={styles.alertButton1}
+            >
+              <Text style={styles.alertButtonText1}>go to chart</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              onPress={hideAlert}
+              style={styles.alertButton}
+            >
+              <Text style={styles.alertButtonText}>Continue shopping</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </TouchableOpacity>
+      </Modal>
 
       {/* Navigation Bar */}
       <View style={styles.navBar}>
@@ -146,198 +189,285 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   content: {
-    paddingBottom: 100, // Espace pour la barre de navigation
+    paddingBottom: hp('12%'),
   },
   header: {
-    borderBottomLeftRadius:'50%' ,
-    borderBottomRightRadius:'50%',
-    backgroundColor:'#B02522',
-    padding: '29%',
+    borderBottomLeftRadius: wp('40%'),
+    borderBottomRightRadius: wp('40%'),
+    backgroundColor: '#B02522',
+    paddingVertical: hp('15%'),
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  headerContent: {
+  headerButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    marginTop: 50,
+    width: wp('108%'),
+    paddingHorizontal: wp('10%'),
+    marginTop: hp('-10%'),
   },
   backButton: {
-    marginLeft: 10,
+    marginLeft: wp('-10%'),
+    marginTop:hp('-8%')
   },
   heartButton: {
-    marginRight: 10,
+    marginLeft: wp('-10%'),
+    marginTop:hp('-8%'),
+  },
+  headerIcon: {
+    width: wp('6%'),
+    height: wp('6%'),
   },
   imageSection: {
+    
     alignItems: 'center',
-    marginTop: -100, 
-    marginBottom: 20,
+    marginTop: hp('-20%'),
+    marginLeft:wp('-3%')
   },
   foodImage: {
-    width: 250,
-    height: 200,
+    width: wp('70%'),
+    height: hp('40%'),
     resizeMode: 'contain',
+    marginLeft: wp('5%'),
   },
   foodTitle: {
     fontFamily: 'SF-Pro-Display-Bold',
     fontWeight: '700',
-    fontSize: 30,
+    fontSize: wp('8%'),
     color: '#082953',
-    marginTop: 10,
+    marginTop: hp('1%'),
+    marginLeft: wp('5%'),
   },
   priceQuantityContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 15,
-    marginLeft:50
-  
+    marginTop: hp('2%'),
+    marginLeft: wp('10%'),
   },
   priceContainer: {
-    borderRadius: 15,
+    borderRadius: wp('4%'),
     backgroundColor: '#F4F5F6',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    marginRight: 15,
-  },
-  priceText: {
-    color: '#437F40',
-    fontFamily: 'Poppins-Medium',
-    fontWeight: '500',
-    fontSize: 16,
+    paddingHorizontal: wp('4%'),
+    paddingVertical: hp('1%'),
+    marginRight: wp('4%'),
   },
   quantityContainer: {
     flexDirection: 'row',
-    borderRadius: 15,
+    borderRadius: wp('4%'),
     backgroundColor: '#F4F5F6',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
+    paddingHorizontal: wp('4%'),
+    paddingVertical: hp('1%'),
     alignItems: 'center',
   },
   quantityText: {
-    marginHorizontal: 10,
+    marginHorizontal: wp('2%'),
+    fontSize: wp('4%'),
   },
-  imagePM: {
-    tintColor: 'black',
-    width: 20,
-    height: 20,
+  quantityIcon: {
+    tintColor:'black',
+    width: wp('3%'),
+    height: wp('3%'),
   },
   cartContainer: {
-    marginLeft:55,
+    marginLeft: wp('10%'),
     backgroundColor: '#FFC01D',
-    height: 51,
-    width: 49,
+    height: hp('6%'),
+    width: wp('12%'),
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 10,
+    borderRadius: wp('2%'),
   },
   cartIcon: {
-    
-    width: 30,
-    height: 30,
-    resizeMode: 'contain',
+    width: wp('6%'),
+    height: wp('6%'),
   },
- 
-  NEWText: {
-    paddingLeft: 4,
-    borderRadius: 10,
-    backgroundColor: '#B02522',
-    width: 44,
-    height: 16,
-    marginLeft: 9,
-    alignItems: 'center',
-    flexDirection: 'row',
-    color: '#FFC107',
-    fontSize: 12,
-  },
-
-
-
-
   section: {
-    padding: 20,
+    paddingHorizontal: wp('5%'),
+    paddingVertical: hp('2%'),
   },
   sectionHeader: {
-    fontSize: 18,
+    fontSize: wp('5%'),
     fontWeight: 'bold',
-    marginBottom: 15,
+    marginBottom: hp('1.5%'),
+  },
+  sectionTitle: {
+    fontSize: wp('5%'),
+    fontWeight: 'bold',
+    color: '#9FA4AA',
+    marginBottom: hp('1%'),
+  },
+  priceText:{
+    marginTop:hp('0.7%'),
+   color:'#437F40'
   },
   reviewsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
+    marginTop: hp('2%'),
   },
-  sectionTitle:{
-   color:'#9FA4AA',
-   fontWeight:'700',
-   fontSize:20
-
+  reviewItem: {
+    alignItems: 'center',
+  },
+  calorieItem: {
+    alignItems: 'center',
   },
   ratingText: {
-    paddingLeft: 4,
-    borderRadius: 10,
-    backgroundColor: '#FFE9B2',
-    width: 50,
-    height: 20,
-    marginLeft: 15,
-    alignItems: 'center',
     flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFE9B2',
+    borderRadius: wp('2%'),
+    paddingHorizontal: wp('2%'),
+    paddingVertical: hp('0.5%'),
+    marginTop: hp('0.5%'),
+  },
+  NEWText: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#B02522',
+    borderRadius: wp('2%'),
+    paddingHorizontal: wp('2%'),
+    paddingVertical: hp('0.5%'),
+    marginTop: hp('0.5%'),
+  },
+  ratingIcon: {
+    width: wp('3%'),
+    height: wp('3%'),
+    marginRight: wp('1%'),
+  },
+  calorieIcon: {
+    width: wp('3%'),
+    height: wp('3%'),
+    marginRight: wp('1%'),
+  },
+  ratingValue: {
     color: '#FFC107',
-    fontSize: 12,
+    fontSize: wp('3%'),
+  },
+  calorieValue: {
+    color: '#FFD747',
+    fontSize: wp('3%'),
+    fontFamily: 'Poppins-Medium',
+    fontWeight: '500',
   },
   ingredientsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
   ingredientItem: {
-    fontSize: 16,
+    fontSize: wp('4%'),
     color: '#9FA4AA',
-    marginRight: 10,
-    marginBottom: 5,
+    marginRight: wp('2%'),
+    marginBottom: hp('0.5%'),
   },
   descriptionText: {
     color: '#9FA4AA',
     fontFamily: 'Poppins-Medium',
     fontWeight: '500',
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: wp('4%'),
+    lineHeight: hp('2.5%'),
   },
   navBar: {
-    height: 80,
+    height: hp('10%'),
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    justifyContent: 'space-around',
+    alignItems: 'center',
     borderTopWidth: 1,
     borderColor: '#eee',
     backgroundColor: '#F4F5F6',
     position: 'absolute',
     bottom: 0,
-    width: '100%',
-    alignItems: 'center',
+    width: wp('100%'),
+    paddingHorizontal: wp('5%'),
   },
   navItem: {
     alignItems: 'center',
+    width: wp('15%'),
   },
   navIcon: {
-    width: 24,
-    height: 24,
-    marginBottom: 5,
+    width: wp('6%'),
+    height: wp('6%'),
+    marginBottom: hp('0.5%'),
   },
   navItemM: {
     backgroundColor: '#FFC01D',
-    borderRadius: 50,
-    width: 70,
-    height: 70,
+    borderRadius: wp('50%'),
+    width: wp('20%'),
+    height: wp('20%'),
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: -50,
+    marginTop: hp('-5%'),
   },
   navIconM: {
-    width: 40,
-    height: 40,
+    width: wp('10%'),
+    height: wp('10%'),
   },
   navText: {
     color: '#555',
-    fontSize: 12,
+    fontSize: wp('3%'),
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  alertContainer: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: wp('5%'),
+    borderTopRightRadius: wp('5%'),
+    padding: wp('5%'),
+    paddingBottom: hp('3%'),
+    alignItems: 'center',
+  },
+  alertIcon: {
+    width: wp('15%'),
+    height: wp('15%'),
+    marginBottom: hp('2%'),
+  },
+  alertContent: {
+    marginBottom: hp('5%'),
+    alignItems: 'center',
+  },
+  alertTitle: {
+    fontSize: wp('6%'),
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: hp('1%'),
+    textAlign: 'center',
+  },
+  alertText: {
+    fontSize: wp('4%'),
+    color: '#9FA4AA',
+    textAlign: 'center',
+    marginBottom: hp('2%'),
+    lineHeight: hp('2.5%'),
+  },
+  alertButton1: {
+    backgroundColor: '#134482',
+    paddingVertical: hp('2%'),
+    borderRadius: wp('3%'),
+    width: wp('80%'),
+    alignItems: 'center',
+    marginBottom: hp('2%'),
+  },
+  alertButtonText1: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: wp('5%'),
+  },
+  alertButton: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#fff',
+    paddingVertical: hp('1.5%'),
+    borderRadius: wp('3%'),
+    width: wp('60%'),
+    alignItems: 'center',
+  },
+  alertButtonText: {
+    color: '#134482',
+    fontWeight: 'bold',
+    fontSize: wp('4%'),
   },
 });
 

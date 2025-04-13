@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React, {useState} from 'react';
 import { 
   View, 
   Text, 
@@ -6,39 +6,22 @@ import {
   TouchableOpacity, 
   ScrollView, 
   Image, 
-  TextInput, 
-  Dimensions,
-  PixelRatio,
-  Platform
+  TextInput,
+  Dimensions
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
-// Dimensions de référence (iPhone 11 Pro)
-const guidelineBaseWidth = 375;
-const guidelineBaseHeight = 812;
+// Dimensions
+const {width, height} = Dimensions.get('window');
 
-const { width, height } = Dimensions.get('window');
-
-// Fonction de scaling horizontale
-const scale = size => width / guidelineBaseWidth * size;
-
-// Fonction de scaling verticale
-const verticalScale = size => height / guidelineBaseHeight * size;
-
-// Fonction de scaling modérée
-const moderateScale = (size, factor = 0.5) => size + (scale(size) - size) * factor;
-
-// Fonction spéciale pour les polices
-const fontScale = size => {
-  const newSize = scale(size);
-  if (Platform.OS === 'ios') {
-    return Math.round(PixelRatio.roundToNearestPixel(newSize));
-  } else {
-    return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 1;
-  }
-};
+// Fonctions hp et wp
+const wp = (size) => (width / 100) * size;
+const hp = (size) => (height / 100) * size;
 
 const MenuScreen = () => {
   const [hoveredItem, setHoveredItem] = useState(null);
+  const navigation = useNavigation();
+  
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -99,8 +82,8 @@ const MenuScreen = () => {
       {/* Sort Option */}
       <View style={styles.sortContainer}>
         <View style={styles.sortText}>
-          <Text style={{marginRight: moderateScale(5), fontWeight: 'bold', marginLeft: moderateScale(2)}}>Prix</Text>
-          <Image source={require('../assets/fleche_bas.png')} style={{marginTop: moderateScale(5)}} />
+          <Text style={{marginRight: wp(1.3), fontWeight: 'bold', marginLeft: wp(0.5)}}>Prix</Text>
+          <Image source={require('../assets/fleche_bas.png')} style={{marginTop: hp(0.6)}} />
         </View>
       </View>
 
@@ -108,17 +91,16 @@ const MenuScreen = () => {
       <ScrollView style={styles.menuContainer}>
         
         {/* First Row */}
-       
         <View style={styles.menuRow}>
          <TouchableOpacity   
           activeOpacity={1}
           onPressIn={() => setHoveredItem('pizza')}
           onPressOut={() => setHoveredItem(null)}
+          onPress={()=>navigation.navigate("Description")}
           style={{marginLeft:'-7%'}}
          >
-          
           <View style={[ styles.menuItem, hoveredItem === 'pizza' && styles.menuItemHovered]}>
-            <TouchableOpacity style={{marginRight: moderateScale(-85)}}>
+            <TouchableOpacity style={{marginRight: wp(-22.7)}}>
               <Image source={require('../assets/coeur.png')} />
             </TouchableOpacity>
             
@@ -133,19 +115,19 @@ const MenuScreen = () => {
                 <Image source={require('../assets/flash.png')} />
                 <Text style={{
                   color: '#FFD747',
-                  marginTop: moderateScale(-1),
-                  marginLeft: moderateScale(-2),
+                  marginTop: hp(-0.12),
+                  marginLeft: wp(-0.5),
                   fontFamily: 'Poppins-Medium', 
                   fontWeight: '500', 
-                  fontSize: fontScale(11.2),
-                  lineHeight: verticalScale(13), 
+                  fontSize: wp(3),
+                  lineHeight: hp(1.6), 
                   letterSpacing: 0,
                 }}>NEW</Text>
               </View>
 
               <View style={styles.ratingText}>
                 <Image source={require('../assets/star.png')} />
-                <Text style={{color: '#FFC107', marginTop: moderateScale(-2)}}>4.8</Text>
+                <Text style={{color: '#FFC107', marginTop: hp(-0.25)}}>4.8</Text>
               </View>
             </View>
 
@@ -162,13 +144,7 @@ const MenuScreen = () => {
               </TouchableOpacity>
             </View>
           </View>
-          
-
-
-
-
          </TouchableOpacity>
-
 
          <TouchableOpacity   
           activeOpacity={1}
@@ -177,7 +153,7 @@ const MenuScreen = () => {
           style={{marginLeft:'-25%',marginRight:'20%'}}
          >
           <View style={[styles.menuItem, hoveredItem==='burger'&& styles.menuItemHovered ]}>
-            <TouchableOpacity style={{marginRight: moderateScale(-85)}}>
+            <TouchableOpacity style={{marginRight: wp(-22.7)}}>
               <Image source={require('../assets/coeur.png')} />
             </TouchableOpacity>
             <Image 
@@ -190,19 +166,19 @@ const MenuScreen = () => {
                 <Image source={require('../assets/flash.png')} />
                 <Text style={{
                   color: '#FFD747',
-                  marginTop: moderateScale(-1),
-                  marginLeft: moderateScale(-2),
+                  marginTop: hp(-0.12),
+                  marginLeft: wp(-0.5),
                   fontFamily: 'Poppins-Medium', 
                   fontWeight: '500', 
-                  fontSize: fontScale(11.2),
-                  lineHeight: verticalScale(13), 
+                  fontSize: wp(3),
+                  lineHeight: hp(1.6), 
                   letterSpacing: 0,
                 }}>NEW</Text>
               </View>
 
               <View style={styles.ratingText}>
                 <Image source={require('../assets/star.png')} />
-                <Text style={{color: '#FFC107', marginTop: moderateScale(-2)}}>4.8</Text>
+                <Text style={{color: '#FFC107', marginTop: hp(-0.25)}}>4.8</Text>
               </View>
             </View>
 
@@ -228,7 +204,7 @@ const MenuScreen = () => {
           style={{marginLeft:'-45%',marginRight:'53%'}}
          >
           <View style={[styles.menuItem, hoveredItem==='pasta' && styles.menuItemHovered]}>
-            <TouchableOpacity style={{marginRight: moderateScale(-85)}}>
+            <TouchableOpacity style={{marginRight: wp(-22.7)}}>
               <Image source={require('../assets/coeur.png')} />
             </TouchableOpacity>
             <Image 
@@ -241,19 +217,19 @@ const MenuScreen = () => {
                 <Image source={require('../assets/flash.png')} />
                 <Text style={{
                   color: '#FFD747',
-                  marginTop: moderateScale(-1),
-                  marginLeft: moderateScale(-2),
+                  marginTop: hp(-0.12),
+                  marginLeft: wp(-0.5),
                   fontFamily: 'Poppins-Medium', 
                   fontWeight: '500', 
-                  fontSize: fontScale(11.2),
-                  lineHeight: verticalScale(13), 
+                  fontSize: wp(3),
+                  lineHeight: hp(1.6), 
                   letterSpacing: 0,
                 }}>NEW</Text>
               </View>
 
               <View style={styles.ratingText}>
                 <Image source={require('../assets/star.png')} />
-                <Text style={{color: '#FFC107', marginTop: moderateScale(-2)}}>4.8</Text>
+                <Text style={{color: '#FFC107', marginTop: hp(-0.25)}}>4.8</Text>
               </View>
             </View>
 
@@ -283,7 +259,7 @@ const MenuScreen = () => {
           style={{marginLeft:'-7%'}}
          >
           <View style={[styles.menuItem, hoveredItem==='salad' && styles.menuItemHovered]}>
-            <TouchableOpacity style={{marginRight: moderateScale(-85)}}>
+            <TouchableOpacity style={{marginRight: wp(-22.7)}}>
               <Image source={require('../assets/coeur.png')} />
             </TouchableOpacity>
             <Image 
@@ -296,19 +272,19 @@ const MenuScreen = () => {
                 <Image source={require('../assets/flash.png')} />
                 <Text style={{
                   color: '#FFD747',
-                  marginTop: moderateScale(-1),
-                  marginLeft: moderateScale(-2),
+                  marginTop: hp(-0.12),
+                  marginLeft: wp(-0.5),
                   fontFamily: 'Poppins-Medium', 
                   fontWeight: '500', 
-                  fontSize: fontScale(11.2),
-                  lineHeight: verticalScale(13), 
+                  fontSize: wp(3),
+                  lineHeight: hp(1.6), 
                   letterSpacing: 0,
                 }}>NEW</Text>
               </View>
 
               <View style={styles.ratingText}>
                 <Image source={require('../assets/star.png')} />
-                <Text style={{color: '#FFC107', marginTop: moderateScale(-2)}}>4.8</Text>
+                <Text style={{color: '#FFC107', marginTop: hp(-0.25)}}>4.8</Text>
               </View>
             </View>
 
@@ -333,9 +309,8 @@ const MenuScreen = () => {
           onPressOut={() => setHoveredItem(null)}
           style={{marginLeft:'-25%',marginRight:'20%'}}
          >
-
           <View style={[styles.menuItem, hoveredItem==='kimchi'&& styles.menuItemHovered]}>
-            <TouchableOpacity style={{marginRight: moderateScale(-85)}}>
+            <TouchableOpacity style={{marginRight: wp(-22.7)}}>
               <Image source={require('../assets/coeur.png')} />
             </TouchableOpacity>
             <Image 
@@ -348,19 +323,19 @@ const MenuScreen = () => {
                 <Image source={require('../assets/flash.png')} />
                 <Text style={{
                   color: '#FFD747',
-                  marginTop: moderateScale(-1),
-                  marginLeft: moderateScale(-2),
+                  marginTop: hp(-0.12),
+                  marginLeft: wp(-0.5),
                   fontFamily: 'Poppins-Medium', 
                   fontWeight: '500', 
-                  fontSize: fontScale(11.2),
-                  lineHeight: verticalScale(13), 
+                  fontSize: wp(3),
+                  lineHeight: hp(1.6), 
                   letterSpacing: 0,
                 }}>NEW</Text>
               </View>
 
               <View style={styles.ratingText}>
                 <Image source={require('../assets/star.png')} />
-                <Text style={{color: '#FFC107', marginTop: moderateScale(-2)}}>4.8</Text>
+                <Text style={{color: '#FFC107', marginTop: hp(-0.25)}}>4.8</Text>
               </View>
             </View>
 
@@ -385,9 +360,8 @@ const MenuScreen = () => {
            onPressOut={() => setHoveredItem(null)}
            style={{marginLeft:'-45%',marginRight:'53%'}}
           >
-
           <View style={[styles.menuItem, hoveredItem==='fries' && styles.menuItemHovered]}>
-            <TouchableOpacity style={{marginRight: moderateScale(-85)}}>
+            <TouchableOpacity style={{marginRight: wp(-22.7)}}>
               <Image source={require('../assets/coeur.png')} />
             </TouchableOpacity>
             <Image 
@@ -400,19 +374,19 @@ const MenuScreen = () => {
                 <Image source={require('../assets/flash.png')} />
                 <Text style={{
                   color: '#FFD747',
-                  marginTop: moderateScale(-1),
-                  marginLeft: moderateScale(-2),
+                  marginTop: hp(-0.12),
+                  marginLeft: wp(-0.5),
                   fontFamily: 'Poppins-Medium', 
                   fontWeight: '500', 
-                  fontSize: fontScale(11.2),
-                  lineHeight: verticalScale(13), 
+                  fontSize: wp(3),
+                  lineHeight: hp(1.6), 
                   letterSpacing: 0,
                 }}>NEW</Text>
               </View>
 
               <View style={styles.ratingText}>
                 <Image source={require('../assets/star.png')} />
-                <Text style={{color: '#FFC107', marginTop: moderateScale(-2)}}>4.8</Text>
+                <Text style={{color: '#FFC107', marginTop: hp(-0.25)}}>4.8</Text>
               </View>
             </View>
 
@@ -489,101 +463,105 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'column',
     justifyContent: 'space-between',
-    padding: verticalScale(20),
+    padding: hp(2.5),
     backgroundColor: '#fff',
   },
   headerText: {
     fontFamily: 'SFProDisplay-Bold',
     fontWeight: '700',
-    fontSize: fontScale(32),
-    lineHeight: verticalScale(32),
+    fontSize: wp(8.5),
+    lineHeight: hp(4),
     letterSpacing: 0,
   },
   searchContainer: {
+    
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#eee',
-    borderRadius: moderateScale(10),
-    width: '85%',
+    borderRadius: wp(2.7),
+    width: wp(75),
   },
   searchInput: {
     flex: 1,
     color: '#555',
-    paddingLeft: moderateScale(25),
-    fontSize: fontScale(16),
+    paddingLeft: wp(6.7),
+    fontSize: wp(4.3),
+    
   },
   cartContainer: {
-    marginRight: moderateScale(-65),
+    marginRight: wp(-15),
     backgroundColor: '#FFC01D',
-    height: verticalScale(51),
-    width: moderateScale(49),
+    height: hp(6.3),
+    width: wp(13.1),
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: moderateScale(10),
+    borderRadius: wp(2.7),
   },
   cartIcon: {
-    width: moderateScale(25),
-    height: verticalScale(25),
+    width: wp(6.7),
+    height: hp(3.1),
     resizeMode: 'contain',
   },
   categoryContainer: {
-    paddingHorizontal: moderateScale(25),
+    paddingHorizontal: wp(4),
     backgroundColor: '#fff',
   },
   categoryButton: {
     alignItems: 'center',
-    marginRight: moderateScale(20),
+    marginRight: wp(5.3),
   },
   categoryButtonActive: {
     alignItems: 'center',
-    marginRight: moderateScale(20),
+    marginRight: wp(5.3),
   },
   categoryImage: {
-    width: moderateScale(74),
-    height: verticalScale(82),
-    borderRadius: moderateScale(10),
-    marginBottom: moderateScale(5),
+    width: wp(19.7),
+    height: hp(10.1),
+    borderRadius: wp(2.7),
+    marginBottom: hp(0.6),
   },
   categoryText: {
     fontFamily: 'SFProDisplay-Bold',
     fontWeight: '700',
-    fontSize: fontScale(15),
-    lineHeight: verticalScale(32),
+    fontSize: wp(4),
+    lineHeight: hp(4),
     letterSpacing: 0,
   },
   sortContainer: {
-    padding: moderateScale(20),
-    marginTop: verticalScale(-390),
-    marginLeft: moderateScale(15)
+    padding: wp(5.3),
+    marginTop: hp(-48),
+    marginLeft: wp(4)
   },
   sortText: {
+    
+    marginTop:hp(4),
     flexDirection: 'row',
-    paddingLeft: moderateScale(10),
-    width: moderateScale(60),
+    paddingLeft: wp(2.7),
+    width: wp(16),
     color: '#020E1D',
     backgroundColor: '#FFE196',
-    borderRadius: moderateScale(10),
+    borderRadius: wp(2.7),
   },
   menuContainer: {
     flex: 1,
-    paddingHorizontal: moderateScale(38),
+    paddingHorizontal: wp(10.1),
     backgroundColor: '#F4F5F6',
-    borderRadius:10,
-    margin: moderateScale(8),
-    
+    borderRadius: wp(2.7),
+    margin: wp(2.1),
   },
   menuRow: {
     flexDirection: 'row',
-    marginLeft:-10,
-    marginBottom: verticalScale(15),
+    marginLeft: wp(-4),
+    marginBottom: hp(1.6),
   },
   menuItem: {
-    marginTop: verticalScale(8),
-    marginRight: moderateScale(10),
-    width: '60%',
+   
+    marginTop: hp(1),
+    marginRight: wp(22),
+    width: wp(30.22),
     backgroundColor: '#fff',
-    borderRadius: moderateScale(10),
-    padding: moderateScale(10),
+    borderRadius: wp(2.7),
+    padding: wp(2.7),
     alignItems: 'center',
     shadowColor: 'black',
     shadowOffset: { width: 0, height: 2 },
@@ -593,30 +571,27 @@ const styles = StyleSheet.create({
   },
   menuItemHovered: {
     backgroundColor: '#B02522',
-
-    
   },
-  
   menuImage: {
     width: '100%',
-    height: verticalScale(100),
-    borderRadius: moderateScale(8),
-    marginBottom: verticalScale(10),
+    height: hp(13),
+    borderRadius: wp(2.1),
+    marginBottom: hp(1.2),
     resizeMode: 'contain',
   },
   itemName: {
     color: '#082953',
     fontFamily: 'SF-Pro-Display-Bold', 
     fontWeight: '700', 
-    fontSize: fontScale(14),
-    lineHeight: verticalScale(18), 
+    fontSize: wp(3.7),
+    lineHeight: hp(2.2), 
     letterSpacing: 0,
   },
   itemPrice: {
     fontFamily: 'Poppins-Medium', 
     fontWeight: '500', 
-    fontSize: fontScale(13),
-    lineHeight: verticalScale(13), 
+    fontSize: wp(3.5),
+    lineHeight: hp(1.6), 
     letterSpacing: 0, 
     color: '#437F40'
   },
@@ -625,85 +600,85 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-    paddingHorizontal: moderateScale(5),
+    paddingHorizontal: wp(1.3),
   },
   ratingText: {
-    paddingLeft: moderateScale(4),
-    borderRadius: moderateScale(10),
+    paddingLeft: wp(1.1),
+    borderRadius: wp(2.7),
     backgroundColor: '#FFE9B2',
-    width: moderateScale(44),
-    height: verticalScale(16),
-    marginLeft: moderateScale(-110),
+    width: wp(11.7),
+    height: hp(2),
+    marginLeft: wp(-29.3),
     alignItems: 'center',
     flexDirection: 'row',
     color: '#FFC107',
-    fontSize: fontScale(12),
+    fontSize: wp(3.2),
   },
   NEWText: {
-    paddingLeft: moderateScale(4),
-    borderRadius: moderateScale(10),
+    paddingLeft: wp(1.1),
+    borderRadius: wp(2.7),
     backgroundColor: '#B02522',
-    width: moderateScale(44),
-    height: verticalScale(16),
-    marginLeft: moderateScale(9),
+    width: wp(11.7),
+    height: hp(2),
+    marginLeft: wp(2.4),
     alignItems: 'center',
     flexDirection: 'row',
     color: '#FFC107',
-    fontSize: fontScale(12),
+    fontSize: wp(3.2),
   },
   plusButton: {
-    marginLeft: moderateScale(10),
+    marginLeft: wp(2.7),
     backgroundColor: '#FFC107',
-    borderRadius: moderateScale(10),
-    padding: moderateScale(3),
-    width: moderateScale(30),
-    height: verticalScale(17),
+    borderRadius: wp(2.7),
+    padding: wp(0.8),
+    width: wp(8),
+    height: hp(2.1),
     alignItems: 'center'
   },
   plusIcon: {
-    width: moderateScale(11),
-    height: verticalScale(11),
+    width: wp(2.9),
+    height: hp(1.4),
     tintColor: '#fff',
   },
   pagination: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: verticalScale(15),
+    padding: hp(1.8),
   },
   pageButton: {
     backgroundColor: '#D9D9D9',
-    borderRadius: moderateScale(10),
-    marginRight: moderateScale(5),
-    paddingHorizontal: moderateScale(10),
+    borderRadius: wp(2.7),
+    marginRight: wp(1.3),
+    paddingHorizontal: wp(2.7),
   },
   pageNumber: {
-    paddingHorizontal: moderateScale(10),
+    paddingHorizontal: wp(2.7),
   },
   pageNumberActive: {
-    paddingHorizontal: moderateScale(10),
+    paddingHorizontal: wp(2.7),
     backgroundColor: '#9E090F',
-    borderRadius: moderateScale(50),
-    paddingVertical: verticalScale(4),
+    borderRadius: wp(13.3),
+    paddingVertical: hp(0.5),
   },
   pageText: {
     color: '#fff',
-    fontSize: fontScale(14),
+    fontSize: wp(3.7),
   },
   pageNumberText: {
     color: '#555',
-    fontSize: fontScale(14),
+    fontSize: wp(3.7),
   },
   pageNumberTextActive: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: fontScale(14),
+    fontSize: wp(3.7),
   },
   navBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    padding: verticalScale(15),
-    borderTopWidth: moderateScale(1),
+    padding: hp(1.8),
+    borderTopWidth: wp(0.27),
     borderColor: '#eee',
     backgroundColor: '#F4F5F6',
   },
@@ -711,26 +686,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   navIcon: {
-    width: moderateScale(24),
-    height: verticalScale(24),
-    marginBottom: verticalScale(5),
+    width: wp(6),
+    height: hp(3),
+    marginBottom: hp(0.6),
   },
   navItemM: {
-    marginTop: verticalScale(-35),
+    marginTop: hp(-4.5),
     backgroundColor: '#FFC01D',
-    borderRadius: moderateScale(50),
+    borderRadius: wp(50),
     alignItems: 'center',
-    width: moderateScale(90),
-    height: verticalScale(90)
+    width: wp(22),
+    height: hp(11.1)
   },
   navIconM: {
-    marginTop: verticalScale(20),
-    width: moderateScale(47),
-    height: verticalScale(47),
+    marginTop: hp(2.5),
+    width: wp(12.5),
+    height: hp(5.8),
   },
   navText: {
     color: '#555',
-    fontSize: fontScale(12),
+    fontSize: wp(3.2),
   },
 });
 
