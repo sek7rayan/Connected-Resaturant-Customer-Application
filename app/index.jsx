@@ -12,7 +12,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 const Stack =createNativeStackNavigator();
 const App = () => {
   return (
-    <Description/>
+    <MyList/>
   );
 };
 
