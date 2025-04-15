@@ -2,6 +2,7 @@ import { useState , useEffect } from "react"
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, TextInput, Dimensions } from "react-native"
 
 import Api_plat_pref from "../api_pla_pref"
+import Api_plat from "../api_plats"
 
 const { width, height } = Dimensions.get("window")
 
@@ -84,21 +85,34 @@ const initialFoodItems = [
 const MyListScreen = () => {
   const [foodItems, setFoodItems] = useState([])
   useEffect(() => {
-    const fetchFavoritePlats = async () => {
+    const fetchData = async () => {
       try {
-        const id_client = 1 
-        const favoritePlats = await Api_plat_pref.getFavoritePlats(id_client)
-        setFoodItems(favoritePlats.data.plats)
+        const id_client = 1;
+        const favoritePlatsResponse = await Api_plat_pref.getFavoritePlats(id_client);
+        const favoritePlats = favoritePlatsResponse.data.plats;
+        const availablePlatsResponse = await Api_plat.getAvailablePlats();
+        const availablePlats = availablePlatsResponse.data.plats;
+        const merged = availablePlats.map((availablePlat) => {
+
+          const isFavorite = favoritePlats.some((favoritePlat) => favoritePlat.id_plat === availablePlat.id_plat);
+          if (isFavorite) {
+            return availablePlat
+            
+          }
+        
+          });
+        const food = merged.filter((item) => item !== undefined);
+        setFoodItems(food);
+      
       } catch (error) {
-        console.error("Erreur lors de la récupération des plats favoris :", error)
+        console.error("Erreur lors de la récupération des données :", error);
       }
-    }
-  
-    fetchFavoritePlats()
-  }
-  , [])
+    };
+    fetchData();
+  }, []);
 
   console.log("foodItems", foodItems)
+
   const removeItem = (id) => {
     setFoodItems(foodItems.filter((item) => item.id !== id))
   }
@@ -346,3 +360,33 @@ const styles = StyleSheet.create({
 })
 
 export default MyListScreen
+
+/*
+{
+"Ajout_date": "2025-03-13T00:00:00.000Z", 
+"Description_plat": "Nouilles japonaises dans un bouillon miso avec porc et œuf.",
+"Prix_plat": 1350,
+"categorie_plat": "Japonais",
+"id_plat": 13,
+"image_plat": "images/ramen.jpg",
+"info_calorie": "400 kcal/bol", 
+"nbrnote": null,
+"nom_plat": "Ramen Japonais",
+"note_plat": 4.8
+     
+     }
+
+
+      {
+    id: 1,
+    title: "quick snack",
+    image: require("../assets/quick-snack.png"),
+    rating: "4.9",
+    tag: "NEW",
+    tagType: "new",
+    description: "Served with sauce, and extra onion...",
+    time: "40 min.",
+    price: "350 da",
+  }
+
+*/
