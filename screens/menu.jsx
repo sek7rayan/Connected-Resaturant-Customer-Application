@@ -99,21 +99,13 @@ useEffect(() => {
       </ScrollView>
 
      
-
-  
-      <ScrollView style={styles.menuContainer}>
-        
-    
-        <View style={styles.menuRow}>
-          
-        {plats.map((item) => <Plat item={item} />)}
-
-        
-         
-
-        
-        </View>
-      </ScrollView>
+  <ScrollView style={styles.menuContainer}>
+  <View style={styles.menuRow}>
+    {plats.map((item) => (
+      <Plat key={item.id_plat} item={item} />
+    ))}
+  </View>
+  </ScrollView>
 
      
 
@@ -210,15 +202,17 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     flex: 1,
-    paddingHorizontal: wp(10.1),
+    paddingHorizontal: wp(4), // Réduisez le padding horizontal
     backgroundColor: '#F4F5F6',
     borderRadius: wp(2.7),
     margin: wp(2.1),
   },
   menuRow: {
     flexDirection: 'row',
-    marginLeft: wp(-4),
-    marginBottom: hp(1.6),
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: hp(2),
+    paddingHorizontal: wp(2), // Ajustez selon vos besoins
   },
   
   pagination: {

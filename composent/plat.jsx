@@ -14,7 +14,8 @@ export default function Plat({item}) {
         onPressIn={() => setHoveredItem('pizza')}
         onPressOut={() => setHoveredItem(null)}
         onPress={()=>navigation.navigate("Description")}
-        style={{marginLeft:'-7%'}}
+        style={{marginBottom: hp(2)}}
+
        >
         <View style={[ styles.menuItem, hoveredItem === 'pizza' && styles.menuItemHovered]}>
           <TouchableOpacity style={{marginRight: wp(-22.7)}}>
@@ -66,20 +67,19 @@ export default function Plat({item}) {
     }
 const  styles =  StyleSheet.create({
     menuItem: {
-   
-        marginTop: hp(1),
-        marginRight: wp(22),
-        width: wp(30.22),
+        width: wp(30),
+        marginBottom: hp(2),
         backgroundColor: '#fff',
         borderRadius: wp(2.7),
-        padding: wp(2.7),
+        padding: wp(3),
         alignItems: 'center',
         shadowColor: 'black',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.1,
         shadowRadius: 3.84,
-        elevation: 20, 
+        elevation: 5,
       },
+     
       menuItemHovered: {
         backgroundColor: '#B02522',
       },
