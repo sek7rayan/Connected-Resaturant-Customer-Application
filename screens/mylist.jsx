@@ -1,6 +1,6 @@
 import { useState , useEffect } from "react"
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, TextInput, Dimensions } from "react-native"
-
+import PlatPref from "../composent/plat_pref"
 import Api_plat_pref from "../api_pla_pref"
 import Api_plat from "../api_plats"
 
@@ -18,48 +18,15 @@ const hp = (size) => (height / 100) * size
 */
 
 
-const initialFoodItems = [
-  {
-    id: 1,
-    title: "quick snack",
-    image: require("../assets/quick-snack.png"),
-    rating: "4.9",
-    tag: "NEW",
-    tagType: "new",
-    description: "Served with sauce, and extra onion...",
-    time: "40 min.",
-    price: "350 da",
-  },
-  {
-    id: 2,
-    title: "King Burger",
-    image: require("../assets/burgermylist.png"),
-    rating: "4.9",
-    tag: "Popular",
-    tagType: "popular",
-    description: "Served with sauce, and extra onion...",
-    time: "50 min.",
-    price: "450 da",
-  },
-  {
-    id: 3,
-    title: "Pasta with cheese",
-    image: require("../assets/pasta-cheese.png"),
-    rating: "4.9",
-    tag: "NEW",
-    tagType: "new",
-    description: "Served with sauce, and extra onion...",
-    time: "20 min.",
-    price: "250 da",
-  },
-]
+
 
 const MyListScreen = () => {
   const [foodItems, setFoodItems] = useState([])
+  const id_client = 1;
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const id_client = 1;
+       
         const favoritePlatsResponse = await Api_plat_pref.getFavoritePlats(id_client);
         const favoritePlats = favoritePlatsResponse.data.plats;
         const availablePlatsResponse = await Api_plat.getAvailablePlats();
@@ -83,10 +50,12 @@ const MyListScreen = () => {
     fetchData();
   }, []);
 
-  console.log("foodItems", foodItems)
+ 
 
   const removeItem = (id) => {
-    setFoodItems(foodItems.filter((item) => item.id !== id))
+    setFoodItems(foodItems.filter((item) => item.id_plat !== id))
+    Api_plat_pref.deleteFavoritePlat(id_client, id)
+    
   }
 
   return (
@@ -129,8 +98,7 @@ const MyListScreen = () => {
 
       {/* Food Items List */}
       <ScrollView style={styles.foodListContainer} showsVerticalScrollIndicator={false}>
-        
-
+        {foodItems.map((item) => <PlatPref key={item.id_plat} item={item} removeItem={removeItem} />)}
         {foodItems.length === 0 && (
           <View style={styles.emptyListContainer}>
             <Text style={styles.emptyListText}>Votre liste est vide</Text>
@@ -218,100 +186,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(4),
     marginTop: hp(-50),
     marginBottom: hp(8),
-  },
-  foodItem: {
-    flexDirection: "row",
-    marginBottom: hp(2.5),
-    borderRadius: wp(3),
-    overflow: "hidden",
-  },
-  foodImage: {
-    width: wp(30),
-    height: wp(30),
-    borderRadius: wp(3),
-  },
-  foodDetails: {
-    flex: 1,
-    marginLeft: wp(3),
-    justifyContent: "space-between",
-  },
-  foodHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  ratingContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: hp(0.5),
-  },
-  ratingText: {
-    color: "#FFC01D",
-    fontWeight: "600",
-    fontSize: wp(3.5),
-    marginRight: wp(2),
-  },
-  tagContainer: {
-    backgroundColor: "#FF3B30",
-    paddingHorizontal: wp(2),
-    paddingVertical: hp(0.3),
-    borderRadius: wp(1.5),
-  },
-  popularTag: {
-    backgroundColor: "#FF9500",
-  },
-  tagText: {
-    color: "white",
-    fontSize: wp(3),
-    fontWeight: "600",
-  },
-  foodTitle: {
-    fontSize: wp(4.5),
-    fontWeight: "700",
-    marginBottom: hp(0.5),
-  },
-  foodDescription: {
-    fontSize: wp(3.5),
-    color: "#888",
-    width: wp(50),
-  },
-  heartButton: {
-    padding: wp(1),
-  },
-  heartIcon: {
-    width: wp(6),
-    height: wp(6),
-    resizeMode: "contain",
-  },
-  foodFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: hp(1),
-  },
-  timeContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  clockIcon: {
-    width: wp(4),
-    height: wp(4),
-    resizeMode: "contain",
-  },
-  timeText: {
-    marginLeft: wp(1),
-    fontSize: wp(3.5),
-    color: "#555",
-  },
-  priceContainer: {
-    backgroundColor: "#003366",
-    paddingHorizontal: wp(3),
-    paddingVertical: hp(0.7),
-    borderRadius: wp(5),
-  },
-  priceText: {
-    color: "white",
-    fontWeight: "700",
-    fontSize: wp(3.5),
   },
   emptyListContainer: {
     alignItems: "center",
