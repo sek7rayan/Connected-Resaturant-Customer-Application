@@ -10,16 +10,6 @@ const wp = (size) => (width / 100) * size
 const hp = (size) => (height / 100) * size
 
 
-/*
-{foodItems.map((item) => (
-          
-        ))}
-
-*/
-
-
-
-
 const MyListScreen = () => {
   const [foodItems, setFoodItems] = useState([])
   const id_client = 1;
@@ -207,32 +197,4 @@ const styles = StyleSheet.create({
 
 export default MyListScreen
 
-/*
-{
-"Ajout_date": "2025-03-13T00:00:00.000Z", 
-"Description_plat": "Nouilles japonaises dans un bouillon miso avec porc et œuf.",
-"Prix_plat": 1350,
-"categorie_plat": "Japonais",
-"id_plat": 13,
-"image_plat": "images/ramen.jpg",
-"info_calorie": "400 kcal/bol", 
-"nbrnote": null,
-"nom_plat": "Ramen Japonais",
-"note_plat": 4.8
-     
-     }
 
-
-      {
-    id: 1,
-    title: "quick snack",
-    image: require("../assets/quick-snack.png"),
-    rating: "4.9",
-    tag: "NEW",
-    tagType: "new",
-    description: "Served with sauce, and extra onion...",
-    time: "40 min.",
-    price: "350 da",
-  }
-
-*/
