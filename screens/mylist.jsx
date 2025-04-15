@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, TextInput, Dimensions } from "react-native"
 
@@ -135,29 +133,6 @@ const MyListScreen = () => {
           </View>
         )}
       </ScrollView>
-
-      {/* Navigation Bar */}
-      <View style={styles.navBar}>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require("../assets/homeV.png")} style={styles.navIcon} />
-          <Text style={styles.navText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require("../assets/mylist.png")} style={styles.navIcon} />
-          <Text style={styles.navText}>My List</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItemM}>
-          <Image source={require("../assets/home.png")} style={styles.navIconM} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require("../assets/orders.png")} style={styles.navIcon} />
-          <Text style={styles.navText}>Orders</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require("../assets/profile.png")} style={styles.navIcon} />
-          <Text style={styles.navText}>Profile</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   )
 }
@@ -348,43 +323,7 @@ const styles = StyleSheet.create({
     fontSize: wp(4),
     color: "#888",
   },
-  navBar: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    padding: hp(1.8),
-    borderTopWidth: wp(0.27),
-    borderColor: "#eee",
-    backgroundColor: "#F4F5F6",
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  navItem: {
-    alignItems: "center",
-  },
-  navIcon: {
-    width: wp(6),
-    height: hp(3),
-    marginBottom: hp(0.6),
-  },
-  navItemM: {
-    marginTop: hp(-4.5),
-    backgroundColor: "#FFC01D",
-    borderRadius: wp(50),
-    alignItems: "center",
-    width: wp(22),
-    height: hp(11.1),
-  },
-  navIconM: {
-    marginTop: hp(2.5),
-    width: wp(12.5),
-    height: hp(5.8),
-  },
-  navText: {
-    color: "#555",
-    fontSize: wp(3.2),
-  },
+ 
 })
 
 export default MyListScreen

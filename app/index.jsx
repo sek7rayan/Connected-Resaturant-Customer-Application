@@ -1,15 +1,15 @@
 import { registerRootComponent } from 'expo';
-import SignUp from '../screens/signUp';
-import Menu from '../screens/menu';
 import MyList from '../screens/mylist';
-import Description from '../screens/description';
-import Mycart from '../screens/mycart';
-import SignIn from '../screens/signIn';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import getFavoritePlats from '../api'
 
-const Stack =createNativeStackNavigator();
+const id_client = 21; // Remplacez par l'ID du client que vous souhaitez utiliser
+getFavoritePlats(id_client)
+  .then((data) => {
+    console.log("Liste des plats favoris :", data);
+  })
+  .catch((error) => {
+    console.error("Erreur lors de la récupération des plats favoris :", error);
+  });
 const App = () => {
   return (
     <MyList/>
