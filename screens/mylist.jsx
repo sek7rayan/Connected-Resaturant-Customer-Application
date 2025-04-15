@@ -12,35 +12,7 @@ const hp = (size) => (height / 100) * size
 
 /*
 {foodItems.map((item) => (
-          <View key={item.id} style={styles.foodItem}>
-            <Image source={item.image} style={styles.foodImage} />
-            <View style={styles.foodDetails}>
-              <View style={styles.foodHeader}>
-                <View>
-                  <View style={styles.ratingContainer}>
-                    <Text style={styles.ratingText}>★ {item.rating}</Text>
-                    <View style={[styles.tagContainer, item.tagType === "popular" && styles.popularTag]}>
-                      <Text style={styles.tagText}>{item.tag}</Text>
-                    </View>
-                  </View>
-                  <Text style={styles.foodTitle}>{item.title}</Text>
-                  <Text style={styles.foodDescription}>{item.description}</Text>
-                </View>
-                <TouchableOpacity style={styles.heartButton} onPress={() => removeItem(item.id)}>
-                  <Image source={require("../assets/coeur.png")} style={styles.heartIcon} />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.foodFooter}>
-                <View style={styles.timeContainer}>
-                  <Image source={require("../assets/clock.png")} style={styles.clockIcon} />
-                  <Text style={styles.timeText}>{item.time}</Text>
-                </View>
-                <View style={styles.priceContainer}>
-                  <Text style={styles.priceText}>{item.price}</Text>
-                </View>
-              </View>
-            </View>
-          </View>
+          
         ))}
 
 */
