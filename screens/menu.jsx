@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Api_plat from '../api_plats';
-
+import Plat from '../composent/plat';
 import { useEffect } from 'react';
 const {width, height} = Dimensions.get('window');
 
@@ -20,7 +20,7 @@ const wp = (size) => (width / 100) * size;
 const hp = (size) => (height / 100) * size;
 
 const MenuScreen = () => {
-  const [hoveredItem, setHoveredItem] = useState(null);
+  ;
   const navigation = useNavigation();
   const [plats, setPlats] = useState([]);
 
@@ -100,11 +100,14 @@ useEffect(() => {
 
      
 
-      {/* Menu Items */}
+  
       <ScrollView style={styles.menuContainer}>
         
-        {/* First Row */}
+    
         <View style={styles.menuRow}>
+          
+        {plats.map((item) => <Plat item={item} />)}
+
         
          
 

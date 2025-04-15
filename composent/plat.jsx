@@ -1,8 +1,13 @@
 import { View } from "react-native";
-import { Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity, Image , Dimensions} from 'react-native';
+import { useState } from "react";
 
 
-export default function Plat() {
+const {width, height} = Dimensions.get('window');
+const wp = (size) => (width / 100) * size;
+const hp = (size) => (height / 100) * size;
+export default function Plat({item}) {
+    const [hoveredItem, setHoveredItem] = useState(null)
     return (
         <TouchableOpacity   
         activeOpacity={1}
@@ -39,14 +44,14 @@ export default function Plat() {
 
             <View style={styles.ratingText}>
               <Image source={require('../assets/star.png')} />
-              <Text style={{color: '#FFC107', marginTop: hp(-0.25)}}>4.8</Text>
+              <Text style={{color: '#FFC107', marginTop: hp(-0.25)}}>{item.note_plat}</Text>
             </View>
           </View>
 
-          <Text style={styles.itemName}>Pizza peperoni</Text>
+          <Text style={styles.itemName}>{item.nom_plat}</Text>
           
           <View style={styles.itemRatingContainer}>
-            <Text style={styles.itemPrice}>350 da</Text>
+            <Text style={styles.itemPrice}>{item.Prix_plat}</Text>
             
             <TouchableOpacity style={styles.plusButton}>
               <Image 
@@ -59,7 +64,7 @@ export default function Plat() {
        </TouchableOpacity>
     );
     }
-StyleSheet.create({
+const  styles =  StyleSheet.create({
     menuItem: {
    
         marginTop: hp(1),
@@ -148,4 +153,16 @@ StyleSheet.create({
       },
     })
 
+/*
+{"Ajout_date": "2025-04-13T00:00:00.000Z",
+ "Description_plat": "Salade avec poulet grillé",
+ "Prix_plat": 9,
+"categorie_plat": "salade",
+"id_plat": 100,
+"image_plat": "cesar.jpg",
+"info_calorie": "450",
+"nbrnote": "85",
+"nom_plat": "Salade César",
+"note_plat": 4.2}
 
+*/
