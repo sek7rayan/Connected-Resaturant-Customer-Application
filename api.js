@@ -10,7 +10,7 @@ const Api_plat_pref = {
         id_plat,
         id_client,
       };
-      const response = await axios.post('/platfavorie', body);
+      const response = await axios.post(`${API_URL}/platfavorie`, body);
       if (response.status === 201) {
         return response.data; 
       }
@@ -18,7 +18,7 @@ const Api_plat_pref = {
       if (error.response) {
         console.error("Erreur serveur :", error.response.data.message);
       } else if (error.request) {
-        console.error("Aucune réponse reçue du serveur.");
+        console.error("Aucune réponse reçue du serveur.",error);
       } else {
         console.error("Erreur lors de la requête :", error.message);
       }
@@ -53,7 +53,7 @@ const Api_plat_pref = {
 
   deleteFavoritePlat : async (id_client, id_plat) => {
     try {
-      const url = `/platfavorie/${id_client}`;
+      const url = `${API_URL}/platfavorie/${id_client}`;
       await axios.delete(url, {
         data: { id_plat },
       });
