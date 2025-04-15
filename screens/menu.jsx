@@ -185,27 +185,14 @@ const styles = StyleSheet.create({
     lineHeight: hp(4),
     letterSpacing: 0,
   },
-  sortContainer: {
-    padding: wp(5.3),
-    marginTop: hp(-48),
-    marginLeft: wp(4)
-  },
-  sortText: {
-    
-    marginTop:hp(4),
-    flexDirection: 'row',
-    paddingLeft: wp(2.7),
-    width: wp(16),
-    color: '#020E1D',
-    backgroundColor: '#FFE196',
-    borderRadius: wp(2.7),
-  },
+ 
   menuContainer: {
     flex: 1,
     paddingHorizontal: wp(4), // Réduisez le padding horizontal
     backgroundColor: '#F4F5F6',
     borderRadius: wp(2.7),
     margin: wp(2.1),
+    marginTop: -530
   },
   menuRow: {
     flexDirection: 'row',

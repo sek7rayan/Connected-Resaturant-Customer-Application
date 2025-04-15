@@ -23,7 +23,7 @@ export default function Plat({item}) {
           </TouchableOpacity>
           
            <Image 
-            source={require('../assets/pizza.png')}
+            source={require('../assets/salad.png')}
             style={styles.menuImage}
            />
           
@@ -52,7 +52,7 @@ export default function Plat({item}) {
           <Text style={styles.itemName}>{item.nom_plat}</Text>
           
           <View style={styles.itemRatingContainer}>
-            <Text style={styles.itemPrice}>{item.Prix_plat}</Text>
+            <Text style={styles.itemPrice}>{item.Prix_plat} DA</Text>
             
             <TouchableOpacity style={styles.plusButton}>
               <Image 
@@ -67,7 +67,7 @@ export default function Plat({item}) {
     }
 const  styles =  StyleSheet.create({
     menuItem: {
-        width: wp(30),
+        width: wp(40),
         marginBottom: hp(2),
         backgroundColor: '#fff',
         borderRadius: wp(2.7),
