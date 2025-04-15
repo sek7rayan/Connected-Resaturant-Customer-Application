@@ -1,8 +1,8 @@
 import { registerRootComponent } from 'expo';
 import MyList from '../screens/mylist';
-import Api_plat_pref from '../api';
+import Api_plat_pref from '../api_pla_pref';
 
-Api_plat_pref.deleteFavoritePlat(1, 12);
+
 
 
 

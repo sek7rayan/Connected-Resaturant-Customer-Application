@@ -1,14 +1,50 @@
-import { useState } from "react"
+import { useState , useEffect } from "react"
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, TextInput, Dimensions } from "react-native"
 
-// Dimensions
+import Api_plat_pref from "../api_pla_pref"
+
 const { width, height } = Dimensions.get("window")
 
-// Fonctions hp et wp
 const wp = (size) => (width / 100) * size
 const hp = (size) => (height / 100) * size
 
-// Données initiales des aliments
+
+/*
+{foodItems.map((item) => (
+          <View key={item.id} style={styles.foodItem}>
+            <Image source={item.image} style={styles.foodImage} />
+            <View style={styles.foodDetails}>
+              <View style={styles.foodHeader}>
+                <View>
+                  <View style={styles.ratingContainer}>
+                    <Text style={styles.ratingText}>★ {item.rating}</Text>
+                    <View style={[styles.tagContainer, item.tagType === "popular" && styles.popularTag]}>
+                      <Text style={styles.tagText}>{item.tag}</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.foodTitle}>{item.title}</Text>
+                  <Text style={styles.foodDescription}>{item.description}</Text>
+                </View>
+                <TouchableOpacity style={styles.heartButton} onPress={() => removeItem(item.id)}>
+                  <Image source={require("../assets/coeur.png")} style={styles.heartIcon} />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.foodFooter}>
+                <View style={styles.timeContainer}>
+                  <Image source={require("../assets/clock.png")} style={styles.clockIcon} />
+                  <Text style={styles.timeText}>{item.time}</Text>
+                </View>
+                <View style={styles.priceContainer}>
+                  <Text style={styles.priceText}>{item.price}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        ))}
+
+*/
+
+
 const initialFoodItems = [
   {
     id: 1,
@@ -46,10 +82,23 @@ const initialFoodItems = [
 ]
 
 const MyListScreen = () => {
-  // État pour suivre les éléments de nourriture visibles
-  const [foodItems, setFoodItems] = useState(initialFoodItems)
+  const [foodItems, setFoodItems] = useState([])
+  useEffect(() => {
+    const fetchFavoritePlats = async () => {
+      try {
+        const id_client = 1 
+        const favoritePlats = await Api_plat_pref.getFavoritePlats(id_client)
+        setFoodItems(favoritePlats.data.plats)
+      } catch (error) {
+        console.error("Erreur lors de la récupération des plats favoris :", error)
+      }
+    }
+  
+    fetchFavoritePlats()
+  }
+  , [])
 
-  // Fonction pour supprimer un élément lorsque le cœur est cliqué
+  console.log("foodItems", foodItems)
   const removeItem = (id) => {
     setFoodItems(foodItems.filter((item) => item.id !== id))
   }
@@ -94,37 +143,7 @@ const MyListScreen = () => {
 
       {/* Food Items List */}
       <ScrollView style={styles.foodListContainer} showsVerticalScrollIndicator={false}>
-        {foodItems.map((item) => (
-          <View key={item.id} style={styles.foodItem}>
-            <Image source={item.image} style={styles.foodImage} />
-            <View style={styles.foodDetails}>
-              <View style={styles.foodHeader}>
-                <View>
-                  <View style={styles.ratingContainer}>
-                    <Text style={styles.ratingText}>★ {item.rating}</Text>
-                    <View style={[styles.tagContainer, item.tagType === "popular" && styles.popularTag]}>
-                      <Text style={styles.tagText}>{item.tag}</Text>
-                    </View>
-                  </View>
-                  <Text style={styles.foodTitle}>{item.title}</Text>
-                  <Text style={styles.foodDescription}>{item.description}</Text>
-                </View>
-                <TouchableOpacity style={styles.heartButton} onPress={() => removeItem(item.id)}>
-                  <Image source={require("../assets/coeur.png")} style={styles.heartIcon} />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.foodFooter}>
-                <View style={styles.timeContainer}>
-                  <Image source={require("../assets/clock.png")} style={styles.clockIcon} />
-                  <Text style={styles.timeText}>{item.time}</Text>
-                </View>
-                <View style={styles.priceContainer}>
-                  <Text style={styles.priceText}>{item.price}</Text>
-                </View>
-              </View>
-            </View>
-          </View>
-        ))}
+        
 
         {foodItems.length === 0 && (
           <View style={styles.emptyListContainer}>
