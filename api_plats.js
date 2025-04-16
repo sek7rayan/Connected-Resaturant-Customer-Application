@@ -19,10 +19,6 @@ const Api_plat = {
             } else {
               console.error("Erreur serveur :", error.response.data.message);
             }
-          } else if (error.request) {
-            console.error("Aucune réponse reçue du serveur.");
-          } else {
-            console.error("Erreur lors de la requête :", error.message);
           }
       
           throw error;
@@ -30,7 +26,7 @@ const Api_plat = {
       },
     getIngredients : async () => {
         try {
-          const url = `${API_URL}/ingredients`;
+          const url = `${API_URL}/ingredient`;
           const response = await axios.get(url);
           if (response.status === 200) {
             return response.data; 

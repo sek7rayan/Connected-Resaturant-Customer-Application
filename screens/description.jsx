@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Animated, Easing, Modal} from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -9,7 +9,40 @@ import {useNavigation} from '@react-navigation/native';
 
 import { useRoute } from '@react-navigation/native';
 
+import Api_plat from '../api_plats';
+
 const DescriptionScreen = () => {
+  const [ingredients_plat, setIngredients] = useState([]);
+
+useEffect(() => {
+const fetchingedientPlats = async () => {
+const ingredients_res = await Api_plat.getIngredients();
+const ingredients = ingredients_res.data.ingredients;
+const plat_ingredients_res = await Api_plat.getIngredientsByPlat(item.id_plat);
+const plat_ingredients = plat_ingredients_res.data.ingredients;
+
+const ingredientNames = ingredients.map((ing)=>{
+const isingredient = plat_ingredients.some((plat_ingredient) => plat_ingredient.id_ingredient === ing.id_ingedient);
+if (isingredient) {
+return ing.nom_igredient;
+}
+
+})
+
+
+setIngredients(ingredientNames.filter((item) => item !== undefined));
+
+
+
+
+
+
+}
+fetchingedientPlats();
+},[])
+
+
+console.log(ingredients_plat)
 
   const navigation = useNavigation();
   const route = useRoute();
@@ -104,11 +137,12 @@ const DescriptionScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Ingredients</Text>
           <View style={styles.ingredientsContainer}>
-            <Text style={styles.ingredientItem}>Tomato sauce, </Text>
-            <Text style={styles.ingredientItem}>Mozzarella cheese, </Text>
-            <Text style={styles.ingredientItem}>Pepperoni, </Text>
-            <Text style={styles.ingredientItem}>Oregano,</Text>
-            <Text style={styles.ingredientItem}>Olive oil.</Text>
+
+            {
+              ingredients_plat.map((ingredient, index) => (
+                <Text key={index} style={styles.ingredientItem}>{ingredient}, </Text>
+              ))
+            }
           </View>
         </View>
 
