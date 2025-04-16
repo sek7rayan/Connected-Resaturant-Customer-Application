@@ -4,11 +4,13 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import { useNavigation } from '@react-navigation/native';
 
-const DescriptionScreen = () => {
+const Description = () => {
   const [incr, setincr] = useState(1);
   const [showAlert, setShowAlert] = useState(false);
   const slideAnim = useRef(new Animated.Value(hp('100%'))).current;
+  const navigation = useNavigation();
 
   const showCartAlert = () => {
     setShowAlert(true);
@@ -35,7 +37,10 @@ const DescriptionScreen = () => {
         {/* Header */}
         <View style={styles.header}>
          <View style={styles.headerButtons}>
-          <TouchableOpacity style={styles.backButton}> 
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          > 
            <Image source={require('../assets/fleche_gauche.png')} style={styles.headerIcon} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.heartButton}> 
@@ -157,7 +162,7 @@ const DescriptionScreen = () => {
         </TouchableOpacity>
       </Modal>
 
-      {/* Navigation Bar */}
+      
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navItem}>
           <Image source={require('../assets/homeV.png')} style={styles.navIcon} />
@@ -471,4 +476,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DescriptionScreen;
+export default Description;

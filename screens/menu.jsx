@@ -18,7 +18,7 @@ const {width, height} = Dimensions.get('window');
 const wp = (size) => (width / 100) * size;
 const hp = (size) => (height / 100) * size;
 
-const MenuScreen = () => {
+const Menu = () => {
   const [hoveredItem, setHoveredItem] = useState(null);
   const navigation = useNavigation();
   
@@ -96,7 +96,7 @@ const MenuScreen = () => {
           activeOpacity={1}
           onPressIn={() => setHoveredItem('pizza')}
           onPressOut={() => setHoveredItem(null)}
-          onPress={()=>navigation.navigate("Description")}
+          onPress={() => navigation.navigate("Description")}
           style={{marginLeft:'-7%'}}
          >
           <View style={[ styles.menuItem, hoveredItem === 'pizza' && styles.menuItemHovered]}>
@@ -429,7 +429,8 @@ const MenuScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Navigation Bar */}
+      
+      
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navItem}>
           <Image source={require('../assets/homeV.png')} style={styles.navIcon} />
@@ -709,4 +710,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MenuScreen;
+export default Menu;

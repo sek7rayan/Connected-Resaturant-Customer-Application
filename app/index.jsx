@@ -1,18 +1,20 @@
 import { registerRootComponent } from 'expo';
-import SignUp from '../screens/signUp';
-import Menu from '../screens/menu';
-import MyList from '../screens/mylist';
-import Description from '../screens/description';
-import Mycart from '../screens/mycart';
-import SignIn from '../screens/signIn';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Menu from '../screens/menu';
+import Description from '../screens/description';
 
-const Stack =createNativeStackNavigator();
+const Stack = createNativeStackNavigator();
+
 const App = () => {
   return (
-    <MyList/>
+    
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Menu" component={Menu} />
+        <Stack.Screen name="Description" component={Description} />
+      </Stack.Navigator>
+   
   );
 };
 
