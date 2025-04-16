@@ -14,17 +14,20 @@ import Api_plat from '../api_plats';
 import Plat from '../composent/plat';
 import { useEffect } from 'react';
 const {width, height} = Dimensions.get('window');
-import { useRoute } from '@react-navigation/native';
 
+import { CartContext } from '../CartContext';
+import { useContext } from 'react';
 const wp = (size) => (width / 100) * size;
 const hp = (size) => (height / 100) * size;
 
 const MenuScreen = () => {
-  const route = useRoute();
-  const { cartItems, setCartItems } = route.params;
+
+  const { cartItems, setCartItems } = useContext(CartContext);
+
   const navigation = useNavigation();
   const [plats, setPlats] = useState([]);
 
+  console.log("cartItems ",cartItems);
 useEffect(() => {
 
   const fetchAvailablePlats = async () => {
@@ -40,6 +43,10 @@ useEffect(() => {
 
 
 }, []);
+
+
+
+
 
   
   return (

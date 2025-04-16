@@ -7,10 +7,8 @@ const API_URL = "https://pfebackend-production.up.railway.app/api";
 const Api_maladie = {
     getClientMaladies : async (id_client) => {
         try {
-          const body = {
-            id_client,
-          };
-          const response = await axios.get(`${API_URL}/clientmaladie`,  body );
+        
+          const response = await axios.get(`${API_URL}/clientmaladie/${id_client}` );
       
           if (response.status === 200) {
             return response.data; 

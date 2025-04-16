@@ -2,6 +2,9 @@ import { View } from "react-native";
 import { Text, StyleSheet, TouchableOpacity, Image , Dimensions} from 'react-native';
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
+import Api_maladie from '../api_maladie';
+
+
 
 const {width, height} = Dimensions.get('window');
 const wp = (size) => (width / 100) * size;
@@ -10,6 +13,33 @@ const hp = (size) => (height / 100) * size;
 export default function Plat({item , setCartItems}) {
     const navigation = useNavigation();
     const [hoveredItem, setHoveredItem] = useState(null)
+    const fetchMaladies = async (id_plat) => {
+      try {
+       
+        const maladieclient =  await Api_maladie.getClientMaladies(23);
+        const maladie_by_client = maladieclient.data.maladies;
+        const maladiesplat = await Api_maladie.getMaladiesByPlat(id_plat);
+        const maladies_by_plat = maladiesplat.data.maladies;
+        const merged = maladie_by_client.map((plat) => {
+          const isMaladie = maladies_by_plat.some((maladie) => maladie.id_maladie === plat.id_maladie);
+          if (isMaladie) {
+            return plat;
+          }
+        });
+       
+        const alerts = merged.filter((item) => item !== undefined);
+        console.log("alert ",alerts);
+        if (alerts.length > 0) {
+          alert("Vous avez des allergies alimentaires");
+        } else {
+          console.log('No alerts found');
+        }
+     
+      } catch (error) {
+        console.error('Error fetching maladies:', error);
+      }
+     
+    };
     return (
         <TouchableOpacity   
         activeOpacity={1}
@@ -58,6 +88,7 @@ export default function Plat({item , setCartItems}) {
             
             <TouchableOpacity style={styles.plusButton} onPress={()=>{
               setCartItems((prevItems) => [...prevItems, item]);
+              fetchMaladies(item.id_plat);
             }} >
               <Image 
                 source={require('../assets/plus.png')} 
