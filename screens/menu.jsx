@@ -21,13 +21,9 @@ const wp = (size) => (width / 100) * size;
 const hp = (size) => (height / 100) * size;
 
 const MenuScreen = () => {
-<<<<<<< HEAD
-  const [hoveredItem, setHoveredItem] = useState(null);
-=======
 
   const { cartItems, setCartItems } = useContext(CartContext);
 
->>>>>>> 93d4f1b1dbeff7a3f9df32c93925cf9c972cef3d
   const navigation = useNavigation();
   const [plats, setPlats] = useState([]);
 
@@ -110,15 +106,6 @@ useEffect(() => {
         </TouchableOpacity>
       </ScrollView>
 
-<<<<<<< HEAD
-      {/* Sort Option */}
-      <View style={styles.sortContainer}>
-        <View style={styles.sortText}>
-          <Text style={{marginRight: wp(1.3), fontWeight: 'bold', marginLeft: wp(0.5)}}>Prix</Text>
-          <Image source={require('../assets/fleche_bas.png')} style={{marginTop: hp(0.6)}} />
-        </View>
-      </View>
-=======
      
   <ScrollView style={styles.menuContainer}>
   <View style={styles.menuRow}>
@@ -127,7 +114,6 @@ useEffect(() => {
     ))}
   </View>
   </ScrollView>
->>>>>>> 93d4f1b1dbeff7a3f9df32c93925cf9c972cef3d
 
       {/* Menu Items */}
       <ScrollView style={styles.menuContainer}>
