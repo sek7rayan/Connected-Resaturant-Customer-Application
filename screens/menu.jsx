@@ -9,6 +9,7 @@ import {
   TextInput,
   Dimensions
 } from 'react-native';
+// loukman 3ndkoum 6  champions league w7na 16 
 import { useNavigation } from '@react-navigation/native';
 import Api_plat from '../api_plats';
 import Plat from '../composent/plat';
