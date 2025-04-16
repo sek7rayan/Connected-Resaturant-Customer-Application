@@ -473,4 +473,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Description;
+export default DescriptionScreen;
