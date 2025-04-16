@@ -15,15 +15,23 @@ import Plat from '../composent/plat';
 import { useEffect } from 'react';
 const {width, height} = Dimensions.get('window');
 
-
+import { CartContext } from '../CartContext';
+import { useContext } from 'react';
 const wp = (size) => (width / 100) * size;
 const hp = (size) => (height / 100) * size;
 
 const MenuScreen = () => {
+<<<<<<< HEAD
   const [hoveredItem, setHoveredItem] = useState(null);
+=======
+
+  const { cartItems, setCartItems } = useContext(CartContext);
+
+>>>>>>> 93d4f1b1dbeff7a3f9df32c93925cf9c972cef3d
   const navigation = useNavigation();
   const [plats, setPlats] = useState([]);
 
+  console.log("cartItems ",cartItems);
 useEffect(() => {
 
   const fetchAvailablePlats = async () => {
@@ -39,6 +47,10 @@ useEffect(() => {
 
 
 }, []);
+
+
+
+
 
   
   return (
@@ -98,6 +110,7 @@ useEffect(() => {
         </TouchableOpacity>
       </ScrollView>
 
+<<<<<<< HEAD
       {/* Sort Option */}
       <View style={styles.sortContainer}>
         <View style={styles.sortText}>
@@ -105,6 +118,16 @@ useEffect(() => {
           <Image source={require('../assets/fleche_bas.png')} style={{marginTop: hp(0.6)}} />
         </View>
       </View>
+=======
+     
+  <ScrollView style={styles.menuContainer}>
+  <View style={styles.menuRow}>
+    {plats.map((item) => (
+      <Plat key={item.id_plat} item={item} setCartItems={setCartItems} />
+    ))}
+  </View>
+  </ScrollView>
+>>>>>>> 93d4f1b1dbeff7a3f9df32c93925cf9c972cef3d
 
       {/* Menu Items */}
       <ScrollView style={styles.menuContainer}>
