@@ -5,7 +5,11 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 
+import {useNavigation} from '@react-navigation/native';
+
 const DescriptionScreen = () => {
+
+  const navigation = useNavigation();
   const [incr, setincr] = useState(1);
   const [showAlert, setShowAlert] = useState(false);
   const slideAnim = useRef(new Animated.Value(hp('100%'))).current;
@@ -29,13 +33,14 @@ const DescriptionScreen = () => {
     }).start(() => setShowAlert(false));
   };
 
+ 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
-        {/* Header */}
+   
         <View style={styles.header}>
          <View style={styles.headerButtons}>
-          <TouchableOpacity style={styles.backButton}> 
+          <TouchableOpacity style={styles.backButton} onPress={()=>{navigation.goBack()}}> 
            <Image source={require('../assets/fleche_gauche.png')} style={styles.headerIcon} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.heartButton}> 
@@ -44,9 +49,9 @@ const DescriptionScreen = () => {
           </View>
         </View>
 
-        {/* Image and Title */}
+   
         <View style={styles.imageSection}>
-          <Image source={require('../assets/pizzaD.png')} style={styles.foodImage} />
+          <Image source={require('../assets/salad.png')} style={styles.foodImage} />
           <Text style={styles.foodTitle}>Pizza peperoni</Text>
 
           <View style={styles.priceQuantityContainer}>

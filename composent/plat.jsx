@@ -1,12 +1,14 @@
 import { View } from "react-native";
 import { Text, StyleSheet, TouchableOpacity, Image , Dimensions} from 'react-native';
 import { useState } from "react";
-
+import { useNavigation } from "@react-navigation/native";
 
 const {width, height} = Dimensions.get('window');
 const wp = (size) => (width / 100) * size;
 const hp = (size) => (height / 100) * size;
+
 export default function Plat({item}) {
+    const navigation = useNavigation();
     const [hoveredItem, setHoveredItem] = useState(null)
     return (
         <TouchableOpacity   
