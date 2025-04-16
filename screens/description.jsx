@@ -7,13 +7,16 @@ import {
 
 import {useNavigation} from '@react-navigation/native';
 
+import { useRoute } from '@react-navigation/native';
+
 const DescriptionScreen = () => {
 
   const navigation = useNavigation();
+  const route = useRoute();
   const [incr, setincr] = useState(1);
   const [showAlert, setShowAlert] = useState(false);
   const slideAnim = useRef(new Animated.Value(hp('100%'))).current;
-
+  const {item} = route.params;
   const showCartAlert = () => {
     setShowAlert(true);
     Animated.timing(slideAnim, {
@@ -52,11 +55,11 @@ const DescriptionScreen = () => {
    
         <View style={styles.imageSection}>
           <Image source={require('../assets/salad.png')} style={styles.foodImage} />
-          <Text style={styles.foodTitle}>Pizza peperoni</Text>
+          <Text style={styles.foodTitle}>{item.nom_plat}</Text>
 
           <View style={styles.priceQuantityContainer}>
             <View style={styles.priceContainer}>
-              <Text style={styles.priceText}>350 da</Text>
+              <Text style={styles.priceText}>{item.Prix_plat}</Text>
             </View>
            
             <View style={styles.quantityContainer}>
@@ -84,14 +87,14 @@ const DescriptionScreen = () => {
             <Text style={styles.sectionTitle}>Reviews</Text>
             <View style={styles.ratingText}>
                 <Image source={require('../assets/star.png')} style={styles.ratingIcon} />
-                <Text style={styles.ratingValue}>4.8</Text>
+                <Text style={styles.ratingValue}>{item.note_plat}</Text>
              </View>
              </View>
              <View style={styles.calorieItem}>
             <Text style={styles.sectionTitle}>Calories</Text>
             <View style={styles.NEWText}>
               <Image source={require('../assets/fire.png')} style={styles.calorieIcon} />
-              <Text style={styles.calorieValue}>2000</Text>
+              <Text style={styles.calorieValue}>{item.info_calorie}</Text>
             </View>
             </View>
           </View>
@@ -113,7 +116,7 @@ const DescriptionScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Description</Text>
           <Text style={styles.descriptionText}>
-            A timeless favorite, our Classic Margherita Pizza features a thin, crispy crust topped with rich tomato sauce, creamy mozzarella, and fresh basil.
+            {item.Description_plat}
           </Text>
         </View>
       </ScrollView>
@@ -140,7 +143,7 @@ const DescriptionScreen = () => {
             <View style={styles.alertContent}>
                <Text style={styles.alertTitle}>Item added to Chart!</Text>
                <Text style={styles.alertText}>
-                {incr} Pizza{incr > 1 ? 's' : ''} Peperoni {incr > 1 ? 'have' : 'has'} been added to your cart,
+                {incr} {item.nom_plat} {incr > 1 ? 'have' : 'has'} been added to your cart,
                 check the selected items by checking your chart to validate your order
               </Text>
             </View>
@@ -162,28 +165,7 @@ const DescriptionScreen = () => {
         </TouchableOpacity>
       </Modal>
 
-      {/* Navigation Bar */}
-      <View style={styles.navBar}>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require('../assets/homeV.png')} style={styles.navIcon} />
-          <Text style={styles.navText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require('../assets/mylist.png')} style={styles.navIcon} />
-          <Text style={styles.navText}>My List</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItemM}>
-          <Image source={require('../assets/home.png')} style={styles.navIconM} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require('../assets/orders.png')} style={styles.navIcon} />
-          <Text style={styles.navText}>Orders</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require('../assets/profile.png')} style={styles.navIcon} />
-          <Text style={styles.navText}>Profile</Text>
-        </TouchableOpacity>
-      </View>
+     
     </View>
   );
 };

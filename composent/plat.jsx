@@ -15,7 +15,7 @@ export default function Plat({item}) {
         activeOpacity={1}
         onPressIn={() => setHoveredItem('pizza')}
         onPressOut={() => setHoveredItem(null)}
-        onPress={()=>navigation.navigate("Description")}
+        onPress={()=>navigation.navigate("Description", {item : item})}
         style={{marginBottom: hp(2)}}
 
        >
