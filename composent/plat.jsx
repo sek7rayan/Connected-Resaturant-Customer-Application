@@ -7,7 +7,7 @@ const {width, height} = Dimensions.get('window');
 const wp = (size) => (width / 100) * size;
 const hp = (size) => (height / 100) * size;
 
-export default function Plat({item}) {
+export default function Plat({item , setCartItems}) {
     const navigation = useNavigation();
     const [hoveredItem, setHoveredItem] = useState(null)
     return (
@@ -56,7 +56,9 @@ export default function Plat({item}) {
           <View style={styles.itemRatingContainer}>
             <Text style={styles.itemPrice}>{item.Prix_plat} DA</Text>
             
-            <TouchableOpacity style={styles.plusButton}>
+            <TouchableOpacity style={styles.plusButton} onPress={()=>{
+              setCartItems((prevItems) => [...prevItems, item]);
+            }} >
               <Image 
                 source={require('../assets/plus.png')} 
                 style={styles.plusIcon}

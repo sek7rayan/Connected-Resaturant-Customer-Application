@@ -14,13 +14,14 @@ import Api_plat from '../api_plats';
 import Plat from '../composent/plat';
 import { useEffect } from 'react';
 const {width, height} = Dimensions.get('window');
-
+import { useRoute } from '@react-navigation/native';
 
 const wp = (size) => (width / 100) * size;
 const hp = (size) => (height / 100) * size;
 
 const MenuScreen = () => {
-  ;
+  const route = useRoute();
+  const { cartItems, setCartItems } = route.params;
   const navigation = useNavigation();
   const [plats, setPlats] = useState([]);
 
@@ -102,7 +103,7 @@ useEffect(() => {
   <ScrollView style={styles.menuContainer}>
   <View style={styles.menuRow}>
     {plats.map((item) => (
-      <Plat key={item.id_plat} item={item} />
+      <Plat key={item.id_plat} item={item} setCartItems={setCartItems} />
     ))}
   </View>
   </ScrollView>
