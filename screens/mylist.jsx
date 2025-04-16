@@ -1,59 +1,51 @@
-"use client"
-
-import { useState } from "react"
+import { useState , useEffect } from "react"
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, TextInput, Dimensions } from "react-native"
+import PlatPref from "../composent/plat_pref"
+import Api_plat_pref from "../api_pla_pref"
+import Api_plat from "../api_plats"
 
-// Dimensions
 const { width, height } = Dimensions.get("window")
 
-// Fonctions hp et wp
 const wp = (size) => (width / 100) * size
 const hp = (size) => (height / 100) * size
 
-// Données initiales des aliments
-const initialFoodItems = [
-  {
-    id: 1,
-    title: "quick snack",
-    image: require("../assets/quick-snack.png"),
-    rating: "4.9",
-    tag: "NEW",
-    tagType: "new",
-    description: "Served with sauce, and extra onion...",
-    time: "40 min.",
-    price: "350 da",
-  },
-  {
-    id: 2,
-    title: "King Burger",
-    image: require("../assets/burgermylist.png"),
-    rating: "4.9",
-    tag: "Popular",
-    tagType: "popular",
-    description: "Served with sauce, and extra onion...",
-    time: "50 min.",
-    price: "450 da",
-  },
-  {
-    id: 3,
-    title: "Pasta with cheese",
-    image: require("../assets/pasta-cheese.png"),
-    rating: "4.9",
-    tag: "NEW",
-    tagType: "new",
-    description: "Served with sauce, and extra onion...",
-    time: "20 min.",
-    price: "250 da",
-  },
-]
 
 const MyListScreen = () => {
-  // État pour suivre les éléments de nourriture visibles
-  const [foodItems, setFoodItems] = useState(initialFoodItems)
+  const [foodItems, setFoodItems] = useState([])
+  const id_client = 1;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+       
+        const favoritePlatsResponse = await Api_plat_pref.getFavoritePlats(id_client);
+        const favoritePlats = favoritePlatsResponse.data.plats;
+        const availablePlatsResponse = await Api_plat.getAvailablePlats();
+        const availablePlats = availablePlatsResponse.data.plats;
+        const merged = availablePlats.map((availablePlat) => {
 
-  // Fonction pour supprimer un élément lorsque le cœur est cliqué
+          const isFavorite = favoritePlats.some((favoritePlat) => favoritePlat.id_plat === availablePlat.id_plat);
+          if (isFavorite) {
+            return availablePlat
+            
+          }
+        
+          });
+        const food = merged.filter((item) => item !== undefined);
+        setFoodItems(food);
+      
+      } catch (error) {
+        console.error("Erreur lors de la récupération des données :", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+ 
+
   const removeItem = (id) => {
-    setFoodItems(foodItems.filter((item) => item.id !== id))
+    setFoodItems(foodItems.filter((item) => item.id_plat !== id))
+    Api_plat_pref.deleteFavoritePlat(id_client, id)
+    
   }
 
   return (
@@ -96,38 +88,7 @@ const MyListScreen = () => {
 
       {/* Food Items List */}
       <ScrollView style={styles.foodListContainer} showsVerticalScrollIndicator={false}>
-        {foodItems.map((item) => (
-          <View key={item.id} style={styles.foodItem}>
-            <Image source={item.image} style={styles.foodImage} />
-            <View style={styles.foodDetails}>
-              <View style={styles.foodHeader}>
-                <View>
-                  <View style={styles.ratingContainer}>
-                    <Text style={styles.ratingText}>★ {item.rating}</Text>
-                    <View style={[styles.tagContainer, item.tagType === "popular" && styles.popularTag]}>
-                      <Text style={styles.tagText}>{item.tag}</Text>
-                    </View>
-                  </View>
-                  <Text style={styles.foodTitle}>{item.title}</Text>
-                  <Text style={styles.foodDescription}>{item.description}</Text>
-                </View>
-                <TouchableOpacity style={styles.heartButton} onPress={() => removeItem(item.id)}>
-                  <Image source={require("../assets/coeur.png")} style={styles.heartIcon} />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.foodFooter}>
-                <View style={styles.timeContainer}>
-                  <Image source={require("../assets/clock.png")} style={styles.clockIcon} />
-                  <Text style={styles.timeText}>{item.time}</Text>
-                </View>
-                <View style={styles.priceContainer}>
-                  <Text style={styles.priceText}>{item.price}</Text>
-                </View>
-              </View>
-            </View>
-          </View>
-        ))}
-
+        {foodItems.map((item) => <PlatPref key={item.id_plat} item={item} removeItem={removeItem} />)}
         {foodItems.length === 0 && (
           <View style={styles.emptyListContainer}>
             <Text style={styles.emptyListText}>Votre liste est vide</Text>
@@ -135,29 +96,6 @@ const MyListScreen = () => {
           </View>
         )}
       </ScrollView>
-
-      {/* Navigation Bar */}
-      <View style={styles.navBar}>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require("../assets/homeV.png")} style={styles.navIcon} />
-          <Text style={styles.navText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require("../assets/mylist.png")} style={styles.navIcon} />
-          <Text style={styles.navText}>My List</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItemM}>
-          <Image source={require("../assets/home.png")} style={styles.navIconM} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require("../assets/orders.png")} style={styles.navIcon} />
-          <Text style={styles.navText}>Orders</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require("../assets/profile.png")} style={styles.navIcon} />
-          <Text style={styles.navText}>Profile</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   )
 }
@@ -239,100 +177,6 @@ const styles = StyleSheet.create({
     marginTop: hp(-50),
     marginBottom: hp(8),
   },
-  foodItem: {
-    flexDirection: "row",
-    marginBottom: hp(2.5),
-    borderRadius: wp(3),
-    overflow: "hidden",
-  },
-  foodImage: {
-    width: wp(30),
-    height: wp(30),
-    borderRadius: wp(3),
-  },
-  foodDetails: {
-    flex: 1,
-    marginLeft: wp(3),
-    justifyContent: "space-between",
-  },
-  foodHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  ratingContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: hp(0.5),
-  },
-  ratingText: {
-    color: "#FFC01D",
-    fontWeight: "600",
-    fontSize: wp(3.5),
-    marginRight: wp(2),
-  },
-  tagContainer: {
-    backgroundColor: "#FF3B30",
-    paddingHorizontal: wp(2),
-    paddingVertical: hp(0.3),
-    borderRadius: wp(1.5),
-  },
-  popularTag: {
-    backgroundColor: "#FF9500",
-  },
-  tagText: {
-    color: "white",
-    fontSize: wp(3),
-    fontWeight: "600",
-  },
-  foodTitle: {
-    fontSize: wp(4.5),
-    fontWeight: "700",
-    marginBottom: hp(0.5),
-  },
-  foodDescription: {
-    fontSize: wp(3.5),
-    color: "#888",
-    width: wp(50),
-  },
-  heartButton: {
-    padding: wp(1),
-  },
-  heartIcon: {
-    width: wp(6),
-    height: wp(6),
-    resizeMode: "contain",
-  },
-  foodFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: hp(1),
-  },
-  timeContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  clockIcon: {
-    width: wp(4),
-    height: wp(4),
-    resizeMode: "contain",
-  },
-  timeText: {
-    marginLeft: wp(1),
-    fontSize: wp(3.5),
-    color: "#555",
-  },
-  priceContainer: {
-    backgroundColor: "#003366",
-    paddingHorizontal: wp(3),
-    paddingVertical: hp(0.7),
-    borderRadius: wp(5),
-  },
-  priceText: {
-    color: "white",
-    fontWeight: "700",
-    fontSize: wp(3.5),
-  },
   emptyListContainer: {
     alignItems: "center",
     justifyContent: "center",
@@ -348,43 +192,9 @@ const styles = StyleSheet.create({
     fontSize: wp(4),
     color: "#888",
   },
-  navBar: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    padding: hp(1.8),
-    borderTopWidth: wp(0.27),
-    borderColor: "#eee",
-    backgroundColor: "#F4F5F6",
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  navItem: {
-    alignItems: "center",
-  },
-  navIcon: {
-    width: wp(6),
-    height: hp(3),
-    marginBottom: hp(0.6),
-  },
-  navItemM: {
-    marginTop: hp(-4.5),
-    backgroundColor: "#FFC01D",
-    borderRadius: wp(50),
-    alignItems: "center",
-    width: wp(22),
-    height: hp(11.1),
-  },
-  navIconM: {
-    marginTop: hp(2.5),
-    width: wp(12.5),
-    height: hp(5.8),
-  },
-  navText: {
-    color: "#555",
-    fontSize: wp(3.2),
-  },
+ 
 })
 
 export default MyListScreen
+
+

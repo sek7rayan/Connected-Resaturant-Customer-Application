@@ -1,16 +1,14 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Animated, Easing, Modal} from 'react-native';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import { useNavigation } from '@react-navigation/native';
 
-const Description = () => {
+const DescriptionScreen = () => {
   const [incr, setincr] = useState(1);
   const [showAlert, setShowAlert] = useState(false);
   const slideAnim = useRef(new Animated.Value(hp('100%'))).current;
-  const navigation = useNavigation();
 
   const showCartAlert = () => {
     setShowAlert(true);
@@ -31,16 +29,14 @@ const Description = () => {
     }).start(() => setShowAlert(false));
   };
 
+ 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
-        {/* Header */}
+   
         <View style={styles.header}>
          <View style={styles.headerButtons}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          > 
+          <TouchableOpacity style={styles.backButton}> 
            <Image source={require('../assets/fleche_gauche.png')} style={styles.headerIcon} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.heartButton}> 
@@ -49,14 +45,14 @@ const Description = () => {
           </View>
         </View>
 
-        {/* Image and Title */}
+   
         <View style={styles.imageSection}>
-          <Image source={require('../assets/pizzaD.png')} style={styles.foodImage} />
-          <Text style={styles.foodTitle}>Pizza peperoni</Text>
+          <Image source={require('../assets/salad.png')} style={styles.foodImage} />
+          <Text style={styles.foodTitle}>{item.nom_plat}</Text>
 
           <View style={styles.priceQuantityContainer}>
             <View style={styles.priceContainer}>
-              <Text style={styles.priceText}>350 da</Text>
+              <Text style={styles.priceText}>{item.Prix_plat}</Text>
             </View>
            
             <View style={styles.quantityContainer}>
@@ -84,14 +80,14 @@ const Description = () => {
             <Text style={styles.sectionTitle}>Reviews</Text>
             <View style={styles.ratingText}>
                 <Image source={require('../assets/star.png')} style={styles.ratingIcon} />
-                <Text style={styles.ratingValue}>4.8</Text>
+                <Text style={styles.ratingValue}>{item.note_plat}</Text>
              </View>
              </View>
              <View style={styles.calorieItem}>
             <Text style={styles.sectionTitle}>Calories</Text>
             <View style={styles.NEWText}>
               <Image source={require('../assets/fire.png')} style={styles.calorieIcon} />
-              <Text style={styles.calorieValue}>2000</Text>
+              <Text style={styles.calorieValue}>{item.info_calorie}</Text>
             </View>
             </View>
           </View>
@@ -101,11 +97,12 @@ const Description = () => {
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Ingredients</Text>
           <View style={styles.ingredientsContainer}>
-            <Text style={styles.ingredientItem}>Tomato sauce, </Text>
-            <Text style={styles.ingredientItem}>Mozzarella cheese, </Text>
-            <Text style={styles.ingredientItem}>Pepperoni, </Text>
-            <Text style={styles.ingredientItem}>Oregano,</Text>
-            <Text style={styles.ingredientItem}>Olive oil.</Text>
+
+            {
+              ingredients_plat.map((ingredient, index) => (
+                <Text key={index} style={styles.ingredientItem}>{ingredient}, </Text>
+              ))
+            }
           </View>
         </View>
 
@@ -113,7 +110,7 @@ const Description = () => {
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Description</Text>
           <Text style={styles.descriptionText}>
-            A timeless favorite, our Classic Margherita Pizza features a thin, crispy crust topped with rich tomato sauce, creamy mozzarella, and fresh basil.
+            {item.Description_plat}
           </Text>
         </View>
       </ScrollView>
@@ -140,7 +137,7 @@ const Description = () => {
             <View style={styles.alertContent}>
                <Text style={styles.alertTitle}>Item added to Chart!</Text>
                <Text style={styles.alertText}>
-                {incr} Pizza{incr > 1 ? 's' : ''} Peperoni {incr > 1 ? 'have' : 'has'} been added to your cart,
+                {incr} {item.nom_plat} {incr > 1 ? 'have' : 'has'} been added to your cart,
                 check the selected items by checking your chart to validate your order
               </Text>
             </View>
@@ -162,7 +159,7 @@ const Description = () => {
         </TouchableOpacity>
       </Modal>
 
-      
+      {/* Navigation Bar */}
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navItem}>
           <Image source={require('../assets/homeV.png')} style={styles.navIcon} />

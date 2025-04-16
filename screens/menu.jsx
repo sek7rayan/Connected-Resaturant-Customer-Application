@@ -10,17 +10,36 @@ import {
   Dimensions
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-
-// Dimensions
+import Api_plat from '../api_plats';
+import Plat from '../composent/plat';
+import { useEffect } from 'react';
 const {width, height} = Dimensions.get('window');
 
-// Fonctions hp et wp
+
 const wp = (size) => (width / 100) * size;
 const hp = (size) => (height / 100) * size;
 
-const Menu = () => {
+const MenuScreen = () => {
   const [hoveredItem, setHoveredItem] = useState(null);
   const navigation = useNavigation();
+  const [plats, setPlats] = useState([]);
+
+useEffect(() => {
+
+  const fetchAvailablePlats = async () => {
+    try {
+      const response = await Api_plat.getAvailablePlats();
+      setPlats(response.data.plats);
+    } catch (error) {
+      console.error('Error fetching available plats:', error);
+    }
+  };
+
+  fetchAvailablePlats();
+
+
+}, []);
+
   
   return (
     <View style={styles.container}>
@@ -96,7 +115,7 @@ const Menu = () => {
           activeOpacity={1}
           onPressIn={() => setHoveredItem('pizza')}
           onPressOut={() => setHoveredItem(null)}
-          onPress={() => navigation.navigate("Description")}
+          onPress={()=>navigation.navigate("Description")}
           style={{marginLeft:'-7%'}}
          >
           <View style={[ styles.menuItem, hoveredItem === 'pizza' && styles.menuItemHovered]}>
@@ -429,8 +448,7 @@ const Menu = () => {
         </TouchableOpacity>
       </View>
 
-      
-      
+      {/* Navigation Bar */}
       <View style={styles.navBar}>
         <TouchableOpacity style={styles.navItem}>
           <Image source={require('../assets/homeV.png')} style={styles.navIcon} />
@@ -528,119 +546,23 @@ const styles = StyleSheet.create({
     lineHeight: hp(4),
     letterSpacing: 0,
   },
-  sortContainer: {
-    padding: wp(5.3),
-    marginTop: hp(-48),
-    marginLeft: wp(4)
-  },
-  sortText: {
-    
-    marginTop:hp(4),
-    flexDirection: 'row',
-    paddingLeft: wp(2.7),
-    width: wp(16),
-    color: '#020E1D',
-    backgroundColor: '#FFE196',
-    borderRadius: wp(2.7),
-  },
+ 
   menuContainer: {
     flex: 1,
-    paddingHorizontal: wp(10.1),
+    paddingHorizontal: wp(4), // Réduisez le padding horizontal
     backgroundColor: '#F4F5F6',
     borderRadius: wp(2.7),
     margin: wp(2.1),
+    marginTop: -530
   },
   menuRow: {
     flexDirection: 'row',
-    marginLeft: wp(-4),
-    marginBottom: hp(1.6),
-  },
-  menuItem: {
-   
-    marginTop: hp(1),
-    marginRight: wp(22),
-    width: wp(30.22),
-    backgroundColor: '#fff',
-    borderRadius: wp(2.7),
-    padding: wp(2.7),
-    alignItems: 'center',
-    shadowColor: 'black',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3.84,
-    elevation: 20, 
-  },
-  menuItemHovered: {
-    backgroundColor: '#B02522',
-  },
-  menuImage: {
-    width: '100%',
-    height: hp(13),
-    borderRadius: wp(2.1),
-    marginBottom: hp(1.2),
-    resizeMode: 'contain',
-  },
-  itemName: {
-    color: '#082953',
-    fontFamily: 'SF-Pro-Display-Bold', 
-    fontWeight: '700', 
-    fontSize: wp(3.7),
-    lineHeight: hp(2.2), 
-    letterSpacing: 0,
-  },
-  itemPrice: {
-    fontFamily: 'Poppins-Medium', 
-    fontWeight: '500', 
-    fontSize: wp(3.5),
-    lineHeight: hp(1.6), 
-    letterSpacing: 0, 
-    color: '#437F40'
-  },
-  itemRatingContainer: {
-    flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    paddingHorizontal: wp(1.3),
+    marginTop: hp(2),
+    paddingHorizontal: wp(2), // Ajustez selon vos besoins
   },
-  ratingText: {
-    paddingLeft: wp(1.1),
-    borderRadius: wp(2.7),
-    backgroundColor: '#FFE9B2',
-    width: wp(11.7),
-    height: hp(2),
-    marginLeft: wp(-29.3),
-    alignItems: 'center',
-    flexDirection: 'row',
-    color: '#FFC107',
-    fontSize: wp(3.2),
-  },
-  NEWText: {
-    paddingLeft: wp(1.1),
-    borderRadius: wp(2.7),
-    backgroundColor: '#B02522',
-    width: wp(11.7),
-    height: hp(2),
-    marginLeft: wp(2.4),
-    alignItems: 'center',
-    flexDirection: 'row',
-    color: '#FFC107',
-    fontSize: wp(3.2),
-  },
-  plusButton: {
-    marginLeft: wp(2.7),
-    backgroundColor: '#FFC107',
-    borderRadius: wp(2.7),
-    padding: wp(0.8),
-    width: wp(8),
-    height: hp(2.1),
-    alignItems: 'center'
-  },
-  plusIcon: {
-    width: wp(2.9),
-    height: hp(1.4),
-    tintColor: '#fff',
-  },
+  
   pagination: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -675,39 +597,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: wp(3.7),
   },
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    padding: hp(1.8),
-    borderTopWidth: wp(0.27),
-    borderColor: '#eee',
-    backgroundColor: '#F4F5F6',
-  },
-  navItem: {
-    alignItems: 'center',
-  },
-  navIcon: {
-    width: wp(6),
-    height: hp(3),
-    marginBottom: hp(0.6),
-  },
-  navItemM: {
-    marginTop: hp(-4.5),
-    backgroundColor: '#FFC01D',
-    borderRadius: wp(50),
-    alignItems: 'center',
-    width: wp(22),
-    height: hp(11.1)
-  },
-  navIconM: {
-    marginTop: hp(2.5),
-    width: wp(12.5),
-    height: hp(5.8),
-  },
-  navText: {
-    color: '#555',
-    fontSize: wp(3.2),
-  },
+  
+
 });
 
-export default Menu;
+export default MenuScreen;
