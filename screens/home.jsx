@@ -195,28 +195,7 @@ const HomeScreen = () => {
         <View style={{ height: hp(10) }} />
       </ScrollView>
 
-      {/* Navigation Bar */}
-      <View style={styles.navBar}>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require("../assets/homeV.png")} style={styles.navIcon} />
-          <Text style={styles.navText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require("../assets/mylist.png")} style={styles.navIcon} />
-          <Text style={styles.navText}>My List</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItemM}>
-          <Image source={require("../assets/home.png")} style={styles.navIconM} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require("../assets/orders.png")} style={styles.navIcon} />
-          <Text style={styles.navText}>Orders</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require("../assets/profile.png")} style={styles.navIcon} />
-          <Text style={styles.navText}>Profile</Text>
-        </TouchableOpacity>
-      </View>
+     
     </View>
   )
 }

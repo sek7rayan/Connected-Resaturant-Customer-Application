@@ -43,9 +43,25 @@ export default function Plat({item , setCartItems}) {
     return (
         <TouchableOpacity   
         activeOpacity={1}
-        onPressIn={() => setHoveredItem('pizza')}
-        onPressOut={() => setHoveredItem(null)}
-        onPress={()=>navigation.navigate("Description", {item : item})}
+        onPress={()=>{
+          
+        navigation.navigate("Description", {item : item});
+        if ( hoveredItem === 'pizza') {
+          setHoveredItem(null)
+          setCartItems((prevItems) =>
+            prevItems.filter((cartItem) => cartItem.id_plat !== item.id_plat)
+          )
+
+          
+        }
+        else {
+          setHoveredItem('pizza');
+          setCartItems((prevItems) => [...prevItems, item]);
+          fetchMaladies(item.id_plat);
+
+        }
+      
+      }}
         style={{marginBottom: hp(2)}}
 
        >
@@ -116,7 +132,9 @@ const  styles =  StyleSheet.create({
       },
      
       menuItemHovered: {
-        backgroundColor: '#B02522',
+       borderColor: 'red',
+       borderWidth: 3,
+        borderRadius: wp(2.7),
       },
       menuImage: {
         width: '100%',

@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   foodListContainer: {
     flex: 1,
     paddingHorizontal: wp(4),
-    marginTop: hp(-50),
+    marginTop: hp(-39),
     marginBottom: hp(8),
   },
   emptyListContainer: {

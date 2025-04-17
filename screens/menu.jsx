@@ -117,7 +117,7 @@ useEffect(() => {
       </ScrollView>
 
      
-  <ScrollView style={styles.menuContainer}>
+  <ScrollView style={styles.menuContainer} showsVerticalScrollIndicator={false}>
   <View style={styles.menuRow}>
     {plats.map((item) => (
       <Plat key={item.id_plat} item={item} setCartItems={setCartItems} />
@@ -188,6 +188,7 @@ const styles = StyleSheet.create({
   categoryContainer: {
     paddingHorizontal: wp(4),
     backgroundColor: '#fff',
+    flex:1
   },
   categoryButton: {
     alignItems: 'center',
@@ -212,12 +213,11 @@ const styles = StyleSheet.create({
   },
  
   menuContainer: {
-    flex: 1,
-    paddingHorizontal: wp(4), // Réduisez le padding horizontal
-    backgroundColor: '#F4F5F6',
-    borderRadius: wp(2.7),
+    flex: 2,
+    paddingHorizontal: wp(2),
     margin: wp(2.1),
-    marginTop: -530
+   marginTop: hp(-30),
+   
   },
   menuRow: {
     flexDirection: 'row',
