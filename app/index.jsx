@@ -1,34 +1,29 @@
-import { registerRootComponent } from 'expo';
-import MyList from '../screens/mylist';
-import MenuScreen from '../screens/menu';
-import DescriptionScreen from '../screens/description';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useState } from 'react';
-import { CartProvider } from '../CartContext';
-import HomeScreen from '../screens/home';
-import SignINScreen from '../screens/signIn';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Text, View } from 'react-native';
+import HomeScreen from '@/screens/home';
+import MenuScreen from '@/screens/menu';
+import MyListScreen from '@/screens/mylist';
+import MycartScreen from '@/screens/mycart';
+import { CartProvider } from '@/CartContext';
 
-const Stack = createNativeStackNavigator();
-/*
-  <CartProvider>
-      <Stack.Navigator initialRouteName="Menu">
-      <Stack.Screen name="Menu" component={MenuScreen} options={{headerShown: false}}  />
+const Tab = createBottomTabNavigator();
 
-      <Stack.Screen name="Description" component={DescriptionScreen} options={{headerShown: false}}/>
-    </Stack.Navigator>
 
-    </CartProvider>
-
-*/
-
-const App = () => {
-  const [cartItems, setCartItems] = useState([]);
+export default function App() {
   return (
-  <SignINScreen />
-    
-  )
-};
+ <CartProvider>
+  
+        <Tab.Navigator>
+          <Tab.Screen name="Home" component={HomeScreen} />
+          <Tab.Screen name="Menu" component={MenuScreen} />
+          <Tab.Screen name="MyList" component={MyListScreen} />
+          <Tab.Screen name="MyCart" component={MycartScreen} />
+        </Tab.Navigator>
+   
+ </CartProvider>
+     
 
-registerRootComponent(App);
-
-export default App;
+  );
+}
