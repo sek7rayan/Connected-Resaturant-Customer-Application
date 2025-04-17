@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native';
 
-// Dimensions
+
 const {width, height} = Dimensions.get('window');
 
-// Fonctions hp et wp
+
 const wp = (size) => (width / 100) * size;
 const hp = (size) => (height / 100) * size;
 
