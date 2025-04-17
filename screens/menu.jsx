@@ -126,6 +126,7 @@ useEffect(() => {
   </ScrollView>
 
      
+            
 
 
 
@@ -265,62 +266,3 @@ const styles = StyleSheet.create({
 });
 
 export default MenuScreen;
-
-/*
-
-<TouchableOpacity   
-          activeOpacity={1}
-          onPressIn={() => setHoveredItem('pizza')}
-          onPressOut={() => setHoveredItem(null)}
-          onPress={()=>navigation.navigate("Description")}
-          style={{marginLeft:'-7%'}}
-         >
-          <View style={[ styles.menuItem, hoveredItem === 'pizza' && styles.menuItemHovered]}>
-            <TouchableOpacity style={{marginRight: wp(-22.7)}}>
-              <Image source={require('../assets/coeur.png')} />
-            </TouchableOpacity>
-            
-             <Image 
-              source={require('../assets/pizza.png')}
-              style={styles.menuImage}
-             />
-            
-
-            <View style={{flexDirection: 'row'}}>
-              <View style={styles.NEWText}>
-                <Image source={require('../assets/flash.png')} />
-                <Text style={{
-                  color: '#FFD747',
-                  marginTop: hp(-0.12),
-                  marginLeft: wp(-0.5),
-                  fontFamily: 'Poppins-Medium', 
-                  fontWeight: '500', 
-                  fontSize: wp(3),
-                  lineHeight: hp(1.6), 
-                  letterSpacing: 0,
-                }}>NEW</Text>
-              </View>
-
-              <View style={styles.ratingText}>
-                <Image source={require('../assets/star.png')} />
-                <Text style={{color: '#FFC107', marginTop: hp(-0.25)}}>4.8</Text>
-              </View>
-            </View>
-
-            <Text style={styles.itemName}>Pizza peperoni</Text>
-            
-            <View style={styles.itemRatingContainer}>
-              <Text style={styles.itemPrice}>350 da</Text>
-              
-              <TouchableOpacity style={styles.plusButton}>
-                <Image 
-                  source={require('../assets/plus.png')} 
-                 <Image 
-                  source={require('../assets/plus.png')} 
-                  style={styles.plusIcon}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-         </TouchableOpacity>
-*/

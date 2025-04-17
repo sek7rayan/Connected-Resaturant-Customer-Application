@@ -5,51 +5,11 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 
-import {useNavigation} from '@react-navigation/native';
-
-import { useRoute } from '@react-navigation/native';
-
-import Api_plat from '../api_plats';
-
 const DescriptionScreen = () => {
-  const [ingredients_plat, setIngredients] = useState([]);
-
-useEffect(() => {
-const fetchingedientPlats = async () => {
-const ingredients_res = await Api_plat.getIngredients();
-const ingredients = ingredients_res.data.ingredients;
-const plat_ingredients_res = await Api_plat.getIngredientsByPlat(item.id_plat);
-const plat_ingredients = plat_ingredients_res.data.ingredients;
-
-const ingredientNames = ingredients.map((ing)=>{
-const isingredient = plat_ingredients.some((plat_ingredient) => plat_ingredient.id_ingredient === ing.id_ingedient);
-if (isingredient) {
-return ing.nom_igredient;
-}
-
-})
-
-
-setIngredients(ingredientNames.filter((item) => item !== undefined));
-
-
-
-
-
-
-}
-fetchingedientPlats();
-},[])
-
-
-console.log(ingredients_plat)
-
-  const navigation = useNavigation();
-  const route = useRoute();
   const [incr, setincr] = useState(1);
   const [showAlert, setShowAlert] = useState(false);
   const slideAnim = useRef(new Animated.Value(hp('100%'))).current;
-  const {item} = route.params;
+
   const showCartAlert = () => {
     setShowAlert(true);
     Animated.timing(slideAnim, {
@@ -76,7 +36,7 @@ console.log(ingredients_plat)
    
         <View style={styles.header}>
          <View style={styles.headerButtons}>
-          <TouchableOpacity style={styles.backButton} onPress={()=>{navigation.goBack()}}> 
+          <TouchableOpacity style={styles.backButton}> 
            <Image source={require('../assets/fleche_gauche.png')} style={styles.headerIcon} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.heartButton}> 
@@ -199,7 +159,28 @@ console.log(ingredients_plat)
         </TouchableOpacity>
       </Modal>
 
-     
+      {/* Navigation Bar */}
+      <View style={styles.navBar}>
+        <TouchableOpacity style={styles.navItem}>
+          <Image source={require('../assets/homeV.png')} style={styles.navIcon} />
+          <Text style={styles.navText}>Home</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem}>
+          <Image source={require('../assets/mylist.png')} style={styles.navIcon} />
+          <Text style={styles.navText}>My List</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItemM}>
+          <Image source={require('../assets/home.png')} style={styles.navIconM} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem}>
+          <Image source={require('../assets/orders.png')} style={styles.navIcon} />
+          <Text style={styles.navText}>Orders</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem}>
+          <Image source={require('../assets/profile.png')} style={styles.navIcon} />
+          <Text style={styles.navText}>Profile</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
