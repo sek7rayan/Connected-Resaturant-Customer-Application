@@ -6,6 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useState } from 'react';
 import { CartProvider } from '../CartContext';
 import HomeScreen from '../screens/home';
+import SignINScreen from '../screens/signIn';
 
 const Stack = createNativeStackNavigator();
 /*
@@ -23,7 +24,7 @@ const Stack = createNativeStackNavigator();
 const App = () => {
   const [cartItems, setCartItems] = useState([]);
   return (
-  <HomeScreen />
+  <SignINScreen />
     
   )
 };

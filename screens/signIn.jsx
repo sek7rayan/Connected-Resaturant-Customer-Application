@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native';
+import Api_login_register from '../api_login_register';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const {width, height} = Dimensions.get('window');
@@ -8,8 +10,38 @@ const {width, height} = Dimensions.get('window');
 const wp = (size) => (width / 100) * size;
 const hp = (size) => (height / 100) * size;
 
-const SignUpScreen = () => {
+const SignINScreen = () => {
   const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+
+  function onchangeEmail(text) {
+    setEmail(text);
+  }
+  function onchangePassword(text) {
+    setPassword(text);
+  }
+
+
+  const handleLogin = async () => {
+    try {
+      const result = await Api_login_register.loginClient(email, password);
+  
+      if (result && result.token) {
+        console.log("Token reçu :", result.token);
+        await AsyncStorage.setItem('token', result.token);
+        alert("Connexion réussie !");
+      } else {
+        alert("Erreur : Aucun token reçu.");
+      }
+    } catch (error) {
+      console.error("Erreur de connexion :", error);
+    }
+  };
+  
+
+//const token = await AsyncStorage.getItem('token');
+
+
 
   return (
     <View style={styles.container}>
@@ -18,17 +50,20 @@ const SignUpScreen = () => {
         <Text style={styles.title}>Welcome back !</Text>
       </View>
      
-      <TextInput placeholder="E-mail" style={styles.input} />
+      <TextInput placeholder="E-mail" style={styles.input} 
+      onChangeText={onchangeEmail}
+      />
       <TextInput 
         placeholder="Password" 
         style={styles.input} 
         secureTextEntry 
-        onChangeText={setPassword} 
+        onChangeText={onchangePassword} 
       />
       
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Sign In</Text>
-      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+     <Text style={styles.buttonText}>Sign In</Text>
+    </TouchableOpacity>
+
     </View>
   );
 };
@@ -88,4 +123,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignUpScreen;
+export default SignINScreen;
