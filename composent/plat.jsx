@@ -45,7 +45,7 @@ export default function Plat({item , setCartItems}) {
         activeOpacity={1}
         onPress={()=>{
           
-        navigation.navigate("Description", {item : item});
+       
         if ( hoveredItem === 'pizza') {
           setHoveredItem(null)
           setCartItems((prevItems) =>
@@ -66,7 +66,7 @@ export default function Plat({item , setCartItems}) {
 
        >
         <View style={[ styles.menuItem, hoveredItem === 'pizza' && styles.menuItemHovered]}>
-          <TouchableOpacity style={{marginRight: wp(-22.7)}}>
+          <TouchableOpacity style={{marginRight: wp(-22.7)}} onPress={()=>{ navigation.navigate("Description", {item : item});}}>
             <Image source={require('../assets/coeur.png')} />
           </TouchableOpacity>
           
