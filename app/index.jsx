@@ -1,18 +1,30 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Text, View } from 'react-native';
 import HomeScreen from '@/screens/home';
 import MenuScreen from '@/screens/menu';
 import MyListScreen from '@/screens/mylist';
-import MycartScreen from '@/screens/mycart';
+import DescriptionScreen from '@/screens/description';
 import { CartProvider } from '@/CartContext';
-import {Ionicons , FontAwesome , MaterialCommunityIcons } from '@expo/vector-icons';
+import {Ionicons , MaterialCommunityIcons } from '@expo/vector-icons';
 import Octicons from '@expo/vector-icons/Octicons';
 import AntDesign from '@expo/vector-icons/AntDesign';
+
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
-
+const Menu = () => {
+  return (
+  
+      <Stack.Navigator screenOptions={{headerShown : false}}>
+        <Stack.Screen name="Menu" component={MenuScreen} />
+        <Stack.Screen name="Description" component={DescriptionScreen} />
+      </Stack.Navigator>
+      
+   
+  );
+};
 export default function App() {
 
   const Profile = () => {
@@ -22,6 +34,8 @@ export default function App() {
       </View>
     );
   }
+
+
   return (
  <CartProvider>
   
@@ -38,7 +52,7 @@ export default function App() {
            
             ),
           }}/>
-          <Tab.Screen name="Menu" component={MenuScreen} 
+          <Tab.Screen name="Menu" component={Menu} 
           options={{
             tabBarLabel: 'Menu',
             tabBarIcon: ({ color, size }) => (

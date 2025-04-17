@@ -5,10 +5,14 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 
+import { useRoute } from '@react-navigation/native';
+
 const DescriptionScreen = () => {
   const [incr, setincr] = useState(1);
   const [showAlert, setShowAlert] = useState(false);
   const slideAnim = useRef(new Animated.Value(hp('100%'))).current;
+  const route = useRoute();
+  const { item } = route.params;
 
   const showCartAlert = () => {
     setShowAlert(true);
