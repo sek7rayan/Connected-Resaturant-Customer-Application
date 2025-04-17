@@ -10,7 +10,10 @@ const {width, height} = Dimensions.get('window');
 const wp = (size) => (width / 100) * size;
 const hp = (size) => (height / 100) * size;
 
-export default function Plat({item , setCartItems}) {
+
+
+
+export default function Plat({item , setCartItems, showCartAlert , setShowAlert}) {
     const navigation = useNavigation();
     const [hoveredItem, setHoveredItem] = useState(null)
     const fetchMaladies = async (id_plat) => {
@@ -45,28 +48,15 @@ export default function Plat({item , setCartItems}) {
         activeOpacity={1}
         onPress={()=>{
           
-       
-        if ( hoveredItem === 'pizza') {
-          setHoveredItem(null)
-          setCartItems((prevItems) =>
-            prevItems.filter((cartItem) => cartItem.id_plat !== item.id_plat)
-          )
-
-          
-        }
-        else {
-          setHoveredItem('pizza');
-          setCartItems((prevItems) => [...prevItems, item]);
-          fetchMaladies(item.id_plat);
-
-        }
+          navigation.navigate("Description", {item : item});
+        
       
       }}
         style={{marginBottom: hp(2)}}
 
        >
         <View style={[ styles.menuItem, hoveredItem === 'pizza' && styles.menuItemHovered]}>
-          <TouchableOpacity style={{marginRight: wp(-22.7)}} onPress={()=>{ navigation.navigate("Description", {item : item});}}>
+          <TouchableOpacity style={{marginRight: wp(-22.7)}}>
             <Image source={require('../assets/coeur.png')} />
           </TouchableOpacity>
           
@@ -103,8 +93,22 @@ export default function Plat({item , setCartItems}) {
             <Text style={styles.itemPrice}>{item.Prix_plat} DA</Text>
             
             <TouchableOpacity style={styles.plusButton} onPress={()=>{
-              setCartItems((prevItems) => [...prevItems, item]);
-              fetchMaladies(item.id_plat);
+
+              showCartAlert();
+              if ( hoveredItem === 'pizza') {
+                setHoveredItem(null)
+                setCartItems((prevItems) =>
+                  prevItems.filter((cartItem) => cartItem.id_plat !== item.id_plat)
+                )
+      
+                
+              }
+              else {
+                setHoveredItem('pizza');
+                setCartItems((prevItems) => [...prevItems, item]);
+                fetchMaladies(item.id_plat);
+      
+              }
             }} >
               <Image 
                 source={require('../assets/plus.png')} 

@@ -10,6 +10,7 @@ import { CartProvider } from '@/CartContext';
 import {Ionicons , MaterialCommunityIcons } from '@expo/vector-icons';
 import Octicons from '@expo/vector-icons/Octicons';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import MycartScreen from '@/screens/mycart';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -74,6 +75,15 @@ export default function App() {
           <Tab.Screen name="Profile" component={Profile} 
            options={{
             tabBarLabel: 'Profile',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="account" size={size} color={color} />
+           
+            ),
+          }}
+          />
+           <Tab.Screen name="my cart" component={MycartScreen} 
+           options={{
+            tabBarLabel: 'my cart',
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="account" size={size} color={color} />
            

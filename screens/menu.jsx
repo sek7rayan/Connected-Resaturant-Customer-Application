@@ -7,30 +7,53 @@ import {
   ScrollView, 
   Image, 
   TextInput,
-  Dimensions
+  Dimensions,
+  Animated,
+  Modal,
+  Easing
 } from 'react-native';
-// loukman 3ndkoum 6  champions league w7na 16 
-// loukman ntouma froucha 
-
-
-
-
-
-
-
-
 import { useNavigation } from '@react-navigation/native';
 import Api_plat from '../api_plats';
 import Plat from '../composent/plat';
 import { useEffect } from 'react';
+
+import Alert from '@/composent/alert';
+import { CartContext } from '../CartContext';
+import { useContext , useRef} from 'react';
+
+
 const {width, height} = Dimensions.get('window');
 
-import { CartContext } from '../CartContext';
-import { useContext } from 'react';
 const wp = (size) => (width / 100) * size;
 const hp = (size) => (height / 100) * size;
 
+
 const MenuScreen = () => {
+  const [showAlert, setShowAlert] = useState(false);
+const slideAnim = useRef(new Animated.Value(hp('100%'))).current;
+
+const showCartAlert = () => {
+  setShowAlert(true);
+  Animated.timing(slideAnim, {
+    toValue: 0,
+    duration: 300,
+    easing: Easing.out(Easing.ease),
+    useNativeDriver: true,
+  }).start();
+};
+
+const hideAlert = () => {
+  Animated.timing(slideAnim, {
+    toValue: hp('100%'),
+    duration: 250,
+    easing: Easing.in(Easing.ease),
+    useNativeDriver: true,
+  }).start(() => setShowAlert(false));
+};
+
+
+
+
 
   const { cartItems, setCartItems } = useContext(CartContext);
 
@@ -120,14 +143,13 @@ useEffect(() => {
   <ScrollView style={styles.menuContainer} showsVerticalScrollIndicator={false}>
   <View style={styles.menuRow}>
     {plats.map((item) => (
-      <Plat key={item.id_plat} item={item} setCartItems={setCartItems} />
+      <Plat key={item.id_plat} item={item} setCartItems={setCartItems} setShowAlert={setShowAlert} showCartAlert={showCartAlert} />
     ))}
   </View>
   </ScrollView>
 
      
-            
-
+    <Alert showAlert={showAlert} hideAlert={hideAlert} slideAnim={slideAnim}  />
 
 
 
@@ -261,6 +283,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: wp(3.7),
   },
+  
   
 
 });
