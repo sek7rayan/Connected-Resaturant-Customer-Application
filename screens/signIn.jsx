@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native';
 import Api_login_register from '../api_login_register';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { jwtDecode } from 'jwt-decode';
 
 
 const {width, height} = Dimensions.get('window');
@@ -27,7 +28,9 @@ const SignINScreen = () => {
       const result = await Api_login_register.loginClient(email, password);
   
       if (result && result.token) {
-        console.log("Token reçu :", result.token);
+        // Decode the token to get user information
+        const decodedToken = jwtDecode(result.token);
+        console.log("Token reçu :", decodedToken);
         await AsyncStorage.setItem('token', result.token);
         alert("Connexion réussie !");
       } else {
