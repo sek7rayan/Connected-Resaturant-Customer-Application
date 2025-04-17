@@ -5,14 +5,11 @@ import DescriptionScreen from '../screens/description';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useState } from 'react';
 import { CartProvider } from '../CartContext';
+import HomeScreen from '../screens/home';
 
 const Stack = createNativeStackNavigator();
-
-
-const App = () => {
-  const [cartItems, setCartItems] = useState([]);
-  return (
-    <CartProvider>
+/*
+  <CartProvider>
       <Stack.Navigator initialRouteName="Menu">
       <Stack.Screen name="Menu" component={MenuScreen} options={{headerShown: false}}  />
 
@@ -20,6 +17,13 @@ const App = () => {
     </Stack.Navigator>
 
     </CartProvider>
+
+*/
+
+const App = () => {
+  const [cartItems, setCartItems] = useState([]);
+  return (
+  <HomeScreen />
     
   )
 };
