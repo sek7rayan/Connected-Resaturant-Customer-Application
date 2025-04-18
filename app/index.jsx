@@ -1,19 +1,13 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Text, View } from 'react-native';
-import HomeScreen from '@/screens/home';
 import MenuScreen from '@/screens/menu';
-import MyListScreen from '@/screens/mylist';
 import DescriptionScreen from '@/screens/description';
 import SignUpScreen1 from '../screens/signUp1';
 import SignUpScreen2 from '../screens/signUp2';
 import SignUpScreen3 from '../screens/signUp3';
 import { CartProvider } from '@/CartContext';
-import {Ionicons , MaterialCommunityIcons } from '@expo/vector-icons';
-import Octicons from '@expo/vector-icons/Octicons';
-import AntDesign from '@expo/vector-icons/AntDesign';
-import MycartScreen from '@/screens/mycart';
 
-const Tab = createBottomTabNavigator();
+
 const Stack = createNativeStackNavigator();
 
 const Menu = () => {
@@ -56,6 +50,6 @@ const Menu = () => {
   );
 };
 
-registerRootComponent(App);
+
 
 export default App;
