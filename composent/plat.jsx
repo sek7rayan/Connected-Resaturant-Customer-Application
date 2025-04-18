@@ -5,8 +5,8 @@ import { useNavigation } from "@react-navigation/native";
 import { FontAwesome } from '@expo/vector-icons';
 import Api_plat_pref from "../api_pla_pref";
 import { useFocusEffect } from "@react-navigation/native";
-
-
+import { jwtDecode } from 'jwt-decode';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
@@ -22,11 +22,33 @@ export default function Plat({item , setCartItems}) {
     const navigation = useNavigation();
     const [hoveredItem, setHoveredItem] = useState(null)
     const [isFavorite, setIsFavorite] = useState(false);
+    const [id_client, setIdClient] = useState(null);
+    const getToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if (token !== null) {
+          setIdClient(parseInt(token, 10));
+
+        } else {
+          console.log('No token found');
+          return null;
+        }
+      } catch (error) {
+        console.error('Error retrieving token:', error);
+        return null;
+      }
+    };
+    
+   
+    getToken();
+    
+
+ // Remplacez ceci par la valeur réelle de id_client
+// Remplacez ceci par la valeur réelle de id_client
 
     useFocusEffect(
       useCallback(() => {
         const fetchFavorites = async () => {
-          const id_client = 1;
           try {
             const favoritePlatsResponse = await Api_plat_pref.getFavoritePlats(id_client);
             const favoritePlats = favoritePlatsResponse.data.plats;
@@ -41,7 +63,6 @@ export default function Plat({item , setCartItems}) {
       }, []));
       
     const handleFavoritePress = async () => {
-      const id_client = 1;
       try {
         if (!isFavorite) {
           await Api_plat_pref.addFavoritePlat(item.id_plat, id_client);

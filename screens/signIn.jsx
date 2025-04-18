@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Dimensions 
 import Api_login_register from '../api_login_register';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
+
 import { useNavigation } from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
@@ -29,8 +30,7 @@ const SignINScreen = () => {
   
       if (result && result.token) {
         const decodedToken = jwtDecode(result.token);
-        console.log("Token reçu :", decodedToken);
-        await AsyncStorage.setItem('token', result.token);
+        await AsyncStorage.setItem('token', String(decodedToken.id));
         navigation.navigate('Main');
       } else {
         alert("Erreur : Aucun token reçu.");

@@ -41,7 +41,7 @@ const SignUp3 = () => {
     return (
         <ScrollView style={styles.scrollView}>
             <View style={styles.container}>
-                {/* Header and progress bar */}
+             
                 <View style={styles.header}>
                     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                         <Image source={require('../assets/fleche_gauche.png')} style={styles.backIcon} />
@@ -54,14 +54,14 @@ const SignUp3 = () => {
                     </View>
                 </View>
 
-                {/* Location section */}
+             
                 <View style={styles.locationContainer}>
                     <View style={styles.locationIconContainer}>
                         <Image source={require('../assets/location.png')} style={styles.locationIcon} />
                     </View>
                     <Text style={styles.locationTitle}>Your location?</Text>
                     
-                    {/* Location input */}
+                 
                     <View style={styles.inputContainer}>
                         <TextInput
                             style={styles.input}
@@ -74,7 +74,7 @@ const SignUp3 = () => {
                         </TouchableOpacity>
                     </View>
 
-                    {/* Remember location checkbox */}
+                    
                     <View style={styles.checkboxContainer}>
                         <Pressable
                             style={[styles.checkbox, rememberLocation && styles.checkedBox]}
@@ -85,7 +85,7 @@ const SignUp3 = () => {
                     </View>
                 </View>
 
-                {/* Confirm button */}
+           
                
                     <TouchableOpacity 
                         style={[styles.button, isLoading && styles.buttonDisabled]} 

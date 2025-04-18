@@ -32,25 +32,6 @@ const MenuScreen = () => {
   const [showAlert, setShowAlert] = useState(false);
 const slideAnim = useRef(new Animated.Value(hp('100%'))).current;
 
-const showCartAlert = () => {
-  setShowAlert(true);
-  Animated.timing(slideAnim, {
-    toValue: 0,
-    duration: 300,
-    easing: Easing.out(Easing.ease),
-    useNativeDriver: true,
-  }).start();
-};
-
-const hideAlert = () => {
-  Animated.timing(slideAnim, {
-    toValue: hp('100%'),
-    duration: 250,
-    easing: Easing.in(Easing.ease),
-    useNativeDriver: true,
-  }).start(() => setShowAlert(false));
-};
-
 
 
 
@@ -60,7 +41,7 @@ const hideAlert = () => {
   const navigation = useNavigation();
   const [plats, setPlats] = useState([]);
 
-  console.log("cartItems ",cartItems);
+
 useEffect(() => {
 
   const fetchAvailablePlats = async () => {
@@ -143,13 +124,13 @@ useEffect(() => {
   <ScrollView style={styles.menuContainer} showsVerticalScrollIndicator={false}>
   <View style={styles.menuRow}>
     {plats.map((item) => (
-      <Plat key={item.id_plat} item={item} setCartItems={setCartItems} setShowAlert={setShowAlert} showCartAlert={showCartAlert} />
+      <Plat key={item.id_plat} item={item} setCartItems={setCartItems}  />
     ))}
   </View>
   </ScrollView>
 
      
-    <Alert showAlert={showAlert} hideAlert={hideAlert} slideAnim={slideAnim}  />
+  
 
 
 

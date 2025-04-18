@@ -4,6 +4,9 @@ import PlatPref from "../composent/plat_pref"
 import Api_plat_pref from "../api_pla_pref"
 import Api_plat from "../api_plats"
 import { useFocusEffect } from "@react-navigation/native"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import { jwtDecode } from "jwt-decode"
+
 const { width, height } = Dimensions.get("window")
 
 const wp = (size) => (width / 100) * size
@@ -12,7 +15,27 @@ const hp = (size) => (height / 100) * size
 
 const MyListScreen = () => {
   const [foodItems, setFoodItems] = useState([])
-  const id_client = 1;
+  const [id_client, setIdClient] = useState(null);
+  const getToken = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (token !== null) {
+        setIdClient(parseInt(token, 10));
+
+      } else {
+        console.log('No token found');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error retrieving token:', error);
+      return null;
+    }
+  };
+  
+ 
+  getToken();
+
+
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {

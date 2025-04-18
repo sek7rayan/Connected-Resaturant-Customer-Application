@@ -5,6 +5,8 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import Api_maladie from '../api_maladie';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import jwtDecode from 'jwt-decode';
 
 import {useNavigation} from '@react-navigation/native';
 import { CartContext } from '../CartContext';
@@ -15,6 +17,25 @@ import Api_plat from '../api_plats';
 const DescriptionScreen = () => {
   const [ingredients_plat, setIngredients] = useState([]);
   const { cartItems, setCartItems } = useContext(CartContext);
+  const [id_client, setIdClient] = useState(null);
+  const getToken = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (token !== null) {
+        setIdClient(parseInt(token, 10));
+
+      } else {
+        console.log('No token found');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error retrieving token:', error);
+      return null;
+    }
+  };
+  
+ 
+  getToken();
 
 useEffect(() => {
 const fetchingedientPlats = async () => {
@@ -46,7 +67,7 @@ fetchingedientPlats();
 const fetchMaladies = async (id_plat) => {
   try {
    
-    const maladieclient =  await Api_maladie.getClientMaladies(23);
+    const maladieclient =  await Api_maladie.getClientMaladies(id_client);
     const maladie_by_client = maladieclient.data.maladies;
     const maladiesplat = await Api_maladie.getMaladiesByPlat(id_plat);
     const maladies_by_plat = maladiesplat.data.maladies;
