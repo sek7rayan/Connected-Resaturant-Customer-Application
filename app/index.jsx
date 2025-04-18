@@ -1,11 +1,12 @@
-import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Text, View } from 'react-native';
 import HomeScreen from '@/screens/home';
 import MenuScreen from '@/screens/menu';
 import MyListScreen from '@/screens/mylist';
 import DescriptionScreen from '@/screens/description';
+import SignUpScreen1 from '../screens/signUp1';
+import SignUpScreen2 from '../screens/signUp2';
+import SignUpScreen3 from '../screens/signUp3';
 import { CartProvider } from '@/CartContext';
 import {Ionicons , MaterialCommunityIcons } from '@expo/vector-icons';
 import Octicons from '@expo/vector-icons/Octicons';
@@ -38,63 +39,23 @@ export default function App() {
 
 
   return (
- <CartProvider>
-  
-        <Tab.Navigator    screenOptions={{
-          tabBarActiveTintColor: 'black',
-          tabBarInactiveTintColor: 'gray',
-          headerShown: false,
-
-        }} >
-          <Tab.Screen name="Home" component={HomeScreen} options={{
-            tabBarLabel: 'Home',
-            tabBarIcon: ({ color, size }) => (
-              <Octicons name="home" size={size} color={color} />
-           
-            ),
-          }}/>
-          <Tab.Screen name="Menu" component={Menu} 
-          options={{
-            tabBarLabel: 'Menu',
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="restaurant-outline" size={size} color={color} />
-           
-            ),
-          }}
+    
+      <CartProvider>
+        <Stack.Navigator initialRouteName="SignUp1">
+        
+          <Stack.Screen name="SignUp1" component={SignUpScreen1} options={{headerShown: false}} />
+          <Stack.Screen name="SignUp2" component={SignUpScreen2} options={{headerShown: false}} />
+          <Stack.Screen name="SignUp3" component={SignUpScreen3} options={{headerShown: false}} />
           
-          />
-          <Tab.Screen name="MyList" component={MyListScreen} 
-          options={{
-            tabBarLabel: 'My List',
-            tabBarIcon: ({ color, size }) => (
-              <AntDesign name="hearto" size={size} color={color} />
-           
-            ),
-          }}
-          />
-          <Tab.Screen name="Profile" component={Profile} 
-           options={{
-            tabBarLabel: 'Profile',
-            tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="account" size={size} color={color} />
-           
-            ),
-          }}
-          />
-          <Tab.Screen name="Mycart" component={MycartScreen} 
-           options={{
-            tabBarLabel: 'My Cart',
-            tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="cart" size={size} color={color} />
-           
-            ),
-          }}
-          />
           
-        </Tab.Navigator>
-   
- </CartProvider>
-     
-
+          <Stack.Screen name="Menu" component={MenuScreen} options={{headerShown: false}} />
+          <Stack.Screen name="Description" component={DescriptionScreen} options={{headerShown: false}} />
+        </Stack.Navigator>
+      </CartProvider>
+    
   );
-}
+};
+
+registerRootComponent(App);
+
+export default App;
