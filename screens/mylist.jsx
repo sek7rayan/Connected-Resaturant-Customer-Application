@@ -1,9 +1,9 @@
-import { useState , useEffect } from "react"
+import { useState , useCallback} from "react"
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, TextInput, Dimensions } from "react-native"
 import PlatPref from "../composent/plat_pref"
 import Api_plat_pref from "../api_pla_pref"
 import Api_plat from "../api_plats"
-
+import { useFocusEffect } from "@react-navigation/native"
 const { width, height } = Dimensions.get("window")
 
 const wp = (size) => (width / 100) * size
@@ -13,32 +13,35 @@ const hp = (size) => (height / 100) * size
 const MyListScreen = () => {
   const [foodItems, setFoodItems] = useState([])
   const id_client = 1;
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-       
-        const favoritePlatsResponse = await Api_plat_pref.getFavoritePlats(id_client);
-        const favoritePlats = favoritePlatsResponse.data.plats;
-        const availablePlatsResponse = await Api_plat.getAvailablePlats();
-        const availablePlats = availablePlatsResponse.data.plats;
-        const merged = availablePlats.map((availablePlat) => {
-
-          const isFavorite = favoritePlats.some((favoritePlat) => favoritePlat.id_plat === availablePlat.id_plat);
-          if (isFavorite) {
-            return availablePlat
-            
-          }
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        try {
+         
+          const favoritePlatsResponse = await Api_plat_pref.getFavoritePlats(id_client);
+          const favoritePlats = favoritePlatsResponse.data.plats;
+          const availablePlatsResponse = await Api_plat.getAvailablePlats();
+          const availablePlats = availablePlatsResponse.data.plats;
+          const merged = availablePlats.map((availablePlat) => {
+  
+            const isFavorite = favoritePlats.some((favoritePlat) => favoritePlat.id_plat === availablePlat.id_plat);
+            if (isFavorite) {
+              return availablePlat
+              
+            }
+          
+            });
+          const food = merged.filter((item) => item !== undefined);
+          setFoodItems(food);
         
-          });
-        const food = merged.filter((item) => item !== undefined);
-        setFoodItems(food);
-      
-      } catch (error) {
-        console.error("Erreur lors de la récupération des données :", error);
-      }
-    };
-    fetchData();
-  }, []);
+        } catch (error) {
+          console.error("Erreur lors de la récupération des données :", error);
+        }
+      };
+      fetchData();
+    }, [])
+
+  );
 
  
 

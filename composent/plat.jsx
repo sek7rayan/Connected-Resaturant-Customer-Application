@@ -1,7 +1,12 @@
 import { View } from "react-native";
 import { Text, StyleSheet, TouchableOpacity, Image , Dimensions} from 'react-native';
-import { useState } from "react";
+import { useState , useCallback  } from "react";
 import { useNavigation } from "@react-navigation/native";
+import { FontAwesome } from '@expo/vector-icons';
+import Api_plat_pref from "../api_pla_pref";
+import { useFocusEffect } from "@react-navigation/native";
+
+
 
 
 
@@ -13,9 +18,43 @@ const hp = (size) => (height / 100) * size;
 
 
 
-export default function Plat({item , setCartItems, showCartAlert , setShowAlert}) {
+export default function Plat({item , setCartItems}) {
     const navigation = useNavigation();
     const [hoveredItem, setHoveredItem] = useState(null)
+    const [isFavorite, setIsFavorite] = useState(false);
+
+    useFocusEffect(
+      useCallback(() => {
+        const fetchFavorites = async () => {
+          const id_client = 1;
+          try {
+            const favoritePlatsResponse = await Api_plat_pref.getFavoritePlats(id_client);
+            const favoritePlats = favoritePlatsResponse.data.plats;
+            const isFav = favoritePlats.some((fav) => fav.id_plat === item.id_plat);
+            setIsFavorite(isFav);
+          } catch (error) {
+            console.error("Erreur lors de la récupération des plats favoris :", error);
+          }
+        };
+      
+        fetchFavorites();
+      }, []));
+      
+    const handleFavoritePress = async () => {
+      const id_client = 1;
+      try {
+        if (!isFavorite) {
+          await Api_plat_pref.addFavoritePlat(item.id_plat, id_client);
+          setIsFavorite(true);
+        } else {
+          await Api_plat_pref.deleteFavoritePlat(id_client, item.id_plat);
+          setIsFavorite(false);
+        }
+      } catch (error) {
+        console.error("Erreur lors de l’ajout/suppression du favori :", error);
+      }
+    }
+
   
     return (
         <TouchableOpacity   
@@ -43,10 +82,16 @@ export default function Plat({item , setCartItems, showCartAlert , setShowAlert}
 
        >
         <View style={[ styles.menuItem, hoveredItem === 'pizza' && styles.menuItemHovered]}>
-          <TouchableOpacity style={{marginRight: wp(-22.7)}}>
-            <Image source={require('../assets/coeur.png')} />
-          </TouchableOpacity>
-          
+        <TouchableOpacity onPress={handleFavoritePress} style={{ position: 'absolute', top: wp(2), right: wp(1), zIndex: 2 }}>
+  <FontAwesome
+    name={isFavorite ? 'heart' : 'heart-o'}
+    size={17}
+    color={isFavorite ? 'red' : 'gray'}
+  />
+</TouchableOpacity>
+
+
+
            <Image 
             source={require('../assets/salad.png')}
             style={styles.menuImage}
