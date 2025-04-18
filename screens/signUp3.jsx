@@ -26,7 +26,7 @@ const SignUp3 = () => {
             const response = await Api_login_register.registerClient(clientData, maladies);
             if (response.status !== 201) {
             Alert.alert('Succès', 'Inscription réussie!');
-            navigation.navigate('Menu');
+            navigation.navigate('Main');
             }
             else {
                 Alert.alert('Erreur', 'Inscription échouée, veuillez réessayer.');
