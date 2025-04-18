@@ -26,7 +26,7 @@ const Menu = () => {
    
   );
 };
-export default function App() {
+export default function Main() {
 
   const Profile = () => {
     return (

@@ -32,6 +32,33 @@ const Api_login_register = {
     
           throw error;
         }
+      },
+      registerClient : async (clientData, maladies) => {
+        try {
+
+          const body = {
+            ...clientData,
+            maladies,
+          };
+      
+      
+          const response = await axios.post(`${API_URL}/inscription`, body);
+      
+          if (response.status === 201) {
+            return response.data; 
+          }
+        } catch (error) {
+      
+          if (error.response) {
+            if (error.response.status === 400) {
+              console.error("Erreur : ", error.response.data.message);
+            } else {
+              console.error("Erreur serveur :", error.response.data.message);
+            }
+          } 
+      
+          throw error;
+        }
       }
 }
 

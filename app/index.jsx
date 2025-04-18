@@ -41,7 +41,7 @@ const Menu = () => {
           <Stack.Screen name="SignUp2" component={SignUpScreen2} options={{headerShown: false}} />
           <Stack.Screen name="SignUp3" component={SignUpScreen3} options={{headerShown: false}} />
           
-          
+    
           <Stack.Screen name="Menu" component={MenuScreen} options={{headerShown: false}} />
           <Stack.Screen name="Description" component={DescriptionScreen} options={{headerShown: false}} />
         </Stack.Navigator>
