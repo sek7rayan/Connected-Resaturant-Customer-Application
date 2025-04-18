@@ -24,9 +24,8 @@ const Api_commande = {
   
           throw error;
         }
-      }
-}
- createCommande = async (commandeData, plats) => {
+      },
+ createCommande : async (commandeData, plats) => {
     try {
       const body = {
         commandeData,
@@ -49,6 +48,7 @@ const Api_commande = {
     }
       throw error;
     }
-  };
+  }
+}
 
   export default Api_commande;

@@ -6,17 +6,60 @@ import {
   TouchableOpacity, 
   ScrollView, 
   Image,
-  Dimensions
+  Dimensions,
+  Button
 } from 'react-native';
+import Api_commande from '../api_commande';
+import { useContext } from 'react';
+import { CartContext } from '../CartContext';
 
-// Dimensions
+
 const {width, height} = Dimensions.get('window');
 
-// Fonctions hp et wp
 const wp = (size) => (width / 100) * size;
 const hp = (size) => (height / 100) * size;
 
 const MycartScreen = () => {
+
+  const send_commandes = async () => {
+    const commandeData = {
+    id_client: 1,
+    mode_payment: "cash",
+    id_table: 3
+
+    };
+
+    const calculatePlatsQuantities = (cartItems) => {
+      const plats = cartItems.reduce((acc, item) => {
+        const existingPlat = acc.find((plat) => plat.id_plat === item.id_plat);
+        if (existingPlat) {
+          existingPlat.quantite += 1;
+        } else {
+          acc.push({ id_plat: item.id_plat, quantite: 1 });
+        }
+    
+        return acc;
+      }, []);
+    
+      return plats;
+    };
+
+
+    const plats = calculatePlatsQuantities(cartItems);
+    console.log('Plats:', plats);
+    try {
+      const response = await Api_commande.createCommande(commandeData, plats);
+      console.log('Commande créée avec succès :', response);
+    } catch (error) {
+      console.error('Erreur lors de la création de la commande :', error);
+    }
+  }
+
+
+
+
+
+  const { cartItems, setCartItems } = useContext(CartContext);
   return (
     <View style={styles.container}>
       {/* Contenu principal (scrollable) */}
@@ -31,35 +74,11 @@ const MycartScreen = () => {
             <Image source={require('../assets/poubelle.png')} />
           </View>
 
-          <View style={{flexDirection:'column'}}>
-            <Text style={styles.emptyCartTextY}>Your cart is Empty!</Text>
-            <Text style={styles.emptyCartText}>Add items to cart to get started</Text>
-          </View>
+          <Button onPress={send_commandes} title="Envoyer la commande" />
         </View>
       </ScrollView>
 
-      {/* Navigation Bar (toujours en bas) */}
-      <View style={styles.navBar}>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require('../assets/homeV.png')} style={styles.navIcon} />
-          <Text style={styles.navText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require('../assets/mylist.png')} style={styles.navIcon} />
-          <Text style={styles.navText}>My List</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItemM}>
-          <Image source={require('../assets/home.png')} style={styles.navIconM} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require('../assets/orders.png')} style={styles.navIcon} />
-          <Text style={styles.navText}>Orders</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require('../assets/profile.png')} style={styles.navIcon} />
-          <Text style={styles.navText}>Profile</Text>
-        </TouchableOpacity>
-      </View>
+      
     </View>
   );
 };

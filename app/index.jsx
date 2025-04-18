@@ -81,6 +81,15 @@ export default function App() {
             ),
           }}
           />
+          <Tab.Screen name="Mycart" component={MycartScreen} 
+           options={{
+            tabBarLabel: 'My Cart',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="cart" size={size} color={color} />
+           
+            ),
+          }}
+          />
           
         </Tab.Navigator>
    
