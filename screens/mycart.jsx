@@ -29,23 +29,9 @@ const MycartScreen = () => {
 
     };
 
-    const calculatePlatsQuantities = (cartItems) => {
-      const plats = cartItems.reduce((acc, item) => {
-        const existingPlat = acc.find((plat) => plat.id_plat === item.id_plat);
-        if (existingPlat) {
-          existingPlat.quantite += 1;
-        } else {
-          acc.push({ id_plat: item.id_plat, quantite: 1 });
-        }
-    
-        return acc;
-      }, []);
-    
-      return plats;
-    };
+   
 
-
-    const plats = calculatePlatsQuantities(cartItems);
+    const plats = cartItems;
     console.log('Plats:', plats);
     try {
       const response = await Api_commande.createCommande(commandeData, plats);

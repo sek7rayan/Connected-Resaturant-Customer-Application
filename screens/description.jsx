@@ -1,18 +1,20 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState, useRef, useEffect , useContext} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Animated, Easing, Modal} from 'react-native';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import Api_maladie from '../api_maladie';
 
 import {useNavigation} from '@react-navigation/native';
-
+import { CartContext } from '../CartContext';
 import { useRoute } from '@react-navigation/native';
 
 import Api_plat from '../api_plats';
 
 const DescriptionScreen = () => {
   const [ingredients_plat, setIngredients] = useState([]);
+  const { cartItems, setCartItems } = useContext(CartContext);
 
 useEffect(() => {
 const fetchingedientPlats = async () => {
@@ -41,8 +43,36 @@ setIngredients(ingredientNames.filter((item) => item !== undefined));
 fetchingedientPlats();
 },[])
 
+const fetchMaladies = async (id_plat) => {
+  try {
+   
+    const maladieclient =  await Api_maladie.getClientMaladies(23);
+    const maladie_by_client = maladieclient.data.maladies;
+    const maladiesplat = await Api_maladie.getMaladiesByPlat(id_plat);
+    const maladies_by_plat = maladiesplat.data.maladies;
+    const merged = maladie_by_client.map((plat) => {
+      const isMaladie = maladies_by_plat.some((maladie) => maladie.id_maladie === plat.id_maladie);
+      if (isMaladie) {
+        return plat;
+      }
+    });
+   
+    const alerts = merged.filter((item) => item !== undefined);
+    console.log("alert ",alerts);
+    if (alerts.length > 0) {
+      alert("Vous avez des allergies alimentaires");
+    } else {
+      console.log('No alerts found');
+    }
+ 
+  } catch (error) {
+    console.error('Error fetching maladies:', error);
+  }
+ 
+};
 
-console.log(ingredients_plat)
+
+
 
   const navigation = useNavigation();
   const route = useRoute();
@@ -106,7 +136,20 @@ console.log(ingredients_plat)
             </View>
               
             <View style={styles.cartContainer}>
-              <TouchableOpacity onPress={showCartAlert}>
+              <TouchableOpacity onPress={() => {
+                fetchMaladies(item.id_plat);
+                showCartAlert();
+                const newItem = {id_plat : item.id_plat, quantite: incr };
+                const existingItemIndex = cartItems.findIndex(cartItem => cartItem.id_plat === item.id_plat);
+                if (existingItemIndex !== -1) {
+                  const updatedCartItems = [...cartItems];
+                  updatedCartItems[existingItemIndex].quantite += incr;
+                  setCartItems(updatedCartItems);
+                } else {
+                  setCartItems([...cartItems, newItem]);
+                }
+
+              }}>
                 <Image source={require('../assets/panier.png')} style={styles.cartIcon} />
               </TouchableOpacity>
             </View> 

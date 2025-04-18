@@ -2,7 +2,7 @@ import { View } from "react-native";
 import { Text, StyleSheet, TouchableOpacity, Image , Dimensions} from 'react-native';
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import Api_maladie from '../api_maladie';
+
 
 
 
@@ -16,39 +16,26 @@ const hp = (size) => (height / 100) * size;
 export default function Plat({item , setCartItems, showCartAlert , setShowAlert}) {
     const navigation = useNavigation();
     const [hoveredItem, setHoveredItem] = useState(null)
-    const fetchMaladies = async (id_plat) => {
-      try {
-       
-        const maladieclient =  await Api_maladie.getClientMaladies(23);
-        const maladie_by_client = maladieclient.data.maladies;
-        const maladiesplat = await Api_maladie.getMaladiesByPlat(id_plat);
-        const maladies_by_plat = maladiesplat.data.maladies;
-        const merged = maladie_by_client.map((plat) => {
-          const isMaladie = maladies_by_plat.some((maladie) => maladie.id_maladie === plat.id_maladie);
-          if (isMaladie) {
-            return plat;
-          }
-        });
-       
-        const alerts = merged.filter((item) => item !== undefined);
-        console.log("alert ",alerts);
-        if (alerts.length > 0) {
-          alert("Vous avez des allergies alimentaires");
-        } else {
-          console.log('No alerts found');
-        }
-     
-      } catch (error) {
-        console.error('Error fetching maladies:', error);
-      }
-     
-    };
+  
     return (
         <TouchableOpacity   
         activeOpacity={1}
         onPress={()=>{
-          
-          navigation.navigate("Description", {item : item});
+          if ( hoveredItem === 'pizza') {
+            setHoveredItem(null)
+            setCartItems((prevItems) =>
+              prevItems.filter((cartItem) => cartItem.id_plat !== item.id_plat)
+            )
+  
+            
+          }
+          else {
+            setHoveredItem('pizza');
+            navigation.navigate("Description", {item : item});
+            //
+  
+          }
+         
         
       
       }}
@@ -93,22 +80,23 @@ export default function Plat({item , setCartItems, showCartAlert , setShowAlert}
             <Text style={styles.itemPrice}>{item.Prix_plat} DA</Text>
             
             <TouchableOpacity style={styles.plusButton} onPress={()=>{
-
-              showCartAlert();
-              if ( hoveredItem === 'pizza') {
-                setHoveredItem(null)
-                setCartItems((prevItems) =>
-                  prevItems.filter((cartItem) => cartItem.id_plat !== item.id_plat)
-                )
-      
-                
-              }
-              else {
-                setHoveredItem('pizza');
-                setCartItems((prevItems) => [...prevItems, item]);
-                fetchMaladies(item.id_plat);
-      
-              }
+                  if ( hoveredItem === 'pizza') {
+                    setHoveredItem(null)
+                    setCartItems((prevItems) =>
+                      prevItems.filter((cartItem) => cartItem.id_plat !== item.id_plat)
+                    )
+          
+                    
+                  }
+                  else {
+                    setHoveredItem('pizza');
+                    navigation.navigate("Description", {item : item});
+                    //
+          
+                  }
+                 
+            
+            
             }} >
               <Image 
                 source={require('../assets/plus.png')} 
