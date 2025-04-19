@@ -23,8 +23,7 @@ export default function Plat({item , setCartItems}) {
     const [hoveredItem, setHoveredItem] = useState(null)
     const [isFavorite, setIsFavorite] = useState(false);    
 const id_client = 1; // Remplacez ceci par la valeur réelle de id_client
- // Remplacez ceci par la valeur réelle de id_client
-// Remplacez ceci par la valeur réelle de id_client
+
 
     useFocusEffect(
       useCallback(() => {
