@@ -14,7 +14,13 @@ const hp = (size) => (height / 100) * size
 
 const MyListScreen = () => {
   const [foodItems, setFoodItems] = useState([])
-    
+
+  
+const islem = "nnnn"
+
+const [isFavorite, setIsFavorite] = useState(false)
+
+
 const id_client = 1; // Remplacez ceci par la valeur réelle de id_client
 
   useFocusEffect(
