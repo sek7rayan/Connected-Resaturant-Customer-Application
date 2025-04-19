@@ -22,7 +22,8 @@ export default function Plat({item , setCartItems}) {
     const navigation = useNavigation();
     const [hoveredItem, setHoveredItem] = useState(null)
     const [isFavorite, setIsFavorite] = useState(false);
-    const [id_client, setIdClient] = useState(null);
+    //const [id_client, setIdClient] = useState(null);
+    /*
     const getToken = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
@@ -42,7 +43,10 @@ export default function Plat({item , setCartItems}) {
    
     getToken();
     
-setIdClient(1);
+    */
+    
+    
+const id_client = 1; // Remplacez ceci par la valeur réelle de id_client
  // Remplacez ceci par la valeur réelle de id_client
 // Remplacez ceci par la valeur réelle de id_client
 
