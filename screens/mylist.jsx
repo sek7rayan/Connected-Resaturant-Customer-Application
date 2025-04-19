@@ -34,6 +34,7 @@ const MyListScreen = () => {
   
  
   getToken();
+  setIdClient(1);
 
 
   useFocusEffect(

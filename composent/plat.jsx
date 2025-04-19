@@ -42,7 +42,7 @@ export default function Plat({item , setCartItems}) {
    
     getToken();
     
-
+setIdClient(1);
  // Remplacez ceci par la valeur réelle de id_client
 // Remplacez ceci par la valeur réelle de id_client
 

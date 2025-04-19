@@ -36,6 +36,7 @@ const DescriptionScreen = () => {
   
  
   getToken();
+  setIdClient(1);
 
 useEffect(() => {
 const fetchingedientPlats = async () => {
