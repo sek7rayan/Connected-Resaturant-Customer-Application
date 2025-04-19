@@ -17,31 +17,7 @@ import Api_plat from '../api_plats';
 const DescriptionScreen = () => {
   const [ingredients_plat, setIngredients] = useState([]);
   const { cartItems, setCartItems } = useContext(CartContext);
-    //const [id_client, setIdClient] = useState(null);
-    /*
-    const getToken = async () => {
-      try {
-        const token = await AsyncStorage.getItem('token');
-        if (token !== null) {
-          setIdClient(parseInt(token, 10));
-
-        } else {
-          console.log('No token found');
-          return null;
-        }
-      } catch (error) {
-        console.error('Error retrieving token:', error);
-        return null;
-      }
-    };
-    
-   
-    getToken();
-    
-    */
-    
-    
-    const id_client = 1; // Remplacez ceci par la valeur réelle de id_client
+  const id_client = 1; // Remplacez ceci par la valeur réelle de id_client
 useEffect(() => {
 const fetchingedientPlats = async () => {
 const ingredients_res = await Api_plat.getIngredients();

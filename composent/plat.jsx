@@ -21,31 +21,7 @@ const hp = (size) => (height / 100) * size;
 export default function Plat({item , setCartItems}) {
     const navigation = useNavigation();
     const [hoveredItem, setHoveredItem] = useState(null)
-    const [isFavorite, setIsFavorite] = useState(false);
-    //const [id_client, setIdClient] = useState(null);
-    /*
-    const getToken = async () => {
-      try {
-        const token = await AsyncStorage.getItem('token');
-        if (token !== null) {
-          setIdClient(parseInt(token, 10));
-
-        } else {
-          console.log('No token found');
-          return null;
-        }
-      } catch (error) {
-        console.error('Error retrieving token:', error);
-        return null;
-      }
-    };
-    
-   
-    getToken();
-    
-    */
-    
-    
+    const [isFavorite, setIsFavorite] = useState(false);    
 const id_client = 1; // Remplacez ceci par la valeur réelle de id_client
  // Remplacez ceci par la valeur réelle de id_client
 // Remplacez ceci par la valeur réelle de id_client

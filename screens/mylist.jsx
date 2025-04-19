@@ -12,38 +12,8 @@ const { width, height } = Dimensions.get("window")
 const wp = (size) => (width / 100) * size
 const hp = (size) => (height / 100) * size
 
-
-
-
-
-
-
-
 const MyListScreen = () => {
   const [foodItems, setFoodItems] = useState([])
-     //const [id_client, setIdClient] = useState(null);
-    /*
-    const getToken = async () => {
-      try {
-        const token = await AsyncStorage.getItem('token');
-        if (token !== null) {
-          setIdClient(parseInt(token, 10));
-
-        } else {
-          console.log('No token found');
-          return null;
-        }
-      } catch (error) {
-        console.error('Error retrieving token:', error);
-        return null;
-      }
-    };
-    
-   
-    getToken();
-    
-    */
-    
     
 const id_client = 1; // Remplacez ceci par la valeur réelle de id_client
 
