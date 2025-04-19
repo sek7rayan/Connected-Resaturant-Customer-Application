@@ -13,6 +13,12 @@ const wp = (size) => (width / 100) * size
 const hp = (size) => (height / 100) * size
 
 
+
+
+
+
+
+
 const MyListScreen = () => {
   const [foodItems, setFoodItems] = useState([])
      //const [id_client, setIdClient] = useState(null);
