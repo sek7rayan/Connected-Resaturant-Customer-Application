@@ -10,8 +10,12 @@ import {
   Button
 } from 'react-native';
 import Api_commande from '../api_commande';
-import { useContext } from 'react';
+import { useContext , useCallback , useEffect ,useState } from 'react';
 import { CartContext } from '../CartContext';
+import { useFocusEffect } from '@react-navigation/native';
+import Api_plat from '../api_plats';
+import Cart_item from '@/composent/cart_item';
+
 
 
 const {width, height} = Dimensions.get('window');
@@ -20,6 +24,34 @@ const wp = (size) => (width / 100) * size;
 const hp = (size) => (height / 100) * size;
 
 const MycartScreen = () => {
+  const { cartItems, setCartItems } = useContext(CartContext);
+  const [foodItems, setFoodItems] = useState([]);
+
+  useFocusEffect(
+    useCallback(() => {
+  
+      const fetchData = async () => {
+        try {
+
+          const availablePlatsResponse = await Api_plat.getAvailablePlats();
+          const availablePlats = availablePlatsResponse.data.plats;
+          const merged = availablePlats.map((availablePlat) => {
+            const isFavorite = cartItems.some((favoritePlat) => favoritePlat.id_plat === availablePlat.id_plat);
+            if (isFavorite) {
+              return availablePlat;
+            }
+          });
+          const food = merged.filter((item) => item !== undefined);
+          setFoodItems(food);
+        } catch (error) {
+          console.error("Erreur lors de la récupération des données :", error);
+        }
+      };
+      fetchData();
+    }, [cartItems])
+  );
+
+  
 
   const send_commandes = async () => {
     const commandeData = {
@@ -32,7 +64,7 @@ const MycartScreen = () => {
    
 
     const plats = cartItems;
-    console.log('Plats:', plats);
+ 
     try {
       const response = await Api_commande.createCommande(commandeData, plats);
       console.log('Commande créée avec succès :', response);
@@ -45,26 +77,42 @@ const MycartScreen = () => {
 
 
 
-  const { cartItems, setCartItems } = useContext(CartContext);
-  console.log('Cart items:', cartItems);  
+
+ 
   return (
     <View style={styles.container}>
       {/* Contenu principal (scrollable) */}
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header */}
+       
         <View style={styles.header}>
           <Text style={styles.headerText}>My cart</Text>
         </View>
 
-        { cartItems.length === 0 ?  <View style={styles.mainContent}>
+        { cartItems.length === 0 ?
+          <View style={styles.mainContent}>
           <View>
             <Image source={require('../assets/poubelle.png')} />
           </View>
+          </View>
 
-          <Button onPress={send_commandes} title="Envoyer la commande" />
-        </View> :  
-        <Text> my order : </Text>
-        }
+        : 
+        <View>
+          { foodItems.map((item) => {
+                 
+                 return (
+                     <Cart_item key={item.id_plat} item={item} />
+                 );
+                       
+             })}
+
+        </View>
+     
+    
+
+    } 
+      
+    
+        
 
        
       </ScrollView>
