@@ -40,43 +40,42 @@ const id_client = clientId;
 
 
 
-  useFocusEffect(
-    useCallback(() => {
-      const fetchData = async () => {
-        try {
-         
-          const favoritePlatsResponse = await Api_plat_pref.getFavoritePlats(id_client);
-          const favoritePlats = favoritePlatsResponse.data.plats;
-          const availablePlatsResponse = await Api_plat.getAvailablePlats();
-          const availablePlats = availablePlatsResponse.data.plats;
-          const merged = availablePlats.map((availablePlat) => {
-  
-            const isFavorite = favoritePlats.some((favoritePlat) => favoritePlat.id_plat === availablePlat.id_plat);
-            if (isFavorite) {
-              return availablePlat
-              
-            }
-          
-            });
-          const food = merged.filter((item) => item !== undefined);
-          setFoodItems(food);
-        
-        } catch (error) {
-          console.error("Erreur lors de la récupération des données :", error);
-        }
-      };
-      fetchData();
-    }, [])
+useFocusEffect(
+  useCallback(() => {
+    if (!id_client) return; // Ne pas exécuter si id_client n'est pas disponible
 
-  );
+    const fetchData = async () => {
+      try {
+        const favoritePlatsResponse = await Api_plat_pref.getFavoritePlats(id_client);
+        const favoritePlats = favoritePlatsResponse.data.plats;
+        const availablePlatsResponse = await Api_plat.getAvailablePlats();
+        const availablePlats = availablePlatsResponse.data.plats;
+        const merged = availablePlats.map((availablePlat) => {
+          const isFavorite = favoritePlats.some((favoritePlat) => favoritePlat.id_plat === availablePlat.id_plat);
+          if (isFavorite) {
+            return availablePlat;
+          }
+        });
+        const food = merged.filter((item) => item !== undefined);
+        setFoodItems(food);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des données :", error);
+      }
+    };
+    fetchData();
+  }, [id_client]) // Ajouter id_client comme dépendance
+);
 
  
 
-  const removeItem = (id) => {
-    setFoodItems(foodItems.filter((item) => item.id_plat !== id))
-    Api_plat_pref.deleteFavoritePlat(id_client, id)
-    
+const removeItem = (id) => {
+  if (!id_client) {
+    console.warn("Client ID non disponible");
+    return;
   }
+  setFoodItems(foodItems.filter((item) => item.id_plat !== id));
+  Api_plat_pref.deleteFavoritePlat(id_client, id);
+}
 
   return (
     <View style={styles.container}>

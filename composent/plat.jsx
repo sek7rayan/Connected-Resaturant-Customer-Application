@@ -48,35 +48,42 @@ export default function Plat({item , setCartItems}) {
 const id_client = clientId; 
 console.log("client id", id_client)
 
-    useFocusEffect(
-      useCallback(() => {
-        const fetchFavorites = async () => {
-          try {
-            const favoritePlatsResponse = await Api_plat_pref.getFavoritePlats(id_client);
-            const favoritePlats = favoritePlatsResponse.data.plats;
-            const isFav = favoritePlats.some((fav) => fav.id_plat === item.id_plat);
-            setIsFavorite(isFav);
-          } catch (error) {
-            console.error("Erreur lors de la récupération des plats favoris :", error);
-          }
-        };
-      
-        fetchFavorites();
-      }, []));
-      
-    const handleFavoritePress = async () => {
+useFocusEffect(
+  useCallback(() => {
+    if (!id_client) return; // Ne rien faire si id_client n'est pas disponible
+
+    const fetchFavorites = async () => {
       try {
-        if (!isFavorite) {
-          await Api_plat_pref.addFavoritePlat(item.id_plat, id_client);
-          setIsFavorite(true);
-        } else {
-          await Api_plat_pref.deleteFavoritePlat(id_client, item.id_plat);
-          setIsFavorite(false);
-        }
+        const favoritePlatsResponse = await Api_plat_pref.getFavoritePlats(id_client);
+        const favoritePlats = favoritePlatsResponse.data.plats;
+        const isFav = favoritePlats.some((fav) => fav.id_plat === item.id_plat);
+        setIsFavorite(isFav);
       } catch (error) {
-        console.error("Erreur lors de l’ajout/suppression du favori :", error);
+        console.error("Erreur lors de la récupération des plats favoris :", error);
       }
+    };
+  
+    fetchFavorites();
+  }, [id_client])); // Ajoutez id_client comme dépendance
+      
+  const handleFavoritePress = async () => {
+    if (!id_client) {
+      console.warn("Client ID non disponible");
+      return;
     }
+  
+    try {
+      if (!isFavorite) {
+        await Api_plat_pref.addFavoritePlat(item.id_plat, id_client);
+        setIsFavorite(true);
+      } else {
+        await Api_plat_pref.deleteFavoritePlat(id_client, item.id_plat);
+        setIsFavorite(false);
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'ajout/suppression du favori :", error);
+    }
+  }
 
   
     return (
