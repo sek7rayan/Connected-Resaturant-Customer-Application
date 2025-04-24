@@ -17,31 +17,27 @@ import Api_plat from '../api_plats';
 const DescriptionScreen = () => {
   const [ingredients_plat, setIngredients] = useState([]);
   const { cartItems, setCartItems } = useContext(CartContext);
-    //const [id_client, setIdClient] = useState(null);
-    /*
-    const getToken = async () => {
+  const [clientId, setclientId] = useState(null);  
+  useEffect(() => {
+    const checkLoginStatus = async () => {
       try {
-        const token = await AsyncStorage.getItem('token');
-        if (token !== null) {
-          setIdClient(parseInt(token, 10));
+        const id = await AsyncStorage.getItem('clientId');
+        
+        if (id) {
+          setclientId(parseInt(id));
 
-        } else {
-          console.log('No token found');
-          return null;
         }
       } catch (error) {
-        console.error('Error retrieving token:', error);
-        return null;
+        console.error('Error checking login status:', error);
+      
       }
     };
-    
-   
-    getToken();
-    
-    */
-    
-    
-    const id_client = 1; // Remplacez ceci par la valeur réelle de id_client
+    checkLoginStatus();
+
+  }, []);
+
+
+const id_client = clientId; 
 useEffect(() => {
 const fetchingedientPlats = async () => {
 const ingredients_res = await Api_plat.getIngredients();

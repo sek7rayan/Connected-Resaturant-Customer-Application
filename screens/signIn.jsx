@@ -26,15 +26,10 @@ const SignINScreen = () => {
 
   const handleLogin = async () => {
     try {
-      const result = await Api_login_register.loginClient(email, password);
-  
-      if (result && result.token) {
-        const decodedToken = jwtDecode(result.token);
-        await AsyncStorage.setItem('token', String(decodedToken.id));
+      const response = await Api_login_register.loginClient(email, password);
+      await AsyncStorage.setItem('clientId', response.data.client.id.toString());
         navigation.navigate('Main');
-      } else {
-        alert("Erreur : Aucun token reçu.");
-      }
+     
     } catch (error) {
       console.error("Erreur de connexion :", error);
     }

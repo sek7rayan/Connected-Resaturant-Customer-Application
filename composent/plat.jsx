@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import { Text, StyleSheet, TouchableOpacity, Image , Dimensions} from 'react-native';
-import { useState , useCallback  } from "react";
+import { useState , useCallback , useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { FontAwesome } from '@expo/vector-icons';
 import Api_plat_pref from "../api_pla_pref";
@@ -21,9 +21,32 @@ const hp = (size) => (height / 100) * size;
 export default function Plat({item , setCartItems}) {
     const navigation = useNavigation();
     const [hoveredItem, setHoveredItem] = useState(null)
-    const [isFavorite, setIsFavorite] = useState(false);    
-const id_client = 1; // Remplacez ceci par la valeur réelle de id_client
+    const [isFavorite, setIsFavorite] = useState(false);
+    const [clientId, setclientId] = useState(null);  
 
+
+
+    useEffect(() => {
+      const checkLoginStatus = async () => {
+        try {
+          const id = await AsyncStorage.getItem('clientId');
+          
+          if (id) {
+            setclientId(parseInt(id));
+
+          }
+        } catch (error) {
+          console.error('Error checking login status:', error);
+        
+        }
+      };
+      checkLoginStatus();
+ 
+    }, []);
+
+
+const id_client = clientId; 
+console.log("client id", id_client)
 
     useFocusEffect(
       useCallback(() => {

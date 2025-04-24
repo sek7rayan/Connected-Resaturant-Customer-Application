@@ -1,4 +1,4 @@
-import { useState , useCallback} from "react"
+import { useState , useCallback , useEffect} from "react"
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, TextInput, Dimensions } from "react-native"
 import PlatPref from "../composent/plat_pref"
 import Api_plat_pref from "../api_pla_pref"
@@ -16,12 +16,29 @@ const MyListScreen = () => {
   const [foodItems, setFoodItems] = useState([])
 
   
-const islem = "nnnn"
+  const [clientId, setclientId] = useState(null);  
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const id = await AsyncStorage.getItem('clientId');
+        
+        if (id) {
+          setclientId(parseInt(id));
 
-const [isFavorite, setIsFavorite] = useState(false)
+        }
+      } catch (error) {
+        console.error('Error checking login status:', error);
+      
+      }
+    };
+    checkLoginStatus();
+
+  }, []);
 
 
-const id_client = 1; // Remplacez ceci par la valeur réelle de id_client
+const id_client = clientId; 
+
+
 
   useFocusEffect(
     useCallback(() => {
