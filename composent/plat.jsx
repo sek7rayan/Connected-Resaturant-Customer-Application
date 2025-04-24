@@ -46,7 +46,7 @@ export default function Plat({item , setCartItems}) {
 
 
 const id_client = clientId; 
-console.log("client id", id_client)
+
 
 useFocusEffect(
   useCallback(() => {

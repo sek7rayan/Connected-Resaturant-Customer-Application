@@ -46,6 +46,7 @@ const MycartScreen = () => {
 
 
   const { cartItems, setCartItems } = useContext(CartContext);
+  console.log('Cart items:', cartItems);  
   return (
     <View style={styles.container}>
       {/* Contenu principal (scrollable) */}
@@ -55,13 +56,17 @@ const MycartScreen = () => {
           <Text style={styles.headerText}>My cart</Text>
         </View>
 
-        <View style={styles.mainContent}>
+        { cartItems.length === 0 ?  <View style={styles.mainContent}>
           <View>
             <Image source={require('../assets/poubelle.png')} />
           </View>
 
           <Button onPress={send_commandes} title="Envoyer la commande" />
-        </View>
+        </View> :  
+        <Text> my order : </Text>
+        }
+
+       
       </ScrollView>
 
       
