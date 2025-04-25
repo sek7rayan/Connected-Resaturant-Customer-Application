@@ -42,8 +42,9 @@ const ProfileScreen = () => {
         const storedUser = await AsyncStorage.getItem("userData");
         if (storedUser) {
           const parsedUser = JSON.parse(storedUser);
+          console.log("Parsed User Data:", parsedUser);
           setUserData({
-            name: parsedUser.nom || "",
+            name: parsedUser.name || "",
             email: parsedUser.email || "",
             age: parsedUser.age ? `${parsedUser.age} ans` : "",
             points:  "0 points",
