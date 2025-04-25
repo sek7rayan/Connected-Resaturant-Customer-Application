@@ -12,6 +12,8 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Api_maladie from "@/api_maladie";
+import EvilIcons from '@expo/vector-icons/EvilIcons';
+
 
 const { width, height } = Dimensions.get("window");
 const wp = (size) => (width / 100) * size;
@@ -201,10 +203,7 @@ const ProfileScreen = () => {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Health Alerts</Text>
             <TouchableOpacity onPress={() => setHealthAlertsVisible(true)}>
-              <Image
-                source={require("../assets/clock.png")}
-                style={styles.editIcon}
-              />
+             <EvilIcons name="pencil" size={30} color="black" />
             </TouchableOpacity>
           </View>
 
