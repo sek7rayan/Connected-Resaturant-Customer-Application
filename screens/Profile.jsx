@@ -50,13 +50,14 @@ const ProfileScreen = () => {
             points:  "0 points",
             healthIssues: [],
           });
-          setClientId(parsedUser.id_client);
+          setClientId(parsedUser.id);
           setSelectedHealthIssues(parsedUser.maladies || []);
         }
 
         // Récupérer les maladies disponibles depuis l'API
         const maladiesResponse = await Api_maladie.getMaladies();
         if (maladiesResponse && maladiesResponse.data) {
+          console.log("Maladies Data:", maladiesResponse.data.maladies);
           setAvailableHealthIssues(maladiesResponse.data.maladies || []);
         }
       } catch (error) {
@@ -69,15 +70,6 @@ const ProfileScreen = () => {
 
   // Fonction pour basculer la sélection d'un problème de santé
   const toggleHealthIssue = (issue) => {
-    if (issue === "None") {
-      setSelectedHealthIssues(["None"]);
-      return;
-    }
-
-    if (selectedHealthIssues.includes("None")) {
-      setSelectedHealthIssues([issue]);
-      return;
-    }
 
     if (selectedHealthIssues.includes(issue)) {
       setSelectedHealthIssues(selectedHealthIssues.filter((item) => item !== issue));
@@ -97,27 +89,9 @@ const ProfileScreen = () => {
         selectedHealthIssues
       );
 
-      // Mettre à jour les données locales
-      setUserData((prev) => ({
-        ...prev,
-        healthIssues: selectedHealthIssues,
-      }));
-
-      // Fermer le modal
       setHealthAlertsVisible(false);
 
-      // Mettre à jour le localStorage
-      const storedUser = await AsyncStorage.getItem("userData");
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        await AsyncStorage.setItem(
-          "userData",
-          JSON.stringify({
-            ...parsedUser,
-            maladies: selectedHealthIssues,
-          })
-        );
-      }
+    
     } catch (error) {
       console.error("Erreur lors de la mise à jour des maladies:", error);
     }
@@ -212,13 +186,13 @@ const ProfileScreen = () => {
                       key={item.id_maladie}
                       style={[
                         styles.healthOption,
-                        selectedHealthIssues.includes(item.nom) &&
+                        selectedHealthIssues.includes(item.nom_maladie) &&
                           styles.selectedOption,
                       ]}
-                      onPress={() => toggleHealthIssue(item.nom)}
+                      onPress={() => toggleHealthIssue(item)}
                     >
-                      <Text style={styles.healthOptionText}>{item.nom}</Text>
-                      {selectedHealthIssues.includes(item.nom) && (
+                      <Text style={styles.healthOptionText}>{item.nom_maladie}</Text>
+                      {selectedHealthIssues.includes(item.nom_maladie) && (
                         <Text style={styles.checkIcon}>✓</Text>
                       )}
                     </TouchableOpacity>

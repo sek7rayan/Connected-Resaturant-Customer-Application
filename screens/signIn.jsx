@@ -30,7 +30,7 @@ const SignINScreen = () => {
       await AsyncStorage.setItem('clientId', response.data.client.id.toString());
        //+ ' ' + response.data.client.prenom,
      const userData  = {
-     
+        id: response.data.client.id,
         name: response.data.client.name_ + ' ' + response.data.client.prenom,
         email: response.data.client.email,
         age: response.data.client.age,
