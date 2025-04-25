@@ -11,7 +11,7 @@ import {Ionicons , MaterialCommunityIcons } from '@expo/vector-icons';
 import Octicons from '@expo/vector-icons/Octicons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MycartScreen from '@/screens/mycart';
-
+import ProfileScreen from '@/screens/Profile';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -28,13 +28,7 @@ const Menu = () => {
 };
 export default function Main() {
 
-  const Profile = () => {
-    return (
-      <View>
-        <Text>Profile</Text>
-      </View>
-    );
-  }
+  
 
 
   return (
@@ -72,7 +66,7 @@ export default function Main() {
             ),
           }}
           />
-          <Tab.Screen name="Profile" component={Profile} 
+          <Tab.Screen name="Profile" component={ProfileScreen} 
            options={{
             tabBarLabel: 'Profile',
             tabBarIcon: ({ color, size }) => (
