@@ -17,16 +17,41 @@ import { useFocusEffect } from '@react-navigation/native';
 import Api_plat from '../api_plats';
 import Cart_item from '@/composent/cart_item';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const {width, height} = Dimensions.get('window');
 
 const wp = (size) => (width / 100) * size;
 const hp = (size) => (height / 100) * size;
 
 const MycartScreen = () => {
-  const { cartItems, setCartItems, removeFromCart } = useContext(CartContext);
+  const { cartItems, setCartItems } = useContext(CartContext);
   const [foodItems, setFoodItems] = useState([]);
   const [tableNumber, setTableNumber] = useState('');
   const [totalPrice, setTotalPrice] = useState(0);
+
+  const [clientId, setclientId] = useState(null);  
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const id = await AsyncStorage.getItem('clientId');
+        
+        if (id) {
+          setclientId(parseInt(id));
+
+        }
+      } catch (error) {
+        console.error('Error checking login status:', error);
+      
+      }
+    };
+    checkLoginStatus();
+
+  }, []);
+
+
+const id_client = clientId; 
+
 
   useEffect(() => {
     const calculateTotal = () => {
@@ -34,7 +59,7 @@ const MycartScreen = () => {
       foodItems.forEach(item => {
         const cartItem = cartItems.find(cartItem => cartItem.id_plat === item.id_plat);
         if (cartItem) {
-          total += item.Prix_plat * cartItem.quantity;
+          total += item.Prix_plat * cartItem.quantite;
         }
       });
       setTotalPrice(total);
@@ -64,6 +89,9 @@ const MycartScreen = () => {
       fetchData();
     }, [cartItems])
   );
+  const removeFromCart = (id_plat) => {
+    setCartItems(prevItems => {
+      return prevItems.filter(item => item.id_plat !== id_plat);})}
 
   const handleRemoveItem = (id_plat) => {
     removeFromCart(id_plat);
@@ -81,15 +109,12 @@ const MycartScreen = () => {
     }
 
     const commandeData = {
-      id_client: 1,
+      id_client: id_client,
       mode_payment: "cash",
       id_table: parseInt(tableNumber)
     };
 
-    const plats = cartItems.map(item => ({
-      id_plat: item.id_plat,
-      quantity: item.quantity
-    }));
+    const plats = cartItems
  
     try {
       const response = await Api_commande.createCommande(commandeData, plats);
@@ -132,7 +157,7 @@ const MycartScreen = () => {
                   key={item.id_plat} 
                   item={item} 
                   onRemove={() => handleRemoveItem(item.id_plat)}
-                  quantity={cartItem?.quantity || 1}
+                  quantity={cartItem?.quantite || 1}
                 />
 
                 </GestureHandlerRootView>
@@ -144,7 +169,7 @@ const MycartScreen = () => {
           <View style={styles.summaryContainer}>
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Total :</Text>
-              <Text style={styles.totalValue}>{totalPrice.toFixed(2)} €</Text>
+              <Text style={styles.totalValue}>{totalPrice.toFixed(2)} DA</Text>
             </View>
 
             <View style={styles.inputRow}>

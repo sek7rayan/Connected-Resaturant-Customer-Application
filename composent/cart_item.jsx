@@ -55,7 +55,7 @@ export default function Cart_item({ item, onRemove, quantity }) {
           <View style={styles.foodFooter}>
             <Text style={styles.quantityText}>Quantité: {quantity}</Text>
             <View style={styles.priceContainer}>
-              <Text style={styles.priceText}>{(item.Prix_plat * quantity).toFixed(2)} €</Text>
+              <Text style={styles.priceText}>{(item.Prix_plat * quantity).toFixed(2)} DA</Text>
             </View>
           </View>
         </View>
