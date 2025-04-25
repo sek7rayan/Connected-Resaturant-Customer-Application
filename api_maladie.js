@@ -95,7 +95,7 @@ const Api_maladie = {
           };
       
       
-          const response = await axios.delete(url,body);
+          const response = await axios.delete(url,{ data: body });
       
       
           if (response.status === 204) {

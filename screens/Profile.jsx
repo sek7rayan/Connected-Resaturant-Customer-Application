@@ -6,15 +6,12 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
-  TextInput,
   Dimensions,
-  FlatList,
   Modal,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Api_maladie from "@/api_maladie";
-import Api_login_register from "@/api_login_register";
 
 const { width, height } = Dimensions.get("window");
 const wp = (size) => (width / 100) * size;
@@ -33,8 +30,8 @@ const ProfileScreen = () => {
   });
   const [selectedHealthIssues, setSelectedHealthIssues] = useState([]);
   const [clientId, setClientId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Charger les données du client et les maladies disponibles
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -42,61 +39,111 @@ const ProfileScreen = () => {
         const storedUser = await AsyncStorage.getItem("userData");
         if (storedUser) {
           const parsedUser = JSON.parse(storedUser);
-          console.log("Parsed User Data:", parsedUser);
           setUserData({
             name: parsedUser.name || "",
             email: parsedUser.email || "",
             age: parsedUser.age ? `${parsedUser.age} ans` : "",
-            points:  "0 points",
+            points: "0 points",
             healthIssues: [],
           });
           setClientId(parsedUser.id);
-          setSelectedHealthIssues(parsedUser.maladies || []);
-        }
-
-        // Récupérer les maladies disponibles depuis l'API
-        const maladiesResponse = await Api_maladie.getMaladies();
-        if (maladiesResponse && maladiesResponse.data) {
-          console.log("Maladies Data:", maladiesResponse.data.maladies);
-          setAvailableHealthIssues(maladiesResponse.data.maladies || []);
+  
+          // Récupérer toutes les maladies disponibles depuis l'API
+          const maladiesResponse = await Api_maladie.getMaladies();
+          if (maladiesResponse?.data?.maladies) {
+            setAvailableHealthIssues(maladiesResponse.data.maladies);
+  
+            // Récupérer les maladies du client depuis l'API
+            if (parsedUser.id) {
+              const clientMaladies = await Api_maladie.getClientMaladies(parsedUser.id);
+              if (clientMaladies?.data?.maladies) {
+                // Faire la jointure avec availableHealthIssues
+                const clientMaladiesWithDetails = clientMaladies.data.maladies.map(clientMaladie => {
+                  const maladieDetails = maladiesResponse.data.maladies.find(
+                    m => m.id_maladie === clientMaladie.id_maladie
+                  );
+                  return {
+                    ...clientMaladie,
+                    ...maladieDetails
+                  };
+                });
+  
+                // Extraire les IDs pour les sélections
+                const maladiesIds = clientMaladiesWithDetails.map(m => m.id_maladie);
+                // Extraire les noms pour l'affichage
+                const maladiesNames = clientMaladiesWithDetails.map(m => m.nom_maladie);
+  
+                setSelectedHealthIssues(maladiesIds);
+                setUserData(prev => ({
+                  ...prev,
+                  healthIssues: maladiesNames
+                }));
+              }
+            }
+          }
         }
       } catch (error) {
         console.error("Erreur lors du chargement des données:", error);
       }
     };
-
+  
     fetchData();
-  }, []);
+  }, [isLoading]);
 
   // Fonction pour basculer la sélection d'un problème de santé
-  const toggleHealthIssue = (issue) => {
-
-    if (selectedHealthIssues.includes(issue)) {
-      setSelectedHealthIssues(selectedHealthIssues.filter((item) => item !== issue));
-    } else {
-      setSelectedHealthIssues([...selectedHealthIssues, issue]);
-    }
+  const toggleHealthIssue = (maladie) => {
+    setSelectedHealthIssues(prev => {
+      if (prev.includes(maladie.id_maladie)) {
+        return prev.filter(id => id !== maladie.id_maladie);
+      } else {
+        return [...prev, maladie.id_maladie];
+      }
+    });
   };
 
-  // Fonction pour sauvegarder les problèmes de santé sélectionnés
+
   const saveHealthIssues = async () => {
     try {
       if (!clientId) return;
+  
 
-      // Mettre à jour les maladies du client via l'API
-      await Api_login_register.registerClient(
-        { id_client: clientId },
-        selectedHealthIssues
+      const currentMaladiesResponse = await Api_maladie.getClientMaladies(clientId);
+      const currentMaladies = currentMaladiesResponse?.data?.maladies || [];
+      const currentMaladiesIds = currentMaladies.map(m => m.id_maladie);
+  
+
+      const toAdd = selectedHealthIssues.filter(id => !currentMaladiesIds.includes(id));
+      const toRemove = currentMaladiesIds.filter(id => !selectedHealthIssues.includes(id));
+
+      const validToRemove = toRemove.filter(id => 
+        currentMaladies.some(m => m.id_maladie === id)
       );
+  
+   
+      for (const id_maladie of toAdd) {
+        try {
+          await Api_maladie.linkClientMaladie(clientId, id_maladie);
+        } catch (error) {
+          continue;
+        }
+      }
+  
 
+      for (const id_maladie of validToRemove) {
+        try {
+          await Api_maladie.deleteClientMaladie(clientId, id_maladie);
+        } catch (error) {
+          continue;
+        }
+      }
+      
+      setIsLoading(prev => !prev);
       setHealthAlertsVisible(false);
-
-    
+      
     } catch (error) {
-      console.error("Erreur lors de la mise à jour des maladies:", error);
+      
     }
   };
-
   const goBack = () => {
     navigation.goBack();
   };
@@ -186,13 +233,13 @@ const ProfileScreen = () => {
                       key={item.id_maladie}
                       style={[
                         styles.healthOption,
-                        selectedHealthIssues.includes(item.nom_maladie) &&
+                        selectedHealthIssues.includes(item.id_maladie) &&
                           styles.selectedOption,
                       ]}
                       onPress={() => toggleHealthIssue(item)}
                     >
                       <Text style={styles.healthOptionText}>{item.nom_maladie}</Text>
-                      {selectedHealthIssues.includes(item.nom_maladie) && (
+                      {selectedHealthIssues.includes(item.id_maladie) && (
                         <Text style={styles.checkIcon}>✓</Text>
                       )}
                     </TouchableOpacity>
@@ -224,7 +271,7 @@ const ProfileScreen = () => {
   );
 };
 
-// Les styles restent exactement les mêmes que dans votre fichier original
+// Les styles restent exactement les mêmes
 const styles = StyleSheet.create({
   container: {
     flex: 1,
