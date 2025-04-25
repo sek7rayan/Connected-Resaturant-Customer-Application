@@ -28,6 +28,14 @@ const SignINScreen = () => {
     try {
       const response = await Api_login_register.loginClient(email, password);
       await AsyncStorage.setItem('clientId', response.data.client.id.toString());
+     const userData  = {
+        name: response.data.client.name_client,
+        email: response.data.client.adress_mail_client,
+        phone: response.data.client.Num_tel_client,
+        age: response.data.Age_client
+      };
+    
+    await AsyncStorage.setItem('userData', JSON.stringify(userData));
         navigation.navigate('Main');
      
     } catch (error) {
