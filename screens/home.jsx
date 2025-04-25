@@ -11,9 +11,11 @@ import {
   TextInput,
   Dimensions,
   FlatList,
+  Modal,
 } from "react-native"
 import { useNavigation } from "@react-navigation/native"
-
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 const { width, height } = Dimensions.get("window")
 
 const wp = (size) => (width / 100) * size
@@ -59,10 +61,29 @@ const foodItems = [
   },
 ]
 
+// Données des tables pour la démonstration
+const tables = [
+  { id: 1, number: 1, capacity: 8, available: true },
+  { id: 2, number: 2, capacity: 8, available: true },
+  { id: 3, number: 3, capacity: 8, available: true },
+  { id: 4, number: 4, capacity: 8, available: true },
+  { id: 5, number: 5, capacity: 8, available: true },
+  { id: 6, number: 6, capacity: 8, available: true },
+  { id: 7, number: 7, capacity: 8, available: true },
+  { id: 8, number: 8, capacity: 8, available: true },
+]
+
 const HomeScreen = () => {
   const [favorites, setFavorites] = useState(
     foodItems.reduce((acc, item) => ({ ...acc, [item.id]: item.isFavorite }), {}),
   )
+  const [bookingModalVisible, setBookingModalVisible] = useState(false)
+  const [selectedTable, setSelectedTable] = useState(null)
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
+  const [numberOfPeople, setNumberOfPeople] = useState("1")
+  const [dateError, setDateError] = useState(false)
+
   const navigation = useNavigation()
 
   const toggleFavorite = (id) => {
@@ -70,6 +91,31 @@ const HomeScreen = () => {
       ...prev,
       [id]: !prev[id],
     }))
+  }
+
+  const handleBookTable = () => {
+    setBookingModalVisible(true)
+  }
+
+  const handleTableSelection = (tableId) => {
+    setSelectedTable(tableId === selectedTable ? null : tableId)
+  }
+
+  const handleDone = () => {
+    if (!startDate || !endDate) {
+      setDateError(true)
+      return
+    }
+
+    // Ici, vous pourriez appeler une API pour réserver la table
+    // Exemple: bookTable(selectedTable, startDate, endDate, numberOfPeople)
+
+    setBookingModalVisible(false)
+    setSelectedTable(null)
+    setStartDate("")
+    setEndDate("")
+    setNumberOfPeople("1")
+    setDateError(false)
   }
 
   const renderFoodItem = ({ item }) => (
@@ -99,11 +145,30 @@ const HomeScreen = () => {
       <View style={styles.priceContainer}>
         <Text style={styles.priceText}>{item.price}</Text>
         <TouchableOpacity style={styles.addButton}>
-          <Image source={require('../assets/plus.png')} />
+          <Image source={require("../assets/plus.png")} />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
   )
+
+  const renderTableItem = (table) => {
+    const isSelected = selectedTable === table.id
+    const tableColor = isSelected ? "#FF0000" : "#4CAF50" // Rouge si sélectionné, vert si disponible
+
+    return (
+      <View key={table.id} style={styles.tableItem}>
+       <MaterialIcons name="table-bar" size={40} color={tableColor} />
+        <View style={styles.tableCapacity}>
+          <Text style={styles.capacityNumber}>8</Text>
+          <FontAwesome name="group" size={12} color="black" />
+        </View>
+        <Text style={styles.tableNumber}>Table {table.number}</Text>
+        <TouchableOpacity style={styles.checkboxContainer} onPress={() => handleTableSelection(table.id)}>
+          <View style={[styles.checkbox, isSelected && styles.checkboxSelected]} />
+        </TouchableOpacity>
+      </View>
+    )
+  }
 
   return (
     <View style={styles.container}>
@@ -113,9 +178,7 @@ const HomeScreen = () => {
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
             <Text style={styles.headerText}>Home</Text>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <View style={styles.notificationBadge}>
-                
-              </View>
+              <View style={styles.notificationBadge}></View>
               <Image source={require("../assets/profilehome.png")} style={styles.profileIcon} />
             </View>
           </View>
@@ -168,7 +231,7 @@ const HomeScreen = () => {
             <View style={styles.bookTableTextContainer}>
               <Text style={styles.bookTableTitle}>Book a table in advance</Text>
               <Text style={styles.bookTableSubtitle}>and save your time</Text>
-              <TouchableOpacity style={styles.bookButton}>
+              <TouchableOpacity style={styles.bookButton} onPress={handleBookTable}>
                 <Text style={styles.bookButtonText}>Book here</Text>
                 <Image source={require("../assets/fleche_droite.png")} style={styles.arrowIcon} />
               </TouchableOpacity>
@@ -195,7 +258,70 @@ const HomeScreen = () => {
         <View style={{ height: hp(10) }} />
       </ScrollView>
 
-     
+      {/* Modal de réservation de table */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={bookingModalVisible}
+        onRequestClose={() => setBookingModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <View>
+                <Text style={styles.modalTitle}>Book table</Text>
+                <Text style={styles.modalSubtitle}>Book your table</Text>
+              </View>
+              <TouchableOpacity onPress={() => setBookingModalVisible(false)}>
+                <Text style={styles.closeButton}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.modalBody}>
+              <Text style={styles.sectionLabel}>Select table</Text>
+
+              <View style={styles.tablesGrid}>{tables.map((table) => renderTableItem(table))}</View>
+
+              <Text style={styles.sectionLabel}>Start date & Time</Text>
+              <TextInput
+                style={[styles.dateInput, dateError && !startDate && styles.inputError]}
+                placeholder="04/13/2025"
+                value={startDate}
+                onChangeText={setStartDate}
+              />
+
+              <Text style={styles.sectionLabel}>End date & Time</Text>
+              <TextInput
+                style={[styles.dateInput, dateError && !endDate && styles.inputError]}
+                placeholder="04/13/2025"
+                value={endDate}
+                onChangeText={setEndDate}
+              />
+
+              <Text style={styles.sectionLabel}>Number of people</Text>
+              <TextInput
+                style={styles.dateInput}
+                placeholder="1"
+                value={numberOfPeople}
+                onChangeText={setNumberOfPeople}
+                keyboardType="numeric"
+              />
+
+              {dateError && <Text style={styles.errorText}>Must choose a valid date</Text>}
+            </ScrollView>
+
+            <View style={styles.modalFooter}>
+              <TouchableOpacity style={styles.cancelButton} onPress={() => setBookingModalVisible(false)}>
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.doneButton} onPress={handleDone}>
+                <Text style={styles.doneButtonText}>Done</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   )
 }
@@ -391,7 +517,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: hp(6),
     right: wp(2),
-    backgroundColor: "#9E090F", 
+    backgroundColor: "#9E090F",
     borderRadius: wp(5),
     paddingHorizontal: wp(1.2),
     paddingVertical: hp(0.4),
@@ -413,7 +539,6 @@ const styles = StyleSheet.create({
     fontSize: wp(4),
     fontWeight: "700",
     color: "#003366",
-  
   },
   priceContainer: {
     flexDirection: "row",
@@ -463,13 +588,13 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   bookTableSubtitle: {
-    fontWeight:'700',
+    fontWeight: "700",
     fontSize: wp(3.5),
     color: "#000",
     marginBottom: hp(1),
   },
   bookButton: {
-    marginLeft:wp(6),
+    marginLeft: wp(6),
     backgroundColor: "#8B0000",
     borderRadius: wp(5),
     paddingVertical: hp(0.8),
@@ -501,9 +626,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   callWaiterTitle: {
-     position:'absolute',
-     marginTop:hp(2),
-     marginLeft:wp(6),
+    position: "absolute",
+    marginTop: hp(2),
+    marginLeft: wp(6),
     fontSize: wp(4),
     fontWeight: "600",
     color: "#000",
@@ -515,20 +640,19 @@ const styles = StyleSheet.create({
     marginBottom: hp(1),
   },
   waiterImage: {
-    marginRight:wp(-70),
+    marginRight: wp(-70),
     width: wp(20),
     height: hp(8),
     resizeMode: "contain",
   },
   callButton: {
-    marginTop:wp(-10),
+    marginTop: wp(-10),
     backgroundColor: "#9BC7FF",
     borderRadius: wp(5),
     paddingVertical: hp(0.8),
     paddingHorizontal: wp(3),
     flexDirection: "row",
     alignItems: "center",
-    
   },
   callButtonText: {
     color: "#fff",
@@ -578,6 +702,150 @@ const styles = StyleSheet.create({
   navText: {
     color: "#555",
     fontSize: wp(3.2),
+  },
+
+  // Styles pour le modal de réservation
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    width: wp(90),
+    maxHeight: hp(80),
+    borderRadius: wp(4),
+    overflow: "hidden",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    padding: wp(5),
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  modalTitle: {
+    fontSize: wp(5),
+    fontWeight: "bold",
+    color: "#000",
+  },
+  modalSubtitle: {
+    fontSize: wp(3.5),
+    color: "#666",
+    marginTop: hp(0.5),
+  },
+  closeButton: {
+    fontSize: wp(6),
+    color: "#000",
+    padding: wp(2),
+  },
+  modalBody: {
+    padding: wp(5),
+    maxHeight: hp(60),
+  },
+  sectionLabel: {
+    fontSize: wp(4),
+    fontWeight: "600",
+    marginBottom: hp(1.5),
+    marginTop: hp(1),
+  },
+  tablesGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    marginBottom: hp(2),
+  },
+  tableItem: {
+    width: wp(19),
+    marginBottom: hp(2),
+    alignItems: "center",
+  },
+  tableIcon: {
+    width: wp(12),
+    height: wp(12),
+    resizeMode: "contain",
+    marginBottom: hp(0.5),
+  },
+  tableCapacity: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: hp(0.5),
+  },
+  capacityNumber: {
+    fontSize: wp(3.5),
+    marginRight: wp(1),
+  },
+  groupIcon: {
+    width: wp(5),
+    height: wp(3),
+    resizeMode: "contain",
+  },
+  tableNumber: {
+    fontSize: wp(3.5),
+    textAlign: "center",
+    marginBottom: hp(0.5),
+  },
+  checkboxContainer: {
+    width: wp(5),
+    height: wp(5),
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  checkbox: {
+    width: wp(5),
+    height: wp(5),
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: wp(1),
+  },
+  checkboxSelected: {
+    backgroundColor: "#000",
+    borderColor: "#000",
+  },
+  dateInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: wp(2),
+    padding: wp(3),
+    marginBottom: hp(2),
+    fontSize: wp(4),
+  },
+  inputError: {
+    borderColor: "red",
+  },
+  errorText: {
+    color: "red",
+    fontSize: wp(3.5),
+    marginBottom: hp(2),
+  },
+  modalFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: wp(5),
+    borderTopWidth: 1,
+    borderTopColor: "#f0f0f0",
+  },
+  cancelButton: {
+    paddingVertical: hp(1.5),
+    paddingHorizontal: wp(5),
+    borderRadius: wp(2),
+  },
+  cancelButtonText: {
+    fontSize: wp(4),
+    color: "#000",
+  },
+  doneButton: {
+    backgroundColor: "#000",
+    paddingVertical: hp(1.5),
+    paddingHorizontal: wp(5),
+    borderRadius: wp(2),
+  },
+  doneButtonText: {
+    fontSize: wp(4),
+    color: "#fff",
+    fontWeight: "600",
   },
 })
 
