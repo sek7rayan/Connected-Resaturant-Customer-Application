@@ -17,6 +17,8 @@ import Api_reservation from "@/api_reservation";
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get("window");
 const wp = (size) => (width / 100) * size;
@@ -39,68 +41,73 @@ const ProfileScreen = () => {
   const [clientId, setClientId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const storedUser = await AsyncStorage.getItem("userData");
-        if (storedUser) {
-          const parsedUser = JSON.parse(storedUser);
-          setUserData({
-            name: parsedUser.name || "",
-            email: parsedUser.email || "",
-            age: parsedUser.age ? `${parsedUser.age} ans` : "",
-            points: "0 points",
-            healthIssues: [],
-          });
-          setClientId(parsedUser.id);
+useFocusEffect(
+useCallback(() => {
+  const fetchData = async () => {
+    try {
+      const storedUser = await AsyncStorage.getItem("userData");
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        setUserData({
+          name: parsedUser.name || "",
+          email: parsedUser.email || "",
+          age: parsedUser.age ? `${parsedUser.age} ans` : "",
+          points: "0 points",
+          healthIssues: [],
+        });
+        setClientId(parsedUser.id);
 
-          // Charger les maladies
-          const maladiesResponse = await Api_maladie.getMaladies();
-          if (maladiesResponse?.data?.maladies) {
-            setAvailableHealthIssues(maladiesResponse.data.maladies);
+        // Charger les maladies
+        const maladiesResponse = await Api_maladie.getMaladies();
+        if (maladiesResponse?.data?.maladies) {
+          setAvailableHealthIssues(maladiesResponse.data.maladies);
 
-            if (parsedUser.id) {
-              const clientMaladies = await Api_maladie.getClientMaladies(parsedUser.id);
-              if (clientMaladies?.data?.maladies) {
-                const clientMaladiesWithDetails = clientMaladies.data.maladies.map(clientMaladie => {
-                  const maladieDetails = maladiesResponse.data.maladies.find(
-                    m => m.id_maladie === clientMaladie.id_maladie
-                  );
-                  return {
-                    ...clientMaladie,
-                    ...maladieDetails
-                  };
-                });
+          if (parsedUser.id) {
+            const clientMaladies = await Api_maladie.getClientMaladies(parsedUser.id);
+            if (clientMaladies?.data?.maladies) {
+              const clientMaladiesWithDetails = clientMaladies.data.maladies.map(clientMaladie => {
+                const maladieDetails = maladiesResponse.data.maladies.find(
+                  m => m.id_maladie === clientMaladie.id_maladie
+                );
+                return {
+                  ...clientMaladie,
+                  ...maladieDetails
+                };
+              });
 
-                const maladiesIds = clientMaladiesWithDetails.map(m => m.id_maladie);
-                const maladiesNames = clientMaladiesWithDetails.map(m => m.nom_maladie);
+              const maladiesIds = clientMaladiesWithDetails.map(m => m.id_maladie);
+              const maladiesNames = clientMaladiesWithDetails.map(m => m.nom_maladie);
 
-                setSelectedHealthIssues(maladiesIds);
-                setUserData(prev => ({
-                  ...prev,
-                  healthIssues: maladiesNames
-                }));
-              }
+              setSelectedHealthIssues(maladiesIds);
+              setUserData(prev => ({
+                ...prev,
+                healthIssues: maladiesNames
+              }));
             }
           }
-
-          // Charger les réservations
-          if (parsedUser.id) {
-            const reservationsResponse = await Api_reservation.getClientReservations(parsedUser.id);
-            console.log("Réservations:", reservationsResponse);
-              setReservations(reservationsResponse.data.reservation || []);
-            
-          }
         }
-      } catch (error) {
-        console.error("Erreur lors du chargement des données:", error);
-      } finally {
-        setIsLoading(false);
+
+        // Charger les réservations
+        if (parsedUser.id) {
+          const reservationsResponse = await Api_reservation.getClientReservations(parsedUser.id);
+            setReservations(reservationsResponse.data.reservation || []);
+          
+        }
       }
-    };
-  
-    fetchData();
-  }, [isLoading]);
+    } catch (error) {
+      console.error("Erreur lors du chargement des données:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  fetchData();
+
+
+},[isLoading])
+
+
+);
 
   const deleteReservation = async (id_reserv) => {
     try {
@@ -140,7 +147,6 @@ const ProfileScreen = () => {
   
 
 
-console.log(reservations);
 
   const toggleHealthIssue = (maladie) => {
     setSelectedHealthIssues(prev => {
@@ -191,9 +197,7 @@ console.log(reservations);
     }
   };
 
-  const goBack = () => {
-    navigation.goBack();
-  };
+ 
 
   const renderReservationItem = ({ item }) => (
     <View style={styles.reservationItem}>
@@ -227,12 +231,7 @@ console.log(reservations);
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={goBack} style={styles.backButton}>
-          <Image
-            source={require("../assets/fleche_gauche.png")}
-            style={styles.backIcon}
-          />
-        </TouchableOpacity>
+       
         <Text style={styles.headerText}>Profile</Text>
       </View>
 
@@ -391,7 +390,7 @@ console.log(reservations);
               )}
 
               <TouchableOpacity
-                style={[styles.modalButton, styles.closeButton]}
+                style={[ styles.closeButton]}
                 onPress={() => setReservationsVisible(false)}
               >
                 <Text style={styles.closeButtonText}>Fermer</Text>
@@ -637,8 +636,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   closeButton: {
-    backgroundColor: "#2196F3",
+    backgroundColor: "red",
     marginTop: hp(2),
+    paddingVertical: hp(1.5),
+    borderRadius: wp(2),
+    alignItems: "center",
+    marginHorizontal: wp(1),
   },
   closeButtonText: {
     color: "#fff",
