@@ -12,6 +12,8 @@ import Octicons from '@expo/vector-icons/Octicons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MycartScreen from '@/screens/mycart';
 import ProfileScreen from '@/screens/Profile';
+import MyOrdersScreen from '@/screens/my_orders';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -21,11 +23,26 @@ const Menu = () => {
       <Stack.Navigator screenOptions={{headerShown : false}}>
         <Stack.Screen name="Menu" component={MenuScreen} />
         <Stack.Screen name="Description" component={DescriptionScreen} />
+        <Stack.Screen name="MyList" component={MyListScreen} />
+        
+
       </Stack.Navigator>
       
    
   );
 };
+
+const Home = () => {
+  return (
+    <Stack.Navigator screenOptions={{headerShown : false}}>
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="MyList" component={MyListScreen} />
+    </Stack.Navigator>
+  );
+}
+
+
+
 export default function Main() {
 
   
@@ -40,7 +57,7 @@ export default function Main() {
           headerShown: false,
 
         }} >
-          <Tab.Screen name="Home" component={HomeScreen} options={{
+          <Tab.Screen name="Home" component={Home} options={{
             tabBarLabel: 'Home',
             tabBarIcon: ({ color, size }) => (
               <Octicons name="home" size={size} color={color} />
@@ -57,11 +74,11 @@ export default function Main() {
           }}
           
           />
-          <Tab.Screen name="MyList" component={MyListScreen} 
+          <Tab.Screen name="Orders" component={MyOrdersScreen} 
           options={{
-            tabBarLabel: 'My List',
+            tabBarLabel: 'My orders',
             tabBarIcon: ({ color, size }) => (
-              <AntDesign name="hearto" size={size} color={color} />
+              <FontAwesome name="reorder" size={size} color={color} />
            
             ),
           }}

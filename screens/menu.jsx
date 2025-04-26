@@ -75,7 +75,7 @@ useEffect(() => {
             placeholderTextColor="#888"
           />
           <View style={styles.cartContainer}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={()=>{navigation.navigate('MyList')}}>
               <Image 
                 source={require('../assets/panier.png')} 
                 style={styles.cartIcon}

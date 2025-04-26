@@ -48,7 +48,33 @@ const Api_commande = {
     }
       throw error;
     }
+  },
+  getClientCommandes : async (id_client) => {
+    try {
+
+      const url = `${API_URL}/commandes/${id_client}`;
+
+      const response = await axios.get(url);
+  
+
+      if (response.status === 200) {
+        return response.data; 
+      }
+    } catch (error) {
+
+      if (error.response) {
+        if (error.response.status === 404) {
+          console.error("Erreur : Aucune commande trouvée pour ce client.");
+          throw new Error("Aucune commande trouvée pour ce client.");
+        } else {
+          console.error("Erreur serveur :", error.response.data.message);
+          throw new Error("Erreur serveur");
+        }
+      }
+    }
   }
 }
 
   export default Api_commande;
+
+  

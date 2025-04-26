@@ -370,7 +370,7 @@ const HomeScreen = () => {
               <TextInput style={styles.searchInput} placeholder="Search" placeholderTextColor="#888" />
             </View>
             <View style={styles.cartContainer}>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={()=>{navigation.navigate('MyList')}}>
                 <Image source={require("../assets/panier.png")} style={styles.cartIcon} />
               </TouchableOpacity>
             </View>
