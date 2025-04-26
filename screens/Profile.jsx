@@ -8,12 +8,15 @@ import {
   Image,
   Dimensions,
   Modal,
+  FlatList,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Api_maladie from "@/api_maladie";
+import Api_reservation from "@/api_reservation";
 import EvilIcons from '@expo/vector-icons/EvilIcons';
-
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 const { width, height } = Dimensions.get("window");
 const wp = (size) => (width / 100) * size;
@@ -22,7 +25,9 @@ const hp = (size) => (height / 100) * size;
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const [healthAlertsVisible, setHealthAlertsVisible] = useState(false);
+  const [reservationsVisible, setReservationsVisible] = useState(false);
   const [availableHealthIssues, setAvailableHealthIssues] = useState([]);
+  const [reservations, setReservations] = useState([]);
   const [userData, setUserData] = useState({
     name: "",
     email: "",
@@ -37,7 +42,6 @@ const ProfileScreen = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Récupérer les données du client depuis le localStorage
         const storedUser = await AsyncStorage.getItem("userData");
         if (storedUser) {
           const parsedUser = JSON.parse(storedUser);
@@ -49,17 +53,15 @@ const ProfileScreen = () => {
             healthIssues: [],
           });
           setClientId(parsedUser.id);
-  
-          // Récupérer toutes les maladies disponibles depuis l'API
+
+          // Charger les maladies
           const maladiesResponse = await Api_maladie.getMaladies();
           if (maladiesResponse?.data?.maladies) {
             setAvailableHealthIssues(maladiesResponse.data.maladies);
-  
-            // Récupérer les maladies du client depuis l'API
+
             if (parsedUser.id) {
               const clientMaladies = await Api_maladie.getClientMaladies(parsedUser.id);
               if (clientMaladies?.data?.maladies) {
-                // Faire la jointure avec availableHealthIssues
                 const clientMaladiesWithDetails = clientMaladies.data.maladies.map(clientMaladie => {
                   const maladieDetails = maladiesResponse.data.maladies.find(
                     m => m.id_maladie === clientMaladie.id_maladie
@@ -69,12 +71,10 @@ const ProfileScreen = () => {
                     ...maladieDetails
                   };
                 });
-  
-                // Extraire les IDs pour les sélections
+
                 const maladiesIds = clientMaladiesWithDetails.map(m => m.id_maladie);
-                // Extraire les noms pour l'affichage
                 const maladiesNames = clientMaladiesWithDetails.map(m => m.nom_maladie);
-  
+
                 setSelectedHealthIssues(maladiesIds);
                 setUserData(prev => ({
                   ...prev,
@@ -83,16 +83,65 @@ const ProfileScreen = () => {
               }
             }
           }
+
+          // Charger les réservations
+          if (parsedUser.id) {
+            const reservationsResponse = await Api_reservation.getClientReservations(parsedUser.id);
+            console.log("Réservations:", reservationsResponse);
+              setReservations(reservationsResponse.data.reservation || []);
+            
+          }
         }
       } catch (error) {
         console.error("Erreur lors du chargement des données:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
   
     fetchData();
   }, [isLoading]);
 
-  // Fonction pour basculer la sélection d'un problème de santé
+  const deleteReservation = async (id_reserv) => {
+    try {
+      if (!clientId) return;
+      
+      await Api_reservation.deleteReservation(clientId, id_reserv);
+      alert("Réservation supprimée avec succès");
+      
+      // Rafraîchir les données
+      const reservationsResponse = await Api_reservation.getClientReservations(clientId);
+      if (reservationsResponse?.data?.reservation) {
+        setReservations(reservationsResponse.data.reservation);
+      } else if (reservationsResponse?.data) {
+        setReservations(reservationsResponse.data);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error);
+      alert("Erreur lors de la suppression de la réservation");
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "Non spécifié";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return dateString; // Retourne la valeur originale si le parsing échoue
+    }
+  };
+  
+
+
+console.log(reservations);
+
   const toggleHealthIssue = (maladie) => {
     setSelectedHealthIssues(prev => {
       if (prev.includes(maladie.id_maladie)) {
@@ -103,16 +152,13 @@ const ProfileScreen = () => {
     });
   };
 
-
   const saveHealthIssues = async () => {
     try {
       if (!clientId) return;
-  
 
       const currentMaladiesResponse = await Api_maladie.getClientMaladies(clientId);
       const currentMaladies = currentMaladiesResponse?.data?.maladies || [];
       const currentMaladiesIds = currentMaladies.map(m => m.id_maladie);
-  
 
       const toAdd = selectedHealthIssues.filter(id => !currentMaladiesIds.includes(id));
       const toRemove = currentMaladiesIds.filter(id => !selectedHealthIssues.includes(id));
@@ -120,8 +166,7 @@ const ProfileScreen = () => {
       const validToRemove = toRemove.filter(id => 
         currentMaladies.some(m => m.id_maladie === id)
       );
-  
-   
+
       for (const id_maladie of toAdd) {
         try {
           await Api_maladie.linkClientMaladie(clientId, id_maladie);
@@ -129,7 +174,6 @@ const ProfileScreen = () => {
           continue;
         }
       }
-  
 
       for (const id_maladie of validToRemove) {
         try {
@@ -143,12 +187,41 @@ const ProfileScreen = () => {
       setHealthAlertsVisible(false);
       
     } catch (error) {
-      
+      console.error("Erreur lors de la sauvegarde:", error);
     }
   };
+
   const goBack = () => {
     navigation.goBack();
   };
+
+  const renderReservationItem = ({ item }) => (
+    <View style={styles.reservationItem}>
+      <View style={styles.reservationInfo}>
+        <View style={styles.reservationIconContainer}>
+          <MaterialIcons name="table-restaurant" size={24} color="#4CAF50" />
+          <Text style={styles.reservationText}>Table {item.id_table}</Text>
+        </View>
+        
+        <View style={styles.reservationIconContainer}>
+          <FontAwesome name="users" size={18} color="#2196F3" />
+          <Text style={styles.reservationText}>{item.nb_personne} personnes</Text>
+        </View>
+        
+        <View>
+          <Text style={styles.reservationText}>Début: {formatDate(item.date_deb_res)}</Text>
+          <Text style={styles.reservationText}>Fin: {formatDate(item.date_fin_res)}</Text>
+        </View>
+      </View>
+      
+      <TouchableOpacity 
+        onPress={() => deleteReservation(item.id_reserv)}
+        style={styles.deleteButton}
+      >
+        <MaterialIcons name="delete" size={24} color="#FF0000" />
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -215,53 +288,117 @@ const ProfileScreen = () => {
               </View>
             ))}
           </View>
+        </View>
 
-          {/* Modal pour les problèmes de santé */}
-          <Modal
-            visible={healthAlertsVisible}
-            transparent={true}
-            animationType="slide"
-            onRequestClose={() => setHealthAlertsVisible(false)}
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Health Issues</Text>
-                <ScrollView style={styles.healthOptionsList}>
-                  {availableHealthIssues.map((item) => (
-                    <TouchableOpacity
-                      key={item.id_maladie}
-                      style={[
-                        styles.healthOption,
-                        selectedHealthIssues.includes(item.id_maladie) &&
-                          styles.selectedOption,
-                      ]}
-                      onPress={() => toggleHealthIssue(item)}
-                    >
-                      <Text style={styles.healthOptionText}>{item.nom_maladie}</Text>
-                      {selectedHealthIssues.includes(item.id_maladie) && (
-                        <Text style={styles.checkIcon}>✓</Text>
-                      )}
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-                <View style={styles.modalButtonsContainer}>
+        {/* Section Mes Réservations */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Mes Réservations</Text>
+            <TouchableOpacity onPress={() => setReservationsVisible(true)}>
+              <EvilIcons name="arrow-right" size={30} color="black" />
+            </TouchableOpacity>
+          </View>
+
+          {reservations.length > 0 ? (
+            <FlatList
+              data={reservations.slice(0, 2)}
+              renderItem={renderReservationItem}
+              keyExtractor={(item) => item.id_reserv.toString()}
+              scrollEnabled={false}
+            />
+          ) : (
+            <Text style={styles.noReservationsText}>Aucune réservation</Text>
+          )}
+
+          {reservations.length > 2 && (
+            <TouchableOpacity 
+              style={styles.seeMoreButton}
+              onPress={() => setReservationsVisible(true)}
+            >
+              <Text style={styles.seeMoreText}>Voir plus ({reservations.length - 2} autres)</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Modal pour les problèmes de santé */}
+        <Modal
+          visible={healthAlertsVisible}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setHealthAlertsVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Health Issues</Text>
+              <ScrollView style={styles.healthOptionsList}>
+                {availableHealthIssues.map((item) => (
                   <TouchableOpacity
-                    style={[styles.modalButton, styles.cancelButton]}
-                    onPress={() => setHealthAlertsVisible(false)}
+                    key={item.id_maladie}
+                    style={[
+                      styles.healthOption,
+                      selectedHealthIssues.includes(item.id_maladie) &&
+                        styles.selectedOption,
+                    ]}
+                    onPress={() => toggleHealthIssue(item)}
                   >
-                    <Text style={styles.cancelButtonText}>Cancel</Text>
+                    <Text style={styles.healthOptionText}>{item.nom_maladie}</Text>
+                    {selectedHealthIssues.includes(item.id_maladie) && (
+                      <Text style={styles.checkIcon}>✓</Text>
+                    )}
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.modalButton, styles.saveButton]}
-                    onPress={saveHealthIssues}
-                  >
-                    <Text style={styles.saveButtonText}>Save</Text>
-                  </TouchableOpacity>
-                </View>
+                ))}
+              </ScrollView>
+              <View style={styles.modalButtonsContainer}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.cancelButton]}
+                  onPress={() => setHealthAlertsVisible(false)}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.saveButton]}
+                  onPress={saveHealthIssues}
+                >
+                  <Text style={styles.saveButtonText}>Save</Text>
+                </TouchableOpacity>
               </View>
             </View>
-          </Modal>
-        </View>
+          </View>
+        </Modal>
+
+
+        <Modal
+          visible={reservationsVisible}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setReservationsVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={[styles.modalContent, { height: hp(70) }]}>
+              <Text style={styles.modalTitle}>Mes Réservations</Text>
+              
+              {reservations.length > 0 ? (
+                <FlatList
+                  data={reservations}
+                  renderItem={renderReservationItem}
+                  keyExtractor={(item) => item.id_reserv.toString()}
+                  contentContainerStyle={styles.reservationsList}
+                />
+              ) : (
+                <View style={styles.noReservationsContainer}>
+                  <Text style={styles.noReservationsText}>Aucune réservation</Text>
+                </View>
+              )}
+
+              <TouchableOpacity
+                style={[styles.modalButton, styles.closeButton]}
+                onPress={() => setReservationsVisible(false)}
+              >
+                <Text style={styles.closeButtonText}>Fermer</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
 
         {/* Espace supplémentaire en bas */}
         <View style={{ height: hp(10) }} />
@@ -270,7 +407,6 @@ const ProfileScreen = () => {
   );
 };
 
-// Les styles restent exactement les mêmes
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -392,6 +528,45 @@ const styles = StyleSheet.create({
     fontSize: wp(3.5),
     color: "#8B0000",
   },
+  reservationItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#F8F8F8",
+    borderRadius: wp(2),
+    padding: wp(3),
+    marginBottom: hp(1),
+  },
+  reservationInfo: {
+    flex: 1,
+  },
+  reservationIconContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: hp(0.5),
+  },
+  reservationText: {
+    fontSize: wp(3.5),
+    marginLeft: wp(2),
+    color: "#333",
+  },
+  deleteButton: {
+    padding: wp(2),
+  },
+  noReservationsText: {
+    fontSize: wp(3.5),
+    color: "#666",
+    textAlign: "center",
+    marginVertical: hp(1),
+  },
+  seeMoreButton: {
+    alignSelf: "center",
+    marginTop: hp(1),
+  },
+  seeMoreText: {
+    color: "#2196F3",
+    fontSize: wp(3.5),
+  },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -399,8 +574,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    width: wp(80),
-    maxHeight: hp(60),
+    width: wp(85),
     backgroundColor: "#fff",
     borderRadius: wp(3),
     padding: wp(4),
@@ -461,6 +635,23 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: wp(4),
     fontWeight: "bold",
+  },
+  closeButton: {
+    backgroundColor: "#2196F3",
+    marginTop: hp(2),
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: wp(4),
+    fontWeight: "bold",
+  },
+  reservationsList: {
+    paddingBottom: hp(2),
+  },
+  noReservationsContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    height: hp(30),
   },
 });
 
