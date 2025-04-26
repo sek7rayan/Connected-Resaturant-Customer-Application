@@ -18,13 +18,19 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Api_reservation from "../api_reservation"
 import DateTimePicker from '@react-native-community/datetimepicker';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width, height } = Dimensions.get("window")
 
 const wp = (size) => (width / 100) * size
 const hp = (size) => (height / 100) * size
 
-// Données des plats pour la démonstration
+
+
+
+
+
+
 const foodItems = [
   {
     id: "1",
@@ -65,6 +71,29 @@ const foodItems = [
 ]
 
 const HomeScreen = () => {
+
+  const [clientId, setclientId] = useState(null);  
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const id = await AsyncStorage.getItem('clientId');
+        
+        if (id) {
+          setclientId(parseInt(id));
+  
+        }
+      } catch (error) {
+        console.error('Error checking login status:', error);
+      
+      }
+    };
+    checkLoginStatus();
+  
+  }, []);
+  
+  
+  const id_client = clientId; 
+
   const [favorites, setFavorites] = useState(
     foodItems.reduce((acc, item) => ({ ...acc, [item.id]: item.isFavorite }), {}),
   )
@@ -217,19 +246,28 @@ const HomeScreen = () => {
       return;
     }
   
+    // Récupérer la table sélectionnée
+    const selectedTableData = tables.find(t => t.id_table === selectedTable);
+    const nbPlaces = selectedTableData.nb_place_table;
+    const nbPersonnes = parseInt(numberOfPeople);
+  
+    if (nbPersonnes < Math.ceil(nbPlaces-2) || nbPersonnes > nbPlaces) {
+      setDateError(true);
+      alert(`Le nombre de personnes doit être entre ${Math.ceil(nbPlaces-2)} et ${nbPlaces} pour cette table`);
+      return;
+    }
+  
     try {
       setLoading(true);
   
       const reservationData = {
-        id_client: 1, // À remplacer par l'ID du client connecté
+        id_client: id_client, // À remplacer par l'ID du client connecté
         id_table: selectedTable,
-        nb_personne: parseInt(numberOfPeople), // Convertir en nombre
+        nb_personne: nbPersonnes,
         date_deb_rese: startDate.toISOString(),
         date_fin_res: endDate.toISOString(),
-        // Ajoutez d'autres champs requis si nécessaire
       };
   
-     
       const response = await Api_reservation.createReservation(reservationData);
       alert("Reservation created successfully!");
   
@@ -243,12 +281,11 @@ const HomeScreen = () => {
       await fetchReservations();
     } catch (error) {
       console.error("Error creating reservation:", error);
-      // Affichez un message d'erreur plus clair à l'utilisateur
+      alert("Erreur lors de la création de la réservation");
     } finally {
       setLoading(false);
     }
   };
-
   const renderFoodItem = ({ item }) => (
     <TouchableOpacity style={styles.foodItem}>
       <TouchableOpacity style={styles.favoriteButton} onPress={() => toggleFavorite(item.id)}>
@@ -468,6 +505,16 @@ const HomeScreen = () => {
                 onChangeText={setNumberOfPeople}
                 keyboardType="numeric"
               />
+
+
+              {selectedTable && (
+                <Text style={styles.infoText}>
+                  Pour cette table ({tables.find(t => t.id_table === selectedTable)?.nb_place_table} places), 
+                  entrez entre {Math.ceil(tables.find(t => t.id_table === selectedTable)?.nb_place_table-2)} 
+                  et {tables.find(t => t.id_table === selectedTable)?.nb_place_table} personnes
+                </Text>
+              )}
+
 
               {dateError && (
                 <Text style={styles.errorText}>
@@ -1029,6 +1076,12 @@ const styles = StyleSheet.create({
     marginBottom: hp(2),
     alignItems: "center",
     transition: "color 0.3s ease", // Pour une transition douce
+  },
+  infoText: {
+    color: "#666",
+    fontSize: wp(3),
+    marginBottom: hp(1),
+    fontStyle: "italic",
   },
 })
 
