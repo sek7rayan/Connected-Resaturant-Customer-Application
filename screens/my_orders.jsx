@@ -121,7 +121,7 @@ const App = () => {
   const fetchOrderDetails = async (id_commande) => {
     try {
       const details = await Api_commande.getCommandPlats(id_commande);
-      setOrderDetails(details);
+      setOrderDetails(details.data.plat_commande);
     } catch (err) {
       console.error("Erreur:", err);
       setError(err.message);
