@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   View,
   Text,
@@ -16,6 +16,9 @@ import {
 import { useNavigation } from "@react-navigation/native"
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import Api_reservation from "../api_reservation"
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 const { width, height } = Dimensions.get("window")
 
 const wp = (size) => (width / 100) * size
@@ -61,30 +64,56 @@ const foodItems = [
   },
 ]
 
-// Données des tables pour la démonstration
-const tables = [
-  { id: 1, number: 1, capacity: 8, available: true },
-  { id: 2, number: 2, capacity: 8, available: true },
-  { id: 3, number: 3, capacity: 8, available: true },
-  { id: 4, number: 4, capacity: 8, available: true },
-  { id: 5, number: 5, capacity: 8, available: true },
-  { id: 6, number: 6, capacity: 8, available: true },
-  { id: 7, number: 7, capacity: 8, available: true },
-  { id: 8, number: 8, capacity: 8, available: true },
-]
-
 const HomeScreen = () => {
   const [favorites, setFavorites] = useState(
     foodItems.reduce((acc, item) => ({ ...acc, [item.id]: item.isFavorite }), {}),
   )
   const [bookingModalVisible, setBookingModalVisible] = useState(false)
   const [selectedTable, setSelectedTable] = useState(null)
-  const [startDate, setStartDate] = useState("")
-  const [endDate, setEndDate] = useState("")
+  const [startDate, setStartDate] = useState(new Date())
+  const [endDate, setEndDate] = useState(new Date(new Date().getTime() + 2 * 60 * 60 * 1000)) // +2 heures par défaut
   const [numberOfPeople, setNumberOfPeople] = useState("1")
   const [dateError, setDateError] = useState(false)
+  const [tables, setTables] = useState([])
+  const [reservations, setReservations] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false)
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false)
 
   const navigation = useNavigation()
+
+  useEffect(() => {
+    if (bookingModalVisible) {
+      fetchTables()
+      fetchReservations()
+    }
+  }, [bookingModalVisible])
+
+  useEffect(() => {
+    if (startDate) {
+      checkTableAvailability()
+    }
+  }, [startDate, endDate, reservations])
+
+  const fetchTables = async () => {
+    try {
+      const res = await Api_reservation.getTables()
+      setTables(res.data.table)
+    } catch (error) {
+      console.error("Error fetching tables:", error)
+    }
+  }
+
+  const fetchReservations = async () => {
+    try {
+      const res = await Api_reservation.getReservations()
+      setReservations(res.data.reservation)
+    } catch (error) {
+      console.error("Error fetching reservations:", error)
+    }
+  }
+
+ 
 
   const toggleFavorite = (id) => {
     setFavorites((prev) => ({
@@ -93,30 +122,132 @@ const HomeScreen = () => {
     }))
   }
 
+
+  const checkTableAvailability = () => {
+    if (!startDate || !endDate) return;
+  
+    const updatedTables = tables.map(table => {
+      const isReserved = reservations.some(reservation => {
+        const resStart = new Date(reservation.date_deb_res);
+        const resEnd = new Date(reservation.date_fin_res);
+        return (
+          reservation.id_table === table.id_table &&
+          ((startDate >= resStart && startDate < resEnd) ||
+           (endDate > resStart && endDate <= resEnd) ||
+           (startDate <= resStart && endDate >= resEnd))
+        );
+      });
+      return { ...table, available: !isReserved };
+    });
+    
+    setTables(updatedTables);
+  }
+
+
+
   const handleBookTable = () => {
     setBookingModalVisible(true)
   }
 
   const handleTableSelection = (tableId) => {
-    setSelectedTable(tableId === selectedTable ? null : tableId)
-  }
-
-  const handleDone = () => {
-    if (!startDate || !endDate) {
-      setDateError(true)
-      return
+    const table = tables.find(t => t.id_table === tableId);
+    if (table && table.available) {
+      setSelectedTable(tableId === selectedTable ? null : tableId);
     }
-
-    // Ici, vous pourriez appeler une API pour réserver la table
-    // Exemple: bookTable(selectedTable, startDate, endDate, numberOfPeople)
-
-    setBookingModalVisible(false)
-    setSelectedTable(null)
-    setStartDate("")
-    setEndDate("")
-    setNumberOfPeople("1")
-    setDateError(false)
   }
+
+  const handleStartDateChange = (event, selectedDate) => {
+    setShowStartDatePicker(false)
+    if (selectedDate) {
+      const now = new Date()
+      const minDate = new Date(now.getTime() + 3 * 60 * 60 * 1000) // +3 heures
+      
+      if (selectedDate < minDate) {
+        setDateError(true)
+        return
+      }
+      
+      setDateError(false)
+      setStartDate(selectedDate)
+      // Ajuster automatiquement la date de fin si nécessaire
+      if (selectedDate >= endDate) {
+        setEndDate(new Date(selectedDate.getTime() + 2 * 60 * 60 * 1000))
+      }
+    }
+  }
+
+  const handleEndDateChange = (event, selectedDate) => {
+    setShowEndDatePicker(false)
+    if (selectedDate) {
+      if (selectedDate <= startDate) {
+        setDateError(true)
+        return
+      }
+      setDateError(false)
+      setEndDate(selectedDate)
+    }
+  }
+
+  const formatDateTime = (date) => {
+    return date.toLocaleString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  const handleDone = async () => {
+    if (!selectedTable || !startDate || !endDate) {
+      setDateError(true);
+      return;
+    }
+  
+    const now = new Date();
+    const minDate = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+    
+    if (startDate < minDate) {
+      setDateError(true);
+      return;
+    }
+  
+    if (startDate >= endDate) {
+      setDateError(true);
+      return;
+    }
+  
+    try {
+      setLoading(true);
+  
+      const reservationData = {
+        id_client: 1, // À remplacer par l'ID du client connecté
+        id_table: selectedTable,
+        nb_personne: parseInt(numberOfPeople), // Convertir en nombre
+        date_deb_rese: startDate.toISOString(),
+        date_fin_res: endDate.toISOString(),
+        // Ajoutez d'autres champs requis si nécessaire
+      };
+  
+     
+      const response = await Api_reservation.createReservation(reservationData);
+      alert("Reservation created successfully!");
+  
+      setBookingModalVisible(false);
+      setSelectedTable(null);
+      setStartDate(new Date());
+      setEndDate(new Date(new Date().getTime() + 2 * 60 * 60 * 1000));
+      setNumberOfPeople("1");
+      setDateError(false);
+      
+      await fetchReservations();
+    } catch (error) {
+      console.error("Error creating reservation:", error);
+      // Affichez un message d'erreur plus clair à l'utilisateur
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const renderFoodItem = ({ item }) => (
     <TouchableOpacity style={styles.foodItem}>
@@ -152,18 +283,31 @@ const HomeScreen = () => {
   )
 
   const renderTableItem = (table) => {
-    const isSelected = selectedTable === table.id
-    const tableColor = isSelected ? "#FF0000" : "#4CAF50" // Rouge si sélectionné, vert si disponible
-
+    const isSelected = selectedTable === table.id_table;
+    
+    // Détermine la couleur en fonction de l'état
+    let tableColor;
+    if (!table.available) {
+      tableColor = "#FF0000"; // Rouge pour les tables réservées
+    } else if (isSelected) {
+      tableColor = "#2196F3"; // Bleu pour les tables sélectionnées
+    } else {
+      tableColor = "#4CAF50"; // Vert pour les tables disponibles
+    }
+  
     return (
-      <View key={table.id} style={styles.tableItem}>
-       <MaterialIcons name="table-bar" size={40} color={tableColor} />
+      <View key={table.id_table} style={styles.tableItem}>
+        <MaterialIcons name="table-bar" size={40} color={tableColor} />
         <View style={styles.tableCapacity}>
-          <Text style={styles.capacityNumber}>8</Text>
+          <Text style={styles.capacityNumber}>{table.nb_place_table}</Text>
           <FontAwesome name="group" size={12} color="black" />
         </View>
-        <Text style={styles.tableNumber}>Table {table.number}</Text>
-        <TouchableOpacity style={styles.checkboxContainer} onPress={() => handleTableSelection(table.id)}>
+        <Text style={styles.tableNumber}>Table {table.id_table}</Text>
+        <TouchableOpacity 
+          style={styles.checkboxContainer} 
+          onPress={() => handleTableSelection(table.id_table)}
+          disabled={!table.available}
+        >
           <View style={[styles.checkbox, isSelected && styles.checkboxSelected]} />
         </TouchableOpacity>
       </View>
@@ -280,23 +424,41 @@ const HomeScreen = () => {
             <ScrollView style={styles.modalBody}>
               <Text style={styles.sectionLabel}>Select table</Text>
 
-              <View style={styles.tablesGrid}>{tables.map((table) => renderTableItem(table))}</View>
+              <View style={styles.tablesGrid}>
+                {tables.map((table) => renderTableItem(table))}
+              </View>
 
               <Text style={styles.sectionLabel}>Start date & Time</Text>
-              <TextInput
+              <TouchableOpacity 
                 style={[styles.dateInput, dateError && !startDate && styles.inputError]}
-                placeholder="04/13/2025"
-                value={startDate}
-                onChangeText={setStartDate}
-              />
+                onPress={() => setShowStartDatePicker(true)}
+              >
+                <Text>{formatDateTime(startDate)}</Text>
+              </TouchableOpacity>
+              {showStartDatePicker && (
+                <DateTimePicker
+                  value={startDate}
+                  mode="datetime"
+                  minimumDate={new Date(new Date().getTime() + 3 * 60 * 60 * 1000)}
+                  onChange={handleStartDateChange}
+                />
+              )}
 
               <Text style={styles.sectionLabel}>End date & Time</Text>
-              <TextInput
+              <TouchableOpacity 
                 style={[styles.dateInput, dateError && !endDate && styles.inputError]}
-                placeholder="04/13/2025"
-                value={endDate}
-                onChangeText={setEndDate}
-              />
+                onPress={() => setShowEndDatePicker(true)}
+              >
+                <Text>{formatDateTime(endDate)}</Text>
+              </TouchableOpacity>
+              {showEndDatePicker && (
+                <DateTimePicker
+                  value={endDate}
+                  mode="datetime"
+                  minimumDate={new Date(startDate.getTime() + 60 * 60 * 1000)} // Au moins 1 heure après le début
+                  onChange={handleEndDateChange}
+                />
+              )}
 
               <Text style={styles.sectionLabel}>Number of people</Text>
               <TextInput
@@ -307,16 +469,32 @@ const HomeScreen = () => {
                 keyboardType="numeric"
               />
 
-              {dateError && <Text style={styles.errorText}>Must choose a valid date</Text>}
+              {dateError && (
+                <Text style={styles.errorText}>
+                  {startDate < new Date(new Date().getTime() + 3 * 60 * 60 * 1000) 
+                    ? "La réservation doit être au moins 3 heures à l'avance" 
+                    : "Dates invalides ou table non disponible"}
+                </Text>
+              )}
             </ScrollView>
 
             <View style={styles.modalFooter}>
-              <TouchableOpacity style={styles.cancelButton} onPress={() => setBookingModalVisible(false)}>
+              <TouchableOpacity 
+                style={styles.cancelButton} 
+                onPress={() => setBookingModalVisible(false)}
+                disabled={loading}
+              >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.doneButton} onPress={handleDone}>
-                <Text style={styles.doneButtonText}>Done</Text>
+              <TouchableOpacity 
+                style={[styles.doneButton, loading && styles.disabledButton]} 
+                onPress={handleDone}
+                disabled={loading}
+              >
+                <Text style={styles.doneButtonText}>
+                  {loading ? "Processing..." : "Done"}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -489,14 +667,13 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
     marginBottom: hp(1),
   },
-  // Couleur corrigée pour le rating: #FFC107
   ratingContainer: {
     position: "absolute",
     bottom: hp(6),
     left: wp(2),
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFE196", // Couleur exacte fournie
+    backgroundColor: "#FFE196",
     borderRadius: wp(5),
     paddingHorizontal: wp(2),
     paddingVertical: hp(0.2),
@@ -505,14 +682,13 @@ const styles = StyleSheet.create({
     width: wp(3.5),
     height: wp(3.5),
     marginRight: wp(1),
-    tintColor: "#FFC107", // Même couleur que le fond
+    tintColor: "#FFC107",
   },
   ratingText: {
     fontSize: wp(3.2),
     fontWeight: "700",
     color: "#FFC107",
   },
-  // Couleur corrigée pour le badge NEW: #FFD747
   newBadge: {
     position: "absolute",
     bottom: hp(6),
@@ -528,10 +704,10 @@ const styles = StyleSheet.create({
     width: wp(3),
     height: wp(3),
     marginRight: wp(1),
-    tintColor: "#FFD747", // Couleur exacte fournie pour le texte NEW
+    tintColor: "#FFD747",
   },
   newBadgeText: {
-    color: "#FFD747", // Couleur exacte fournie
+    color: "#FFD747",
     fontSize: wp(2.5),
     fontWeight: "700",
   },
@@ -545,15 +721,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  // Couleur corrigée pour le prix: #437F40
   priceText: {
     fontSize: wp(4),
     fontWeight: "600",
-    color: "#437F40", // Couleur exacte fournie
+    color: "#437F40",
   },
-  // Couleur corrigée pour le bouton +: #FFC107
   addButton: {
-    backgroundColor: "#FFC107", // Couleur exacte fournie
+    backgroundColor: "#FFC107",
     borderRadius: wp(10),
     width: wp(9),
     height: wp(5),
@@ -846,6 +1020,15 @@ const styles = StyleSheet.create({
     fontSize: wp(4),
     color: "#fff",
     fontWeight: "600",
+  },
+  disabledButton: {
+    backgroundColor: "#888",
+  },
+  tableItem: {
+    width: wp(19),
+    marginBottom: hp(2),
+    alignItems: "center",
+    transition: "color 0.3s ease", // Pour une transition douce
   },
 })
 

@@ -32,11 +32,10 @@ const Api_reservation = {
         try {
     
           const body = {
-            id_reserv: reservationData.id_reserv,
             id_client: reservationData.id_client,
             id_table: reservationData.id_table,
             nb_personne: reservationData.nb_personne,
-            date_deb_rese: reservationData.date_deb_rese,
+            date_deb_res: reservationData.date_deb_rese,
             date_fin_res: reservationData.date_fin_res,
           };
       
