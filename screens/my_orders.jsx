@@ -13,20 +13,34 @@ import {
   ActivityIndicator
 } from 'react-native';
 import Api_commande from '../api_commande';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 setLogLevel('debug');
 
 const App = () => {
   const [notifications, setNotifications] = useState([]);
-  const [historyOrders, setHistoryOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orderDetails, setOrderDetails] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [clientId, setClientId] = useState(null);  
 
-  const id_client = 1;
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const id = await AsyncStorage.getItem('clientId');
+        if (id) {
+          setClientId(parseInt(id));
+        }
+      } catch (error) {
+        console.error('Error checking login status:', error);
+      }
+    };
+    checkLoginStatus();
+  }, []);
+
+  const id_client = clientId; 
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -38,13 +52,12 @@ const App = () => {
         setIsAuthReady(false);
       }
     });
-
     return () => unsubscribe();
   }, []);
 
   // Fetch notifications from Firebase
   useEffect(() => {
-    if (!isAuthReady) return;
+    if (!isAuthReady || !id_client) return;
 
     const fetchNotifications = async () => {
       try {
@@ -72,26 +85,9 @@ const App = () => {
           return orderDate && orderDate >= today;
         });
 
-        setNotifications(notificationsData);
-      } catch (err) {
-        console.error("Erreur:", err);
-        setError(err.message);
-      }
-    };
-
-    fetchNotifications();
-    const intervalId = setInterval(fetchNotifications, 10000);
-    return () => clearInterval(intervalId);
-  }, [isAuthReady]);
-
-  // Fetch history orders from API
-  useEffect(() => {
-    if (!isAuthReady) return;
-
-    const fetchHistoryOrders = async () => {
-      try {
-        const orders = await Api_commande.getClientCommandes(id_client);
-        setHistoryOrders(orders);
+        // Garder uniquement la notification la plus récente pour chaque commande
+        const latestNotifications = getLatestNotifications(notificationsData);
+        setNotifications(latestNotifications);
       } catch (err) {
         console.error("Erreur:", err);
         setError(err.message);
@@ -100,8 +96,26 @@ const App = () => {
       }
     };
 
-    fetchHistoryOrders();
-  }, [isAuthReady]);
+    fetchNotifications();
+    const intervalId = setInterval(fetchNotifications, 10000);
+    return () => clearInterval(intervalId);
+  }, [isAuthReady, id_client]);
+
+  // Garde uniquement la notification la plus récente pour chaque commande
+  const getLatestNotifications = (notifications) => {
+    const commandesMap = new Map();
+    
+    notifications.forEach(notification => {
+      const commandeId = notification.id_commande.toString(); // Convertir en string pour uniformiser
+      
+      if (!commandesMap.has(commandeId) || 
+          new Date(notification.createdAt) > new Date(commandesMap.get(commandeId).createdAt)) {
+        commandesMap.set(commandeId, notification);
+      }
+    });
+    
+    return Array.from(commandesMap.values());
+  };
 
   // Fetch order details when modal opens
   const fetchOrderDetails = async (id_commande) => {
@@ -168,14 +182,14 @@ const App = () => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.headerText}>My Orders</Text>
       <ScrollView>
-        {/* Pending Orders Section */}
-        <Text style={styles.sectionTitle}>Commandes en cours</Text>
+        {/* Orders Section */}
         {notifications.length > 0 ? (
           notifications.map((notification) => (
             <TouchableOpacity 
-              key={notification.id}
-              style={styles.pendingOrderCard}
+              key={notification.id_commande}
+              style={styles.orderCard}
               onPress={() => openOrderDetails(notification)}
             >
               <View style={styles.orderHeader}>
@@ -221,31 +235,6 @@ const App = () => {
         ) : (
           <Text style={styles.noOrdersText}>Aucune commande en cours</Text>
         )}
-
-        {/* History Orders Section */}
-        <Text style={styles.sectionTitle}>Historique des commandes</Text>
-        {historyOrders.length > 0 ? (
-          historyOrders.map((order) => (
-            <TouchableOpacity 
-              key={order.id_commande}
-              style={styles.historyOrderCard}
-              onPress={() => openOrderDetails(order)}
-            >
-              <View style={styles.orderHeader}>
-                <Text style={styles.orderId}>Commande #{order.id_commande}</Text>
-                <Text style={styles.orderDate}>{new Date(order.Date_commande).toLocaleDateString()}</Text>
-              </View>
-              <Text style={styles.orderStatus}>
-                Statut: {order.state_commande}
-              </Text>
-              <Text style={styles.orderTable}>
-                Table: {order.id_table}
-              </Text>
-            </TouchableOpacity>
-          ))
-        ) : (
-          <Text style={styles.noOrdersText}>Aucune commande dans l'historique</Text>
-        )}
       </ScrollView>
 
       {/* Order Details Modal */}
@@ -261,7 +250,7 @@ const App = () => {
               <>
                 <Text style={styles.modalTitle}>Détails de la commande #{selectedOrder.id_commande}</Text>
                 <Text style={styles.modalInfo}>Table: {selectedOrder.id_table}</Text>
-                <Text style={styles.modalInfo}>Date: {new Date(selectedOrder.Date_commande || selectedOrder.createdAt).toLocaleString()}</Text>
+                <Text style={styles.modalInfo}>Date: {new Date(selectedOrder.createdAt).toLocaleString()}</Text>
                 
                 <Text style={styles.detailsTitle}>Plats commandés:</Text>
                 {orderDetails.length > 0 ? (
@@ -296,14 +285,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
     padding: 16,
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: 20,
-    marginBottom: 10,
-    color: '#FF0000',
+  headerText: {
+    fontFamily: "SFProDisplay-Bold",
+    fontWeight: "700",
+    fontSize: 34,
+    marginBottom: 20,
+    color: 'black',
   },
-  pendingOrderCard: {
+  orderCard: {
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 16,
@@ -313,17 +302,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-  },
-  historyOrderCard: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
   },
   orderHeader: {
     flexDirection: 'row',
@@ -339,22 +317,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
-  orderDate: {
-    fontSize: 14,
-    color: '#666',
-  },
   orderMessage: {
     fontSize: 14,
     color: '#333',
     marginBottom: 12,
-  },
-  orderStatus: {
-    fontSize: 14,
-    color: '#666',
-  },
-  orderTable: {
-    fontSize: 14,
-    color: '#666',
   },
   noOrdersText: {
     textAlign: 'center',

@@ -23,7 +23,8 @@ const Menu = () => {
       <Stack.Navigator screenOptions={{headerShown : false}}>
         <Stack.Screen name="Menu" component={MenuScreen} />
         <Stack.Screen name="Description" component={DescriptionScreen} />
-        <Stack.Screen name="MyList" component={MyListScreen} />
+        <Stack.Screen name="Mycart" component={MycartScreen} />
+      
         
 
       </Stack.Navigator>
@@ -36,7 +37,9 @@ const Home = () => {
   return (
     <Stack.Navigator screenOptions={{headerShown : false}}>
       <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="MyList" component={MyListScreen} />
+      <Stack.Screen name="Description" component={DescriptionScreen} />
+      <Stack.Screen name="Mycart" component={MycartScreen} />
+   
     </Stack.Navigator>
   );
 }
@@ -74,6 +77,16 @@ export default function Main() {
           }}
           
           />
+
+          <Tab.Screen name="MyList" component={MyListScreen} 
+           options={{
+            tabBarLabel: 'My List',
+            tabBarIcon: ({ color, size }) => (
+              <AntDesign name="hearto" size={size} color={color} />
+           
+            ),
+          }}  
+          />
           <Tab.Screen name="Orders" component={MyOrdersScreen} 
           options={{
             tabBarLabel: 'My orders',
@@ -92,15 +105,7 @@ export default function Main() {
             ),
           }}
           />
-          <Tab.Screen name="Mycart" component={MycartScreen} 
-           options={{
-            tabBarLabel: 'My Cart',
-            tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="cart" size={size} color={color} />
-           
-            ),
-          }}
-          />
+         
           
         </Tab.Navigator>
    
