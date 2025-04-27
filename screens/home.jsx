@@ -12,145 +12,125 @@ import {
   Dimensions,
   FlatList,
   Modal,
+  ActivityIndicator
 } from "react-native"
 import { useNavigation } from "@react-navigation/native"
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { FontAwesome, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Api_reservation from "../api_reservation"
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Api_plat_pref from "../api_plat_recemendé";
+import Api_plat from "../api_plats";
+import Plat from "@/composent/plat";
+
 
 const { width, height } = Dimensions.get("window")
 
 const wp = (size) => (width / 100) * size
 const hp = (size) => (height / 100) * size
 
-
-
-
-
-
-
-const foodItems = [
-  {
-    id: "1",
-    name: "Pizza peperoni",
-    price: "350 da",
-    image: require("../assets/pizza.png"),
-    rating: 4.9,
-    isNew: true,
-    isFavorite: false,
-  },
-  {
-    id: "2",
-    name: "Burger",
-    price: "350 da",
-    image: require("../assets/burger.png"),
-    rating: 4.8,
-    isNew: true,
-    isFavorite: true,
-  },
-  {
-    id: "3",
-    name: "Fries",
-    price: "200 da",
-    image: require("../assets/fries.png"),
-    rating: 4.7,
-    isNew: true,
-    isFavorite: false,
-  },
-  {
-    id: "4",
-    name: "Pasta",
-    price: "400 da",
-    image: require("../assets/pasta.png"),
-    rating: 4.9,
-    isNew: true,
-    isFavorite: false,
-  },
-]
-
 const HomeScreen = () => {
+  const [clientId, setClientId] = useState(null);
+  const [recommendedPlats, setRecommendedPlats] = useState([]);
+  const [trendingPlats, setTrendingPlats] = useState([]);
+  const [allPlats, setAllPlats] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [bookingModalVisible, setBookingModalVisible] = useState(false);
+  const [selectedTable, setSelectedTable] = useState(null);
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date(new Date().getTime() + 2 * 60 * 60 * 1000));
+  const [numberOfPeople, setNumberOfPeople] = useState("1");
+  const [dateError, setDateError] = useState(false);
+  const [tables, setTables] = useState([]);
+  const [reservations, setReservations] = useState([]);
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
-  const [clientId, setclientId] = useState(null);  
+  const navigation = useNavigation();
+
   useEffect(() => {
-    const checkLoginStatus = async () => {
+    const loadData = async () => {
       try {
         const id = await AsyncStorage.getItem('clientId');
-        
         if (id) {
-          setclientId(parseInt(id));
-  
+          setClientId(parseInt(id));
+          await fetchRecommendedPlats(parseInt(id));
         }
+        await fetchTrendingPlats();
+        await fetchAllPlats();
       } catch (error) {
-        console.error('Error checking login status:', error);
-      
+        console.error('Error loading data:', error);
+      } finally {
+        setLoading(false);
       }
     };
-    checkLoginStatus();
-  
+    loadData();
   }, []);
-  
-  
-  const id_client = clientId; 
-
-  const [favorites, setFavorites] = useState(
-    foodItems.reduce((acc, item) => ({ ...acc, [item.id]: item.isFavorite }), {}),
-  )
-  const [bookingModalVisible, setBookingModalVisible] = useState(false)
-  const [selectedTable, setSelectedTable] = useState(null)
-  const [startDate, setStartDate] = useState(new Date())
-  const [endDate, setEndDate] = useState(new Date(new Date().getTime() + 2 * 60 * 60 * 1000)) // +2 heures par défaut
-  const [numberOfPeople, setNumberOfPeople] = useState("1")
-  const [dateError, setDateError] = useState(false)
-  const [tables, setTables] = useState([])
-  const [reservations, setReservations] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [showStartDatePicker, setShowStartDatePicker] = useState(false)
-  const [showEndDatePicker, setShowEndDatePicker] = useState(false)
-
-  const navigation = useNavigation()
 
   useEffect(() => {
     if (bookingModalVisible) {
-      fetchTables()
-      fetchReservations()
+      fetchTables();
+      fetchReservations();
     }
-  }, [bookingModalVisible])
+  }, [bookingModalVisible]);
 
   useEffect(() => {
     if (startDate) {
-      checkTableAvailability()
+      checkTableAvailability();
     }
-  }, [startDate, endDate, reservations])
+  }, [startDate, endDate, reservations]);
+console.log(clientId)
+  const fetchRecommendedPlats = async (clientId) => {
+    try {
+      const clientResponse = await Api_plat_pref.getClientById(clientId);
+      if (clientResponse.success) {
+        const recommendedNames = clientResponse.recommendations;
+        const allPlatsResponse = await Api_plat.getAvailablePlats();
+        const filteredPlats = allPlatsResponse.data.plats.filter(plat => 
+          recommendedNames.includes(plat.nom_plat)
+        );
+        setRecommendedPlats(filteredPlats);
+      }
+    } catch (error) {
+      console.error('Error fetching recommended plats:', error);
+    }
+  };
+
+  const fetchTrendingPlats = async () => {
+    try {
+      const response = await Api_plat_pref.getRecommendedPlats("dinner");
+      setTrendingPlats(response.data);
+    } catch (error) {
+      console.error('Error fetching trending plats:', error);
+    }
+  };
+
+  const fetchAllPlats = async () => {
+    try {
+      const response = await Api_plat.getAvailablePlats();
+      setAllPlats(response);
+    } catch (error) {
+      console.error('Error fetching all plats:', error);
+    }
+  };
 
   const fetchTables = async () => {
     try {
-      const res = await Api_reservation.getTables()
-      setTables(res.data.table)
+      const res = await Api_reservation.getTables();
+      setTables(res.data.table);
     } catch (error) {
-      console.error("Error fetching tables:", error)
+      console.error("Error fetching tables:", error);
     }
-  }
+  };
 
   const fetchReservations = async () => {
     try {
-      const res = await Api_reservation.getReservations()
-      setReservations(res.data.reservation)
+      const res = await Api_reservation.getReservations();
+      setReservations(res.data.reservation);
     } catch (error) {
-      console.error("Error fetching reservations:", error)
+      console.error("Error fetching reservations:", error);
     }
-  }
-
- 
-
-  const toggleFavorite = (id) => {
-    setFavorites((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }))
-  }
-
+  };
 
   const checkTableAvailability = () => {
     if (!startDate || !endDate) return;
@@ -170,52 +150,49 @@ const HomeScreen = () => {
     });
     
     setTables(updatedTables);
-  }
-
-
+  };
 
   const handleBookTable = () => {
-    setBookingModalVisible(true)
-  }
+    setBookingModalVisible(true);
+  };
 
   const handleTableSelection = (tableId) => {
     const table = tables.find(t => t.id_table === tableId);
     if (table && table.available) {
       setSelectedTable(tableId === selectedTable ? null : tableId);
     }
-  }
+  };
 
   const handleStartDateChange = (event, selectedDate) => {
-    setShowStartDatePicker(false)
+    setShowStartDatePicker(false);
     if (selectedDate) {
-      const now = new Date()
-      const minDate = new Date(now.getTime() + 3 * 60 * 60 * 1000) // +3 heures
+      const now = new Date();
+      const minDate = new Date(now.getTime() + 3 * 60 * 60 * 1000);
       
       if (selectedDate < minDate) {
-        setDateError(true)
-        return
+        setDateError(true);
+        return;
       }
       
-      setDateError(false)
-      setStartDate(selectedDate)
-      // Ajuster automatiquement la date de fin si nécessaire
+      setDateError(false);
+      setStartDate(selectedDate);
       if (selectedDate >= endDate) {
-        setEndDate(new Date(selectedDate.getTime() + 2 * 60 * 60 * 1000))
+        setEndDate(new Date(selectedDate.getTime() + 2 * 60 * 60 * 1000));
       }
     }
-  }
+  };
 
   const handleEndDateChange = (event, selectedDate) => {
-    setShowEndDatePicker(false)
+    setShowEndDatePicker(false);
     if (selectedDate) {
       if (selectedDate <= startDate) {
-        setDateError(true)
-        return
+        setDateError(true);
+        return;
       }
-      setDateError(false)
-      setEndDate(selectedDate)
+      setDateError(false);
+      setEndDate(selectedDate);
     }
-  }
+  };
 
   const formatDateTime = (date) => {
     return date.toLocaleString('fr-FR', {
@@ -224,8 +201,8 @@ const HomeScreen = () => {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    })
-  }
+    });
+  };
 
   const handleDone = async () => {
     if (!selectedTable || !startDate || !endDate) {
@@ -246,7 +223,6 @@ const HomeScreen = () => {
       return;
     }
   
-    // Récupérer la table sélectionnée
     const selectedTableData = tables.find(t => t.id_table === selectedTable);
     const nbPlaces = selectedTableData.nb_place_table;
     const nbPersonnes = parseInt(numberOfPeople);
@@ -261,7 +237,7 @@ const HomeScreen = () => {
       setLoading(true);
   
       const reservationData = {
-        id_client: id_client, // À remplacer par l'ID du client connecté
+        id_client: clientId,
         id_table: selectedTable,
         nb_personne: nbPersonnes,
         date_deb_rese: startDate.toISOString(),
@@ -286,50 +262,41 @@ const HomeScreen = () => {
       setLoading(false);
     }
   };
-  const renderFoodItem = ({ item }) => (
-    <TouchableOpacity style={styles.foodItem}>
-      <TouchableOpacity style={styles.favoriteButton} onPress={() => toggleFavorite(item.id)}>
-        <Image
-          source={require("../assets/coeur.png")}
-          style={[styles.heartIcon, { tintColor: favorites[item.id] ? "#FF0000" : "#DDDDDD" }]}
+
+  const renderSection = (title, data, viewAll = false) => (
+    <View style={styles.sectionContainer}>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>{title}</Text>
+        {viewAll && (
+          <TouchableOpacity>
+            <Text style={styles.viewAllText}>View all</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+      {data.length > 0 ? (
+        <FlatList
+          data={data}
+          renderItem={({item}) => <Plat item={item} key={item.id_plat}/>}
+          keyExtractor={(item) => item.id_plat.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.foodList}
         />
-      </TouchableOpacity>
-
-      <Image source={item.image} style={styles.foodImage} />
-
-      <View style={styles.ratingContainer}>
-        <Image source={require("../assets/star.png")} style={styles.starIcon} />
-        <Text style={styles.ratingText}>{item.rating}</Text>
-      </View>
-
-      {item.isNew && (
-        <View style={styles.newBadge}>
-          <Image source={require("../assets/flash.png")} style={styles.flashIcon} />
-          <Text style={styles.newBadgeText}>NEW</Text>
-        </View>
+      ) : (
+        <Text style={styles.emptyText}>No items available</Text>
       )}
-
-      <Text style={styles.foodName}>{item.name}</Text>
-      <View style={styles.priceContainer}>
-        <Text style={styles.priceText}>{item.price}</Text>
-        <TouchableOpacity style={styles.addButton}>
-          <Image source={require("../assets/plus.png")} />
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-  )
+    </View>
+  );
 
   const renderTableItem = (table) => {
     const isSelected = selectedTable === table.id_table;
-    
-    // Détermine la couleur en fonction de l'état
     let tableColor;
     if (!table.available) {
-      tableColor = "#FF0000"; // Rouge pour les tables réservées
+      tableColor = "#FF0000";
     } else if (isSelected) {
-      tableColor = "#2196F3"; // Bleu pour les tables sélectionnées
+      tableColor = "#2196F3";
     } else {
-      tableColor = "#4CAF50"; // Vert pour les tables disponibles
+      tableColor = "#4CAF50";
     }
   
     return (
@@ -348,7 +315,15 @@ const HomeScreen = () => {
           <View style={[styles.checkbox, isSelected && styles.checkboxSelected]} />
         </TouchableOpacity>
       </View>
-    )
+    );
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#8B0000" />
+      </View>
+    );
   }
 
   return (
@@ -358,53 +333,47 @@ const HomeScreen = () => {
         <View style={styles.header}>
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
             <Text style={styles.headerText}>Home</Text>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <View style={styles.notificationBadge}></View>
-              <Image source={require("../assets/profilehome.png")} style={styles.profileIcon} />
-            </View>
+            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+              <MaterialCommunityIcons name="account-circle" size={wp(10)} color="#8B0000" />
+            </TouchableOpacity>
           </View>
 
           <View style={styles.searchRow}>
             <View style={styles.searchContainer}>
-              <Image source={require("../assets/search.png")} style={styles.searchIcon} />
-              <TextInput style={styles.searchInput} placeholder="Search" placeholderTextColor="#888" />
+              <FontAwesome name="search" size={wp(5)} color="#888" />
+              <TextInput 
+                style={styles.searchInput} 
+                placeholder="Search" 
+                placeholderTextColor="#888" 
+              />
             </View>
-            <View style={styles.cartContainer}>
-              <TouchableOpacity onPress={()=>{navigation.navigate('Mycart')}}>
-                <Image source={require("../assets/panier.png")} style={styles.cartIcon} />
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity 
+              style={styles.cartContainer}
+              onPress={() => navigation.navigate('Mycart')}
+            >
+              <FontAwesome name="shopping-cart" size={wp(6)} color="#8B0000" />
+            </TouchableOpacity>
           </View>
 
           {/* Promo Banner */}
           <TouchableOpacity style={styles.promoBanner}>
             <View style={styles.promoTextContainer}>
               <Text style={styles.promoPercentage}>20% OFF</Text>
-              <Text style={styles.promoTitle}>MARS BIG{"\n"}PROMO</Text>
+              <Text style={styles.promoTitle}>SPECIAL{"\n"}OFFER</Text>
               <Text style={styles.promoValidity}>Valid until Mars 30th</Text>
             </View>
-            <Image source={require("../assets/promoheader.png")} style={styles.promoImage} />
+            <MaterialCommunityIcons name="food" size={wp(30)} color="#fff" />
           </TouchableOpacity>
         </View>
 
-        {/* Food Items Section */}
-        <View style={styles.sectionContainer}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Picked for you</Text>
-            <TouchableOpacity>
-              <Text style={styles.viewAllText}>View all</Text>
-            </TouchableOpacity>
-          </View>
+        {/* Recommended Section */}
+        {recommendedPlats.length > 0 && renderSection("Picked for you", recommendedPlats, true)}
 
-          <FlatList
-            data={foodItems}
-            renderItem={renderFoodItem}
-            keyExtractor={(item) => item.id}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.foodList}
-          />
-        </View>
+        {/* Trending Section */}
+        {trendingPlats.length > 0 && renderSection("Trending Now", trendingPlats)}
+
+        {/* All Plats Section */}
+        {allPlats.length > 0 && renderSection("Discover More", allPlats, true)}
 
         {/* Book a Table Card */}
         <View style={styles.serviceCardContainer}>
@@ -414,10 +383,10 @@ const HomeScreen = () => {
               <Text style={styles.bookTableSubtitle}>and save your time</Text>
               <TouchableOpacity style={styles.bookButton} onPress={handleBookTable}>
                 <Text style={styles.bookButtonText}>Book here</Text>
-                <Image source={require("../assets/fleche_droite.png")} style={styles.arrowIcon} />
+                <MaterialIcons name="arrow-forward" size={wp(4)} color="#fff" />
               </TouchableOpacity>
             </View>
-            <Image source={require("../assets/table-image.png")} style={styles.tableImage} />
+            <MaterialCommunityIcons name="table-furniture" size={wp(30)} color="#8B0000" />
           </View>
         </View>
 
@@ -425,21 +394,24 @@ const HomeScreen = () => {
         <View style={styles.serviceCardContainer}>
           <View style={styles.callWaiterCard}>
             <Text style={styles.callWaiterTitle}>Call the waiter</Text>
-            <View style={styles.waiterImageContainer}>
-              <Image source={require("../assets/waiter.png")} style={styles.waiterImage} />
-            </View>
+            <MaterialCommunityIcons 
+              name="account-tie-voice" 
+              size={wp(30)} 
+              color="#2196F3" 
+              style={styles.waiterImage}
+            />
             <TouchableOpacity style={styles.callButton}>
               <Text style={styles.callButtonText}>Call waiter</Text>
-              <Image source={require("../assets/fleche_droite.png")} style={styles.arrowIcon} />
+              <MaterialIcons name="arrow-forward" size={wp(4)} color="#fff" />
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* Extra space to ensure content isn't hidden behind nav bar */}
+        {/* Extra space */}
         <View style={{ height: hp(10) }} />
       </ScrollView>
 
-      {/* Modal de réservation de table */}
+      {/* Booking Modal */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -492,7 +464,7 @@ const HomeScreen = () => {
                 <DateTimePicker
                   value={endDate}
                   mode="datetime"
-                  minimumDate={new Date(startDate.getTime() + 60 * 60 * 1000)} // Au moins 1 heure après le début
+                  minimumDate={new Date(startDate.getTime() + 60 * 60 * 1000)}
                   onChange={handleEndDateChange}
                 />
               )}
@@ -506,7 +478,6 @@ const HomeScreen = () => {
                 keyboardType="numeric"
               />
 
-
               {selectedTable && (
                 <Text style={styles.infoText}>
                   Pour cette table ({tables.find(t => t.id_table === selectedTable)?.nb_place_table} places), 
@@ -514,7 +485,6 @@ const HomeScreen = () => {
                   et {tables.find(t => t.id_table === selectedTable)?.nb_place_table} personnes
                 </Text>
               )}
-
 
               {dateError && (
                 <Text style={styles.errorText}>
@@ -548,13 +518,19 @@ const HomeScreen = () => {
         </View>
       </Modal>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff'
   },
   header: {
     padding: hp(2.5),
@@ -566,29 +542,7 @@ const styles = StyleSheet.create({
     fontSize: wp(8.5),
     lineHeight: hp(4),
     letterSpacing: 0,
-  },
-  profileIcon: {
-    width: wp(10),
-    height: wp(10),
-    borderRadius: wp(5),
-  },
-  notificationBadge: {
-    position: "relative",
-    marginRight: wp(3),
-  },
-  notificationText: {
-    position: "absolute",
-    top: -hp(1),
-    right: -wp(1),
-    backgroundColor: "#FF3B30",
-    color: "#fff",
-    borderRadius: wp(5),
-    width: wp(4),
-    height: wp(4),
-    textAlign: "center",
-    fontSize: wp(2.5),
-    lineHeight: wp(4),
-    zIndex: 1,
+    color: '#8B0000'
   },
   searchRow: {
     flexDirection: "row",
@@ -605,15 +559,11 @@ const styles = StyleSheet.create({
     flex: 1,
     height: hp(6),
   },
-  searchIcon: {
-    width: wp(5),
-    height: wp(5),
-    marginRight: wp(2),
-  },
   searchInput: {
     flex: 1,
     color: "#555",
     fontSize: wp(4),
+    marginLeft: wp(2)
   },
   cartContainer: {
     marginLeft: wp(3),
@@ -624,14 +574,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: wp(2.7),
   },
-  cartIcon: {
-    width: wp(6),
-    height: hp(3),
-    resizeMode: "contain",
-  },
   promoBanner: {
     flexDirection: "row",
-    backgroundColor: "#FF3B30",
+    backgroundColor: "#8B0000",
     borderRadius: wp(4),
     marginTop: hp(2),
     padding: wp(4),
@@ -643,12 +588,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   promoPercentage: {
-    color: "#fff",
+    color: "#FFC01D",
     fontSize: wp(4),
     fontWeight: "700",
   },
   promoTitle: {
-    color: "#000",
+    color: "#fff",
     fontSize: wp(6),
     fontWeight: "bold",
     marginVertical: hp(0.5),
@@ -656,11 +601,6 @@ const styles = StyleSheet.create({
   promoValidity: {
     color: "#FFC01D",
     fontSize: wp(3.5),
-  },
-  promoImage: {
-    width: wp(30),
-    height: hp(10),
-    resizeMode: "contain",
   },
   sectionContainer: {
     paddingHorizontal: wp(4),
@@ -675,118 +615,20 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: wp(4.5),
     fontWeight: "600",
-    color: "#000",
+    color: "#8B0000",
   },
   viewAllText: {
     fontSize: wp(3.5),
     color: "#888",
   },
+  emptyText: {
+    fontSize: wp(3.5),
+    color: "#888",
+    textAlign: 'center',
+    marginVertical: hp(2)
+  },
   foodList: {
     paddingRight: wp(4),
-  },
-  foodItem: {
-    width: wp(40),
-    marginRight: wp(3),
-    backgroundColor: "#fff",
-    borderRadius: wp(3),
-    padding: wp(2),
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    position: "relative",
-  },
-  favoriteButton: {
-    position: "absolute",
-    top: wp(2),
-    right: wp(2),
-    zIndex: 10,
-  },
-  heartIcon: {
-    width: wp(6),
-    height: wp(6),
-    resizeMode: "contain",
-  },
-  foodImage: {
-    width: "100%",
-    height: wp(25),
-    resizeMode: "contain",
-    marginBottom: hp(1),
-  },
-  ratingContainer: {
-    position: "absolute",
-    bottom: hp(6),
-    left: wp(2),
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFE196",
-    borderRadius: wp(5),
-    paddingHorizontal: wp(2),
-    paddingVertical: hp(0.2),
-  },
-  starIcon: {
-    width: wp(3.5),
-    height: wp(3.5),
-    marginRight: wp(1),
-    tintColor: "#FFC107",
-  },
-  ratingText: {
-    fontSize: wp(3.2),
-    fontWeight: "700",
-    color: "#FFC107",
-  },
-  newBadge: {
-    position: "absolute",
-    bottom: hp(6),
-    right: wp(2),
-    backgroundColor: "#9E090F",
-    borderRadius: wp(5),
-    paddingHorizontal: wp(1.2),
-    paddingVertical: hp(0.4),
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  flashIcon: {
-    width: wp(3),
-    height: wp(3),
-    marginRight: wp(1),
-    tintColor: "#FFD747",
-  },
-  newBadgeText: {
-    color: "#FFD747",
-    fontSize: wp(2.5),
-    fontWeight: "700",
-  },
-  foodName: {
-    fontSize: wp(4),
-    fontWeight: "700",
-    color: "#003366",
-  },
-  priceContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  priceText: {
-    fontSize: wp(4),
-    fontWeight: "600",
-    color: "#437F40",
-  },
-  addButton: {
-    backgroundColor: "#FFC107",
-    borderRadius: wp(10),
-    width: wp(9),
-    height: wp(5),
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  addButtonText: {
-    fontSize: wp(5),
-    fontWeight: "bold",
-    color: "#FFFFFF",
-    lineHeight: wp(7),
-    textAlign: "center",
   },
   serviceCardContainer: {
     paddingHorizontal: wp(4),
@@ -815,7 +657,6 @@ const styles = StyleSheet.create({
     marginBottom: hp(1),
   },
   bookButton: {
-    marginLeft: wp(6),
     backgroundColor: "#8B0000",
     borderRadius: wp(5),
     paddingVertical: hp(0.8),
@@ -830,16 +671,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     marginRight: wp(1),
   },
-  arrowIcon: {
-    width: wp(4),
-    height: wp(4),
-    tintColor: "#fff",
-  },
-  tableImage: {
-    width: wp(30),
-    height: hp(12),
-    resizeMode: "contain",
-  },
   callWaiterCard: {
     backgroundColor: "#E3F2FD",
     borderRadius: wp(4),
@@ -847,33 +678,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   callWaiterTitle: {
-    position: "absolute",
-    marginTop: hp(2),
-    marginLeft: wp(6),
     fontSize: wp(4),
     fontWeight: "600",
     color: "#000",
     marginBottom: hp(1),
     alignSelf: "flex-start",
   },
-  waiterImageContainer: {
-    alignItems: "center",
+  waiterImage: {
     marginBottom: hp(1),
   },
-  waiterImage: {
-    marginRight: wp(-70),
-    width: wp(20),
-    height: hp(8),
-    resizeMode: "contain",
-  },
   callButton: {
-    marginTop: wp(-10),
-    backgroundColor: "#9BC7FF",
+    backgroundColor: "#2196F3",
     borderRadius: wp(5),
     paddingVertical: hp(0.8),
     paddingHorizontal: wp(3),
     flexDirection: "row",
     alignItems: "center",
+    alignSelf: "flex-end",
   },
   callButtonText: {
     color: "#fff",
@@ -881,51 +702,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     marginRight: wp(1),
   },
-  navBar: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    padding: hp(1.5),
-    borderTopWidth: 1,
-    borderColor: "#eee",
-    backgroundColor: "#fff",
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    elevation: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  navItem: {
-    alignItems: "center",
-  },
-  navIcon: {
-    width: wp(6),
-    height: hp(3),
-    marginBottom: hp(0.6),
-  },
-  navItemM: {
-    marginTop: hp(-4.5),
-    backgroundColor: "#FFC01D",
-    borderRadius: wp(50),
-    alignItems: "center",
-    justifyContent: "center",
-    width: wp(18),
-    height: wp(18),
-  },
-  navIconM: {
-    width: wp(10),
-    height: wp(10),
-    resizeMode: "contain",
-  },
-  navText: {
-    color: "#555",
-    fontSize: wp(3.2),
-  },
-
-  // Styles pour le modal de réservation
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
@@ -971,6 +747,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginBottom: hp(1.5),
     marginTop: hp(1),
+    color: '#8B0000'
   },
   tablesGrid: {
     flexDirection: "row",
@@ -983,12 +760,6 @@ const styles = StyleSheet.create({
     marginBottom: hp(2),
     alignItems: "center",
   },
-  tableIcon: {
-    width: wp(12),
-    height: wp(12),
-    resizeMode: "contain",
-    marginBottom: hp(0.5),
-  },
   tableCapacity: {
     flexDirection: "row",
     alignItems: "center",
@@ -997,11 +768,6 @@ const styles = StyleSheet.create({
   capacityNumber: {
     fontSize: wp(3.5),
     marginRight: wp(1),
-  },
-  groupIcon: {
-    width: wp(5),
-    height: wp(3),
-    resizeMode: "contain",
   },
   tableNumber: {
     fontSize: wp(3.5),
@@ -1022,8 +788,8 @@ const styles = StyleSheet.create({
     borderRadius: wp(1),
   },
   checkboxSelected: {
-    backgroundColor: "#000",
-    borderColor: "#000",
+    backgroundColor: "#8B0000",
+    borderColor: "#8B0000",
   },
   dateInput: {
     borderWidth: 1,
@@ -1040,6 +806,12 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: wp(3.5),
     marginBottom: hp(2),
+  },
+  infoText: {
+    color: "#666",
+    fontSize: wp(3),
+    marginBottom: hp(1),
+    fontStyle: "italic",
   },
   modalFooter: {
     flexDirection: "row",
@@ -1058,7 +830,7 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   doneButton: {
-    backgroundColor: "#000",
+    backgroundColor: "#8B0000",
     paddingVertical: hp(1.5),
     paddingHorizontal: wp(5),
     borderRadius: wp(2),
@@ -1071,18 +843,6 @@ const styles = StyleSheet.create({
   disabledButton: {
     backgroundColor: "#888",
   },
-  tableItem: {
-    width: wp(19),
-    marginBottom: hp(2),
-    alignItems: "center",
-    transition: "color 0.3s ease", // Pour une transition douce
-  },
-  infoText: {
-    color: "#666",
-    fontSize: wp(3),
-    marginBottom: hp(1),
-    fontStyle: "italic",
-  },
-})
+});
 
-export default HomeScreen
+export default HomeScreen;
