@@ -95,13 +95,12 @@ const ProfileScreen = () => {
 
             // Charger les catégories
             const categoriesResponse = await Api_categorie.getCategories();
-            if (categoriesResponse) {
+            if (categoriesResponse?.data?.categories) {
               setAvailableCategories(categoriesResponse.data.categories);
 
               if (parsedUser.id) {
                 const clientCategories = await Api_categorie.getClientCategories(parsedUser.id);
-                if (clientCategories) {
-                  console.log(clientCategories.data.clientCategorie)
+                if (clientCategories?.data?.clientCategorie) {
                   const categoriesNames = clientCategories.data.clientCategorie.map(c => c.nom_categorie);
                   setSelectedCategories(categoriesNames);
                   setUserData(prev => ({
@@ -216,10 +215,10 @@ const ProfileScreen = () => {
 
   const toggleFoodPreference = (category) => {
     setSelectedCategories(prev => {
-      if (prev.includes(category)) {
-        return prev.filter(c => c !== category);
+      if (prev.includes(category.nom_categorie)) {
+        return prev.filter(c => c !== category.nom_categorie);
       } else {
-        return [...prev, category];
+        return [...prev, category.nom_categorie];
       }
     });
   };
@@ -228,11 +227,17 @@ const ProfileScreen = () => {
     try {
       if (!clientId) return;
 
-      // Supprimer toutes les catégories existantes
-      await Api_categorie.deleteClientCategorie(clientId);
+      // Récupérer les catégories actuelles du client
+      const currentCategoriesResponse = await Api_categorie.getClientCategories(clientId);
+      const currentCategories = currentCategoriesResponse?.data?.clientCategorie || [];
+      const currentCategoriesNames = currentCategories.map(c => c.nom_categorie);
 
-      // Ajouter les nouvelles catégories sélectionnées
-      for (const nom_categorie of selectedCategories) {
+      // Déterminer les catégories à ajouter et à supprimer
+      const toAdd = selectedCategories.filter(name => !currentCategoriesNames.includes(name));
+      const toRemove = currentCategoriesNames.filter(name => !selectedCategories.includes(name));
+
+      // Ajouter les nouvelles catégories
+      for (const nom_categorie of toAdd) {
         try {
           await Api_categorie.addClientCategorie(clientId, nom_categorie);
         } catch (error) {
@@ -241,6 +246,16 @@ const ProfileScreen = () => {
         }
       }
 
+      // Supprimer les catégories désélectionnées
+      for (const nom_categorie of toRemove) {
+        try {
+          await Api_categorie.deleteClientCategorie(clientId, nom_categorie);
+        } catch (error) {
+          console.error(`Erreur lors de la suppression de la catégorie ${nom_categorie}:`, error);
+          continue;
+        }
+      }
+      
       setIsLoading(prev => !prev);
       setFoodPreferencesVisible(false);
     } catch (error) {
@@ -282,7 +297,7 @@ const ProfileScreen = () => {
         styles.healthOption,
         selectedCategories.includes(item.nom_categorie) && styles.selectedOption,
       ]}
-      onPress={() => toggleFoodPreference(item.nom_categorie)}
+      onPress={() => toggleFoodPreference(item)}
     >
       <Text style={styles.healthOptionText}>{item.nom_categorie}</Text>
       {selectedCategories.includes(item.nom_categorie) && (
@@ -464,7 +479,7 @@ const ProfileScreen = () => {
                       selectedCategories.includes(item.nom_categorie) &&
                         styles.selectedOption,
                     ]}
-                    onPress={() => toggleFoodPreference(item.nom_categorie)}
+                    onPress={() => toggleFoodPreference(item)}
                   >
                     <Text style={styles.healthOptionText}>{item.nom_categorie}</Text>
                     {selectedCategories.includes(item.nom_categorie) && (
