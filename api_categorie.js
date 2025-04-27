@@ -82,13 +82,17 @@ getCategories : async () => {
       }
     }
   },
-  deleteClientCategorie : async (id_client) => {
+  deleteClientCategorie : async (id_client,nom_categorie ) => {
     try {
-
+   body = {
+    nom_categorie
+    }
 
       const url = `${API_URL}/ClientCategorie/${id_client}`;
 
-      const response = await axios.delete(url);
+      const response = await axios.delete(url, {
+        data: body,
+      });
   
 
       if (response.status === 204) {
