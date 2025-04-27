@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Pressable, ScrollView, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Api_login_register from '../api_login_register';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SignUp3 = () => {
     const { params } = useRoute();
@@ -25,6 +26,15 @@ const SignUp3 = () => {
             const categorie = params.categories || [];
 
             const response = await Api_login_register.registerClient(clientData, maladies , categorie);
+            await AsyncStorage.setItem('clientId', response.data.client.id_client.toString());
+            //+ ' ' + response.data.client.prenom,
+          const userData  = {
+             id: response.data.client.id_client,
+             name: response.data.client.name_client + ' ' + response.data.client.prenom_client,
+             email: response.data.client.adress_mail_client,
+             age: response.data.client.Age_client,
+           };
+         await AsyncStorage.setItem('userData', JSON.stringify(userData));
             if (response.status !== 201) {
             Alert.alert('Succès', 'Inscription réussie!');
             navigation.navigate('Main');

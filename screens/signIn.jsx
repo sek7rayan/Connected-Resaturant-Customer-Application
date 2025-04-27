@@ -35,7 +35,7 @@ const SignINScreen = () => {
         email: response.data.client.email,
         age: response.data.client.age,
       };
-    console.log(userData);
+ 
     await AsyncStorage.setItem('userData', JSON.stringify(userData));
         navigation.navigate('Main');
      
