@@ -22,8 +22,9 @@ const SignUp3 = () => {
              
             };
             const maladies = params.maladies || [];
+            const categorie = params.categories || [];
 
-            const response = await Api_login_register.registerClient(clientData, maladies);
+            const response = await Api_login_register.registerClient(clientData, maladies , categorie);
             if (response.status !== 201) {
             Alert.alert('Succès', 'Inscription réussie!');
             navigation.navigate('Main');

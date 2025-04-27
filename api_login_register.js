@@ -33,12 +33,13 @@ const Api_login_register = {
           throw error;
         }
       },
-      registerClient : async (clientData, maladies) => {
+      registerClient : async (clientData, maladies,categorie) => {
         try {
 
           const body = {
             ...clientData,
             maladies,
+            categorie
           };
       
       
