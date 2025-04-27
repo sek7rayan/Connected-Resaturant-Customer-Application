@@ -59,7 +59,7 @@ getCategories : async () => {
   getClientCategories : async (id_client) => {
     try {
 
-      const url = `${API_URL}//ClientCategorie/${id_client}`;
+      const url = `${API_URL}/ClientCategorie/${id_client}`;
   
   
       const response = await axios.get(url);
@@ -81,10 +81,38 @@ getCategories : async () => {
         }
       }
     }
-  }
+  },
+  deleteClientCategorie : async (id_client) => {
+    try {
+
+
+      const url = `${API_URL}/ClientCategorie/${id_client}`;
+
+      const response = await axios.delete(url);
+  
+
+      if (response.status === 204) {
+        console.log("Association client-catégorie supprimée avec succès.");
+      }
+    } catch (error) {
+
+      if (error.response) {
+        if (error.response.status === 400) {
+          console.error("Erreur : Champs requis manquants.");
+          throw new Error("Champs requis manquants.");
+        } else if (error.response.status === 404) {
+          console.error("Erreur : Aucune association client-catégorie trouvée.");
+          throw new Error("Aucune association client-catégorie trouvée.");
+        } else {
+          console.error("Erreur serveur :", error.response.data.message || "Erreur inconnue.");
+          throw new Error(error.response.data.message || "Erreur serveur");
+        }
+      }
+    }
+  } 
 }
 
- 
+
 
 
 export default Api_categorie;

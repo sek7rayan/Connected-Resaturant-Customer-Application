@@ -14,6 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Api_maladie from "@/api_maladie";
 import Api_reservation from "@/api_reservation";
+import Api_categorie from "@/api_categorie";
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -27,8 +28,10 @@ const hp = (size) => (height / 100) * size;
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const [healthAlertsVisible, setHealthAlertsVisible] = useState(false);
+  const [foodPreferencesVisible, setFoodPreferencesVisible] = useState(false);
   const [reservationsVisible, setReservationsVisible] = useState(false);
   const [availableHealthIssues, setAvailableHealthIssues] = useState([]);
+  const [availableCategories, setAvailableCategories] = useState([]);
   const [reservations, setReservations] = useState([]);
   const [userData, setUserData] = useState({
     name: "",
@@ -36,78 +39,95 @@ const ProfileScreen = () => {
     age: "",
     points: "0 points",
     healthIssues: [],
+    foodPreferences: []
   });
   const [selectedHealthIssues, setSelectedHealthIssues] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [clientId, setClientId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-useFocusEffect(
-useCallback(() => {
-  const fetchData = async () => {
-    try {
-      const storedUser = await AsyncStorage.getItem("userData");
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setUserData({
-          name: parsedUser.name || "",
-          email: parsedUser.email || "",
-          age: parsedUser.age ? `${parsedUser.age} ans` : "",
-          points: "0 points",
-          healthIssues: [],
-        });
-        setClientId(parsedUser.id);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        try {
+          const storedUser = await AsyncStorage.getItem("userData");
+          if (storedUser) {
+            const parsedUser = JSON.parse(storedUser);
+            setUserData({
+              name: parsedUser.name || "",
+              email: parsedUser.email || "",
+              age: parsedUser.age ? `${parsedUser.age} ans` : "",
+              points: "0 points",
+              healthIssues: [],
+              foodPreferences: []
+            });
+            setClientId(parsedUser.id);
 
-        // Charger les maladies
-        const maladiesResponse = await Api_maladie.getMaladies();
-        if (maladiesResponse?.data?.maladies) {
-          setAvailableHealthIssues(maladiesResponse.data.maladies);
+            // Charger les maladies
+            const maladiesResponse = await Api_maladie.getMaladies();
+            if (maladiesResponse?.data?.maladies) {
+              setAvailableHealthIssues(maladiesResponse.data.maladies);
 
-          if (parsedUser.id) {
-            const clientMaladies = await Api_maladie.getClientMaladies(parsedUser.id);
-            if (clientMaladies?.data?.maladies) {
-              const clientMaladiesWithDetails = clientMaladies.data.maladies.map(clientMaladie => {
-                const maladieDetails = maladiesResponse.data.maladies.find(
-                  m => m.id_maladie === clientMaladie.id_maladie
-                );
-                return {
-                  ...clientMaladie,
-                  ...maladieDetails
-                };
-              });
+              if (parsedUser.id) {
+                const clientMaladies = await Api_maladie.getClientMaladies(parsedUser.id);
+                if (clientMaladies?.data?.maladies) {
+                  const clientMaladiesWithDetails = clientMaladies.data.maladies.map(clientMaladie => {
+                    const maladieDetails = maladiesResponse.data.maladies.find(
+                      m => m.id_maladie === clientMaladie.id_maladie
+                    );
+                    return {
+                      ...clientMaladie,
+                      ...maladieDetails
+                    };
+                  });
 
-              const maladiesIds = clientMaladiesWithDetails.map(m => m.id_maladie);
-              const maladiesNames = clientMaladiesWithDetails.map(m => m.nom_maladie);
+                  const maladiesIds = clientMaladiesWithDetails.map(m => m.id_maladie);
+                  const maladiesNames = clientMaladiesWithDetails.map(m => m.nom_maladie);
 
-              setSelectedHealthIssues(maladiesIds);
-              setUserData(prev => ({
-                ...prev,
-                healthIssues: maladiesNames
-              }));
+                  setSelectedHealthIssues(maladiesIds);
+                  setUserData(prev => ({
+                    ...prev,
+                    healthIssues: maladiesNames
+                  }));
+                }
+              }
+            }
+
+            // Charger les catégories
+            const categoriesResponse = await Api_categorie.getCategories();
+            if (categoriesResponse) {
+              setAvailableCategories(categoriesResponse.data.categories);
+
+              if (parsedUser.id) {
+                const clientCategories = await Api_categorie.getClientCategories(parsedUser.id);
+                if (clientCategories) {
+                  console.log(clientCategories.data.clientCategorie)
+                  const categoriesNames = clientCategories.data.clientCategorie.map(c => c.nom_categorie);
+                  setSelectedCategories(categoriesNames);
+                  setUserData(prev => ({
+                    ...prev,
+                    foodPreferences: categoriesNames
+                  }));
+                }
+              }
+            }
+
+            // Charger les réservations
+            if (parsedUser.id) {
+              const reservationsResponse = await Api_reservation.getClientReservations(parsedUser.id);
+              setReservations(reservationsResponse.data.reservation || []);
             }
           }
+        } catch (error) {
+          console.error("Erreur lors du chargement des données:", error);
+        } finally {
+          setIsLoading(false);
         }
+      };
 
-        // Charger les réservations
-        if (parsedUser.id) {
-          const reservationsResponse = await Api_reservation.getClientReservations(parsedUser.id);
-            setReservations(reservationsResponse.data.reservation || []);
-          
-        }
-      }
-    } catch (error) {
-      console.error("Erreur lors du chargement des données:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  fetchData();
-
-
-},[isLoading])
-
-
-);
+      fetchData();
+    }, [isLoading])
+  );
 
   const deleteReservation = async (id_reserv) => {
     try {
@@ -141,12 +161,9 @@ useCallback(() => {
         minute: '2-digit'
       });
     } catch {
-      return dateString; // Retourne la valeur originale si le parsing échoue
+      return dateString;
     }
   };
-  
-
-
 
   const toggleHealthIssue = (maladie) => {
     setSelectedHealthIssues(prev => {
@@ -197,7 +214,39 @@ useCallback(() => {
     }
   };
 
- 
+  const toggleFoodPreference = (category) => {
+    setSelectedCategories(prev => {
+      if (prev.includes(category)) {
+        return prev.filter(c => c !== category);
+      } else {
+        return [...prev, category];
+      }
+    });
+  };
+
+  const saveFoodPreferences = async () => {
+    try {
+      if (!clientId) return;
+
+      // Supprimer toutes les catégories existantes
+      await Api_categorie.deleteClientCategorie(clientId);
+
+      // Ajouter les nouvelles catégories sélectionnées
+      for (const nom_categorie of selectedCategories) {
+        try {
+          await Api_categorie.addClientCategorie(clientId, nom_categorie);
+        } catch (error) {
+          console.error(`Erreur lors de l'ajout de la catégorie ${nom_categorie}:`, error);
+          continue;
+        }
+      }
+
+      setIsLoading(prev => !prev);
+      setFoodPreferencesVisible(false);
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde des préférences:", error);
+    }
+  };
 
   const renderReservationItem = ({ item }) => (
     <View style={styles.reservationItem}>
@@ -227,11 +276,25 @@ useCallback(() => {
     </View>
   );
 
+  const renderCategoryItem = ({ item }) => (
+    <TouchableOpacity
+      style={[
+        styles.healthOption,
+        selectedCategories.includes(item.nom_categorie) && styles.selectedOption,
+      ]}
+      onPress={() => toggleFoodPreference(item.nom_categorie)}
+    >
+      <Text style={styles.healthOptionText}>{item.nom_categorie}</Text>
+      {selectedCategories.includes(item.nom_categorie) && (
+        <FontAwesome name="check" size={16} color="#4CAF50" />
+      )}
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-       
         <Text style={styles.headerText}>Profile</Text>
       </View>
 
@@ -275,15 +338,32 @@ useCallback(() => {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Health Alerts</Text>
             <TouchableOpacity onPress={() => setHealthAlertsVisible(true)}>
-             <EvilIcons name="pencil" size={30} color="black" />
+              <EvilIcons name="pencil" size={30} color="black" />
             </TouchableOpacity>
           </View>
 
-          {/* Affichage des problèmes de santé */}
           <View style={styles.healthIssuesContainer}>
             {userData.healthIssues.map((issue, index) => (
               <View key={index} style={styles.healthIssueTag}>
                 <Text style={styles.healthIssueText}>{issue}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* Section Food Preferences */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Food Preferences</Text>
+            <TouchableOpacity onPress={() => setFoodPreferencesVisible(true)}>
+              <EvilIcons name="pencil" size={30} color="black" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.healthIssuesContainer}>
+            {userData.foodPreferences.map((preference, index) => (
+              <View key={index} style={styles.foodPreferenceTag}>
+                <Text style={styles.foodPreferenceText}>{preference}</Text>
               </View>
             ))}
           </View>
@@ -365,7 +445,53 @@ useCallback(() => {
           </View>
         </Modal>
 
+        {/* Modal pour les préférences alimentaires */}
+        <Modal
+          visible={foodPreferencesVisible}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setFoodPreferencesVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Food Preferences</Text>
+              <ScrollView style={styles.healthOptionsList}>
+                {availableCategories.map((item) => (
+                  <TouchableOpacity
+                    key={item.nom_categorie}
+                    style={[
+                      styles.healthOption,
+                      selectedCategories.includes(item.nom_categorie) &&
+                        styles.selectedOption,
+                    ]}
+                    onPress={() => toggleFoodPreference(item.nom_categorie)}
+                  >
+                    <Text style={styles.healthOptionText}>{item.nom_categorie}</Text>
+                    {selectedCategories.includes(item.nom_categorie) && (
+                      <FontAwesome name="check" size={16} color="#4CAF50" />
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+              <View style={styles.modalButtonsContainer}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.cancelButton]}
+                  onPress={() => setFoodPreferencesVisible(false)}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.saveButton]}
+                  onPress={saveFoodPreferences}
+                >
+                  <Text style={styles.saveButtonText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
 
+        {/* Modal pour les réservations */}
         <Modal
           visible={reservationsVisible}
           transparent={true}
@@ -390,7 +516,7 @@ useCallback(() => {
               )}
 
               <TouchableOpacity
-                style={[ styles.closeButton]}
+                style={[styles.modalButton, styles.closeButton]}
                 onPress={() => setReservationsVisible(false)}
               >
                 <Text style={styles.closeButtonText}>Fermer</Text>
@@ -527,6 +653,18 @@ const styles = StyleSheet.create({
     fontSize: wp(3.5),
     color: "#8B0000",
   },
+  foodPreferenceTag: {
+    backgroundColor: "#E3F2FD",
+    paddingVertical: hp(1),
+    paddingHorizontal: wp(3),
+    borderRadius: wp(5),
+    marginRight: wp(2),
+    marginBottom: hp(1),
+  },
+  foodPreferenceText: {
+    fontSize: wp(3.5),
+    color: "#0D47A1",
+  },
   reservationItem: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -599,6 +737,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8F8F8",
   },
   healthOptionText: {
+    fontSize: wp(4),
+    color: "#333",
+  },
+  categoryItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: hp(1.5),
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0F0F0",
+  },
+  categoryText: {
     fontSize: wp(4),
     color: "#333",
   },
