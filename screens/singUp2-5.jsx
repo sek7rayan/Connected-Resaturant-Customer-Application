@@ -50,7 +50,7 @@ const SignUp2_5 = () => {
                         <View style={styles.progressBar}>
                             <View style={[styles.progressFilled, { width: '83%' }]} />
                         </View>
-                        <Text style={styles.stepText}>Step 2.5/3</Text>
+                        <Text style={styles.stepText}>Step 3/4</Text>
                     </View>
                 </View>
 

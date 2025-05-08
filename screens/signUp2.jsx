@@ -54,9 +54,9 @@ const SignUp2 = () => {
                     </TouchableOpacity>
                     <View style={styles.progressContainer}>
                         <View style={styles.progressBar}>
-                            <View style={[styles.progressFilled, { width: '66%' }]} />
+                            <View style={[styles.progressFilled, { width: '50%' }]} />
                         </View>
-                        <Text style={styles.stepText}>Step 2/3</Text>
+                        <Text style={styles.stepText}>Step 2/4</Text>
                     </View>
                 </View>
 

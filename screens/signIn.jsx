@@ -51,17 +51,19 @@ const SignINScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
-        <Image source={require('../assets/foodie_logo.png')} style={styles.logo} />
+        <Image source={require('../assets/Los_Pollos_Hermanos_logo.png')} style={styles.logo} />
         <Text style={styles.title}>Welcome back !</Text>
       </View>
      
       <TextInput 
-        placeholder="E-mail" 
+        placeholder="E-mail"
+        placeholderTextColor="#666" 
         style={styles.input} 
         onChangeText={onchangeEmail}
       />
       <TextInput 
-        placeholder="Password" 
+        placeholder="Password"
+        placeholderTextColor="#666" 
         style={styles.input} 
         secureTextEntry 
         onChangeText={onchangePassword} 
@@ -95,8 +97,11 @@ const styles = StyleSheet.create({
     marginBottom: hp(2.5),
   },
   logo: {
-    width: wp(33.6),
-    height: hp(26.7),
+    width: wp(50),
+    height: hp(30),
+    resizeMode: 'contain',
+    marginBottom: hp(4.5),
+
   },
   title: {
     fontFamily: 'SFProDisplay-Bold',
@@ -118,6 +123,7 @@ const styles = StyleSheet.create({
     paddingTop: hp(-1.2),
     marginLeft: wp(8),
     marginRight: wp(8),
+    color: '#000'
   },
   button: {
     backgroundColor: '#FFC01D',
