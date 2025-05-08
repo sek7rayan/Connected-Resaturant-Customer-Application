@@ -6,8 +6,7 @@ import {
   TouchableOpacity, 
   ScrollView, 
   Animated, 
-  Easing, 
-  Modal,
+  Easing,
   Dimensions
 } from 'react-native';
 import { 
@@ -264,22 +263,18 @@ const DescriptionScreen = () => {
           <Text style={styles.sectionTitle}>Description</Text>
           <Text style={styles.descriptionText}>{item.Description_plat}</Text>
         </View>
+       
       </ScrollView>
 
-      {/* Modal d'ajout au panier */}
-      <Modal transparent visible={showAlert} onRequestClose={hideAlert} animationType="none">
+      {/* Alerte d'ajout au panier (remplace le Modal) */}
+      {showAlert && (
         <TouchableOpacity 
           style={styles.modalOverlay} 
           activeOpacity={1}
           onPress={hideAlert}
         >
-          <Animated.View 
-            style={[
-              styles.alertContainer,
-              { transform: [{ translateY: slideAnim }] }
-            ]}
-          >
-            <View style={[styles.alertIconContainer, { backgroundColor: getCategoryColor() + '20' }]}>
+        <View style={styles.alertContainer}>
+        <View style={[styles.alertIconContainer, { backgroundColor: getCategoryColor() + '20' }]}>
               <MaterialCommunityIcons 
                 name={getCategoryIcon()} 
                 size={wp(15)} 
@@ -312,13 +307,49 @@ const DescriptionScreen = () => {
                 </Text>
               </TouchableOpacity>
             </View>
-          </Animated.View>
+
+        </View>
         </TouchableOpacity>
-      </Modal>
+      )}
     </View>
   );
 };
+/*
+ <View style={[styles.alertIconContainer, { backgroundColor: getCategoryColor() + '20' }]}>
+              <MaterialCommunityIcons 
+                name={getCategoryIcon()} 
+                size={wp(15)} 
+                color={getCategoryColor()} 
+              />
+            </View>
+            
+            <Text style={styles.alertTitle}>Added to Cart!</Text>
+            <Text style={styles.alertText}>
+              {incr} {item.nom_plat} {incr > 1 ? 'have' : 'has'} been added to your cart
+            </Text>
+            
+            <View style={styles.alertButtons}>
+              <TouchableOpacity 
+                onPress={() => {
+                  hideAlert();
+                  navigation.navigate('Mycart');
+                }}
+                style={[styles.alertButton, { backgroundColor: getCategoryColor() }]}
+              >
+                <Text style={styles.alertButtonText}>View Cart</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                onPress={hideAlert}
+                style={styles.alertSecondaryButton}
+              >
+                <Text style={[styles.alertButtonText, { color: getCategoryColor() }]}>
+                  Continue
+                </Text>
+              </TouchableOpacity>
+            </View>
 
+*/
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -330,7 +361,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center', // Ajout pour mieux aligner les icônes
+    alignItems: 'center',
     paddingHorizontal: wp(5),
     paddingTop: hp(5),
     paddingBottom: hp(2),
@@ -341,14 +372,12 @@ const styles = StyleSheet.create({
   },
   backButton: {
     padding: wp(2),
-    marginLeft: wp(-2), // Ajustement pour l'alignement
+    marginLeft: wp(-2),
   },
   favoriteButton: {
     padding: wp(2),
-    marginRight: wp(-2), // Ajustement pour l'alignement
+    marginRight: wp(-2),
   },
- 
-
   iconContainer: {
     alignSelf: 'center',
     width: wp(50),
@@ -490,7 +519,11 @@ const styles = StyleSheet.create({
     lineHeight: hp(3),
   },
   modalOverlay: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'flex-end',
   },

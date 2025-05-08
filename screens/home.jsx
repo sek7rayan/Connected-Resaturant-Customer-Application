@@ -22,7 +22,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Api_plat_pref from "../api_plat_recemendé";
 import Api_plat from "../api_plats";
 import Plat from "@/composent/plat";
-
+import Api_commande from "@/api_commande";
 
 const { width, height } = Dimensions.get("window")
 
@@ -45,6 +45,10 @@ const HomeScreen = () => {
   const [reservations, setReservations] = useState([]);
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [callWaiterModalVisible, setCallWaiterModalVisible] = useState(false);
+  const [tableNumber, setTableNumber] = useState("");
+  const [callWaiterLoading, setCallWaiterLoading] = useState(false);
+  const [callWaiterError, setCallWaiterError] = useState("");
 
   const navigation = useNavigation();
 
@@ -79,7 +83,38 @@ const HomeScreen = () => {
       checkTableAvailability();
     }
   }, [startDate, endDate, reservations]);
-console.log(clientId)
+
+
+
+
+  const handleCallWaiter = async () => {
+    if (!tableNumber) {
+      setCallWaiterError("Veuillez entrer le numéro de table");
+      return;
+    }
+  
+    try {
+    
+      setCallWaiterLoading(true);
+      setCallWaiterError("");
+      
+      const response = await Api_commande.callWaiter(clientId, tableNumber);
+     
+      
+        alert("Serveur appelé avec succès!");
+        setCallWaiterModalVisible(false);
+        setTableNumber("");
+      
+    } catch (error) {
+      console.error("Error calling waiter:", error);
+      setCallWaiterError(error.message || "Erreur lors de l'appel du serveur");
+    } finally {
+      setCallWaiterLoading(false);
+    }
+  };
+
+
+
   const fetchRecommendedPlats = async (clientId) => {
     try {
       const clientResponse = await Api_plat_pref.getClientById(clientId);
@@ -400,10 +435,13 @@ console.log(clientId)
               color="#2196F3" 
               style={styles.waiterImage}
             />
-            <TouchableOpacity style={styles.callButton}>
-              <Text style={styles.callButtonText}>Call waiter</Text>
-              <MaterialIcons name="arrow-forward" size={wp(4)} color="#fff" />
-            </TouchableOpacity>
+            <TouchableOpacity 
+            style={styles.callButton}
+            onPress={() => setCallWaiterModalVisible(true)}
+          >
+            <Text style={styles.callButtonText}>Call waiter</Text>
+            <MaterialIcons name="arrow-forward" size={wp(4)} color="#fff" />
+          </TouchableOpacity>
           </View>
         </View>
 
@@ -431,13 +469,7 @@ console.log(clientId)
             </View>
 
             <ScrollView style={styles.modalBody}>
-              <Text style={styles.sectionLabel}>Select table</Text>
-
-              <View style={styles.tablesGrid}>
-                {tables.map((table) => renderTableItem(table))}
-              </View>
-
-              <Text style={styles.sectionLabel}>Start date & Time</Text>
+            <Text style={styles.sectionLabel}>Start date & Time</Text>
               <TouchableOpacity 
                 style={[styles.dateInput, dateError && !startDate && styles.inputError]}
                 onPress={() => setShowStartDatePicker(true)}
@@ -469,7 +501,7 @@ console.log(clientId)
                 />
               )}
 
-              <Text style={styles.sectionLabel}>Number of people</Text>
+<Text style={styles.sectionLabel}>Number of people</Text>
               <TextInput
                 style={styles.dateInput}
                 placeholder="1"
@@ -493,6 +525,14 @@ console.log(clientId)
                     : "Dates invalides ou table non disponible"}
                 </Text>
               )}
+              <Text style={styles.sectionLabel}>Select table</Text>
+
+              <View style={styles.tablesGrid}>
+                {tables.map((table) => renderTableItem(table))}
+              </View>
+
+            
+
             </ScrollView>
 
             <View style={styles.modalFooter}>
@@ -517,6 +557,62 @@ console.log(clientId)
           </View>
         </View>
       </Modal>
+  
+<Modal
+  animationType="none"
+  transparent={true}
+  visible={callWaiterModalVisible}
+  onRequestClose={() => setCallWaiterModalVisible(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContent}>
+      <View style={styles.modalHeader}>
+        <View>
+          <Text style={styles.modalTitle}>Call Waiter</Text>
+          <Text style={styles.modalSubtitle}>Request assistance</Text>
+        </View>
+        <TouchableOpacity onPress={() => setCallWaiterModalVisible(false)}>
+          <Text style={styles.closeButton}>✕</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.modalBody}>
+        <Text style={styles.sectionLabel_waiter}>Table Number</Text>
+        <TextInput
+          style={[styles.dateInput, callWaiterError && styles.inputError]}
+          placeholder="Enter your table number"
+          value={tableNumber}
+          onChangeText={setTableNumber}
+          keyboardType="numeric"
+        />
+        
+        {callWaiterError && (
+          <Text style={styles.errorText}>{callWaiterError}</Text>
+        )}
+      </View>
+
+      <View style={styles.modalFooter}>
+        <TouchableOpacity 
+          style={styles.cancelButton} 
+          onPress={() => setCallWaiterModalVisible(false)}
+          disabled={callWaiterLoading}
+        >
+          <Text style={styles.cancelButtonText}>Cancel</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[styles.doneButton_waiter, callWaiterLoading && styles.disabledButton]} 
+          onPress={handleCallWaiter}
+          disabled={callWaiterLoading}
+        >
+          <Text style={styles.doneButtonText}>
+            {callWaiterLoading ? "Calling..." : "Call Waiter"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
+</Modal>
     </View>
   );
 }
@@ -842,6 +938,19 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     backgroundColor: "#888",
+  },
+  doneButton_waiter: {
+    backgroundColor: "#2196F3",
+    paddingVertical: hp(1.5),
+    paddingHorizontal: wp(5),
+    borderRadius: wp(2),
+  },
+  sectionLabel_waiter: {
+    fontSize: wp(4),
+    fontWeight: "600",
+    marginBottom: hp(1.5),
+    marginTop: hp(1),
+    color: '#2196F3'
   },
 });
 

@@ -14,10 +14,107 @@ import MycartScreen from '@/screens/mycart';
 import ProfileScreen from '@/screens/Profile';
 import MyOrdersScreen from '@/screens/my_orders';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useState, useEffect } from 'react';
+import { db, auth } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { collection, query, where, getDocs, setLogLevel } from 'firebase/firestore';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+
+
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 const Menu = () => {
+
+  const [clientId, setClientId] = useState(null);  
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const id = await AsyncStorage.getItem('clientId');
+        if (id) {
+          setClientId(parseInt(id));
+        }
+      } catch (error) {
+        console.error('Error checking login status:', error);
+      }
+    };
+    checkLoginStatus();
+  }, []);
+
+  const id_client = clientId; 
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log("✅ Utilisateur connecté :", user.uid);
+        setIsAuthReady(true);
+      } else {
+        console.log("❌ Aucun utilisateur connecté");
+        setIsAuthReady(false);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Fetch notifications from Firebase
+  useEffect(() => {
+    if (!isAuthReady) return;
+  
+    const fetchData = async () => {
+      try {
+        const q = query(
+          collection(db, 'client_rating_notifications'),
+          where('id_client', '==', id_client),
+          where('isRead', '==', false)
+        );
+  
+        const querySnapshot = await getDocs(q);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+  
+        const notificationsData = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          const createdAt = data.createdAt?.toDate?.() || null;
+          return {
+            id: doc.id,
+            ...data,
+            createdAt,
+            time: calculateTimeElapsed(createdAt)
+          };
+        }).filter(order => {
+          const orderDate = order.createdAt;
+          return orderDate && orderDate >= today;
+        });
+  
+        setNotifications(notificationsData);
+      } catch (err) {
+        console.error("Erreur:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    // Premier chargement
+    fetchData();
+  
+    // Rafraîchissement automatique toutes les 10 secondes
+    const intervalId = setInterval(fetchData, 10000);
+  
+    return () => clearInterval(intervalId);
+  }, [isAuthReady]);
+  
+console.log('hii')
+console.log("Notifications:", notifications);
   return (
   
       <Stack.Navigator screenOptions={{headerShown : false}}>
