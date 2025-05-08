@@ -67,10 +67,10 @@ const Api_plat = {
         try {
        
           const body = {
-            id_client,
-            id_plat,
-            nb_etoile,
-            avis,
+            id_client: Number(id_client),
+            id_plat: Number(id_plat),
+            nb_etoile: Number(nb_etoile),
+            avis: avis || 'Aucun commentaire',
           };
       
           const response = await axios.post(`${API_URL}/noteplat`, body);

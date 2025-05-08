@@ -23,6 +23,9 @@ import Api_plat_pref from "../api_plat_recemendé";
 import Api_plat from "../api_plats";
 import Plat from "@/composent/plat";
 import Api_commande from "@/api_commande";
+import { Badge } from 'react-native-elements';
+import { db, auth } from '../firebase';
+import { collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
 
 const { width, height } = Dimensions.get("window")
 
@@ -49,8 +52,11 @@ const HomeScreen = () => {
   const [tableNumber, setTableNumber] = useState("");
   const [callWaiterLoading, setCallWaiterLoading] = useState(false);
   const [callWaiterError, setCallWaiterError] = useState("");
+  const [notificationCount, setNotificationCount] = useState(0);
 
   const navigation = useNavigation();
+
+
 
   useEffect(() => {
     const loadData = async () => {
@@ -71,6 +77,51 @@ const HomeScreen = () => {
     loadData();
   }, []);
 
+
+  useEffect(  () => {
+    const fechnotif = async()=>{
+      if (!clientId) return;
+  
+    const q = query(
+      collection(db, 'client_rating_notifications'),
+      where('id_client', '==', clientId),
+      where('isRead', '==', false),
+      where('status', '==', 'sent')
+   
+    );
+    const querySnapshot = await getDocs(q);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const notificationsData = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      const createdAt = data.createdAt?.toDate?.() || null;
+      return {
+        id: doc.id,
+        ...data,
+        createdAt,
+      };
+    }).filter(order => {
+      const orderDate = order.createdAt;
+      return orderDate && orderDate >= today;
+    });
+
+     setNotificationCount(notificationsData.length);
+
+    }
+    fechnotif();
+    const intervalId = setInterval(() => {
+      fechnotif();
+    }, 10000);
+  
+    return () => clearInterval(intervalId);
+        
+
+  }, [clientId]);
+
+ 
+
+console.log(notificationCount);
   useEffect(() => {
     if (bookingModalVisible) {
       fetchTables();
@@ -365,12 +416,27 @@ const HomeScreen = () => {
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-            <Text style={styles.headerText}>Home</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-              <MaterialCommunityIcons name="account-circle" size={wp(10)} color="#8B0000" />
-            </TouchableOpacity>
-          </View>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+  <Text style={styles.headerText}>Home</Text>
+  <View style={{ flexDirection: "row", alignItems: "center" }}>
+    <TouchableOpacity 
+      onPress={() => navigation.navigate('Notification')}
+      style={{ marginRight: 15, position: 'relative' }}
+    >
+      <MaterialCommunityIcons name="bell" size={wp(7)} color="#8B0000" />
+      {notificationCount > 0 && (
+        <Badge
+          value={notificationCount}
+          status="error"
+          containerStyle={{ position: 'absolute', top: -5, right: -5 }}
+        />
+      )}
+    </TouchableOpacity>
+    <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+      <MaterialCommunityIcons name="account-circle" size={wp(10)} color="#8B0000" />
+    </TouchableOpacity>
+  </View>
+</View>
 
           <View style={styles.searchRow}>
   <View style={styles.searchContainer}>

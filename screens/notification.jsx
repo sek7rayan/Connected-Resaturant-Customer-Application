@@ -83,7 +83,7 @@ import {
           collection(db, 'client_rating_notifications'),
           where('id_client', '==', id_client),
           where('isRead', '==', false),
-         // where('status', '==', 'sent')
+          where('status', '==', 'sent')
         );
   
         const querySnapshot = await getDocs(q);
@@ -179,11 +179,16 @@ import {
       setSubmitting(true);
       try {
         for (let i = 0; i < selectedNotification.plats.length; i++) {
+        
+          console.log(ratings[i] * 2)
+          console.log(comments[i] || 'aucun commentaire')
+
+
           await Api_plat.submitPlatNote(
             selectedNotification.id_client,
             selectedNotification.plats[i].id_plat,
             ratings[i] * 2, 
-            comments[i] || 'aucun commentaire'
+            comments[i] 
           );
         }
         

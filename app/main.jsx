@@ -50,6 +50,7 @@ const Home = () => {
       <Stack.Screen name="Description" component={DescriptionScreen} />
       <Stack.Screen name="Mycart" component={MycartScreen} />
       <Stack.Screen name="Game" component={GameScreen} />
+      <Stack.Screen name="Notification" component={NotificationScreen} />
    
     </Stack.Navigator>
   );
@@ -116,15 +117,7 @@ export default function Main() {
             ),
           }}
           />
-          <Tab.Screen name="Notification" component={NotificationScreen} 
-           options={{
-            tabBarLabel: 'Notification',
-            tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="bell" size={size} color={color} />
-           
-            ),
-          }}
-          />
+        
          
           
         </Tab.Navigator>
