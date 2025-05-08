@@ -127,19 +127,19 @@ import {
   
     const handleNotificationPress = async (notification) => {
       setSelectedNotification(notification);
-      // Initialize ratings array with 0 for each plat
+ 
       setRatings(new Array(notification.plats.length).fill(0));
       setComments(new Array(notification.plats.length).fill(''));
       setCurrentPlatIndex(0);
       setRatingModalVisible(true);
       
-      // Mark as read
+     
       try {
         const notificationRef = doc(db, 'client_rating_notifications', notification.id);
         await updateDoc(notificationRef, {
           isRead: true
         });
-        // Update local state
+ 
         setNotifications(prev => prev.filter(n => n.id !== notification.id));
       } catch (error) {
         console.error("Error marking notification as read:", error);
@@ -178,13 +178,12 @@ import {
       
       setSubmitting(true);
       try {
-        // Submit rating for each plat
         for (let i = 0; i < selectedNotification.plats.length; i++) {
           await Api_plat.submitPlatNote(
             selectedNotification.id_client,
             selectedNotification.plats[i].id_plat,
-            ratings[i] * 2, // Convert 1-5 stars to 2-10 scale
-            comments[i] || ''
+            ratings[i] * 2, 
+            comments[i] || 'aucun commentaire'
           );
         }
         
