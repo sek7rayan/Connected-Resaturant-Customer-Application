@@ -14,16 +14,26 @@ import MycartScreen from '@/screens/mycart';
 import ProfileScreen from '@/screens/Profile';
 import MyOrdersScreen from '@/screens/my_orders';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import GameScreen from '@/screens/game';
+import NotificationScreen from '@/screens/notification';
+
+
+
+
+
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 const Menu = () => {
+
   return (
   
       <Stack.Navigator screenOptions={{headerShown : false}}>
         <Stack.Screen name="Menu" component={MenuScreen} />
         <Stack.Screen name="Description" component={DescriptionScreen} />
         <Stack.Screen name="Mycart" component={MycartScreen} />
+     
       
         
 
@@ -39,6 +49,8 @@ const Home = () => {
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Description" component={DescriptionScreen} />
       <Stack.Screen name="Mycart" component={MycartScreen} />
+      <Stack.Screen name="Game" component={GameScreen} />
+      <Stack.Screen name="Notification" component={NotificationScreen} />
    
     </Stack.Navigator>
   );
@@ -105,6 +117,7 @@ export default function Main() {
             ),
           }}
           />
+        
          
           
         </Tab.Navigator>

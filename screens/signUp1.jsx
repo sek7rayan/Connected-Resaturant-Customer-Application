@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Pressable, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Pressable, ScrollView, Alert , KeyboardAvoidingView,Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 
@@ -48,81 +48,100 @@ const SignUp1 = () => {
     };
 
     return (
-        <ScrollView style={styles.scrollView}>
-            <View style={styles.container}>
-                {/* Header and progress bar */}
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                        <Image source={require('../assets/fleche_gauche.png')} style={styles.backIcon} />
-                    </TouchableOpacity>
-                    <View style={styles.progressContainer}>
-                        <View style={styles.progressBar}>
-                            <View style={[styles.progressFilled, { width: '33%' }]} />
-                        </View>
-                        <Text style={styles.stepText}>Step 1/3</Text>
-                    </View>
-                </View>
+      <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
+  >
+      <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+      >
+          <View style={styles.container}>
+              {/* Header and progress bar */}
+              <View style={styles.header}>
+                  <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                      <Image source={require('../assets/fleche_gauche.png')} style={styles.backIcon} />
+                  </TouchableOpacity>
+                  <View style={styles.progressContainer}>
+                      <View style={styles.progressBar}>
+                          <View style={[styles.progressFilled, { width: '20%' }]} />
+                      </View>
+                      <Text style={styles.stepText}>Step 1/4</Text>
+                  </View>
+              </View>
 
-                {/* Form inputs */}
-                <View style={styles.avatarContainer}>
-                    <Image source={require('../assets/foodie_logo.png')} style={styles.avatar} />
-                    <Text style={styles.title}>Create an account</Text>
-                </View>
+              {/* Form inputs */}
+              <View style={styles.formContainer}>
+                  <View style={styles.avatarContainer}>
+                      <Image source={require('../assets/Los_Pollos_Hermanos_logo.png')} style={styles.avatar} />
+                      <Text style={styles.title}>Create an account</Text>
+                  </View>
 
-                {Object.entries({
-                    nom: 'Nom',
-                    prenom: 'Prénom',
-                    email: 'Email',
-                    age: 'Age',
-                    num: 'Numéro de téléphone',
-                    adressmaison: 'Adresse',
-                    password: 'Password',
-                    passwordConfirm: 'Confirm Password'
-                }).map(([key, placeholder]) => (
-                    <TextInput
-                        key={key}
-                        placeholder={placeholder}
-                        style={styles.input}
-                        value={formData[key]}
-                        onChangeText={(text) => handleChange(key, text)}
-                        secureTextEntry={key.includes('password')}
-                        keyboardType={
-                            key === 'email' ? 'email-address' : 
-                            key === 'age' || key === 'num' ? 'numeric' : 'default'
-                        }
-                    />
-                ))}
+                  {Object.entries({
+                      nom: 'Nom',
+                      prenom: 'Prénom',
+                      email: 'Email',
+                      age: 'Age',
+                      num: 'Numéro de téléphone',
+                      adressmaison: 'Adresse',
+                      password: 'Password',
+                      passwordConfirm: 'Confirm Password'
+                  }).map(([key, placeholder]) => (
+                      <TextInput
+                          key={key}
+                          placeholder={placeholder}
+                          placeholderTextColor="#666"
+                          style={styles.input}
+                          value={formData[key]}
+                          onChangeText={(text) => handleChange(key, text)}
+                          secureTextEntry={key.includes('password')}
+                          keyboardType={
+                              key === 'email' ? 'email-address' : 
+                              key === 'age' || key === 'num' ? 'numeric' : 'default'
+                          }
+                      />
+                  ))}
+              </View>
 
-                {/* Checkbox and button */}
-                <View style={styles.checkboxContainer}>
-                    <Pressable
-                        style={[styles.checkbox, isChecked && styles.checkedBox]}
-                        onPress={() => setIsChecked(!isChecked)}>
-                        {isChecked && <Text style={styles.checkmark}>✓</Text>}
-                    </Pressable>
-                    <Text style={styles.privacyText}>
-                        I Agree to <Text style={styles.privacyLink}>Privacy Policy</Text>
-                    </Text>
-                </View>
+              {/* Checkbox and button */}
+              <View style={styles.checkboxContainer}>
+                  <Pressable
+                      style={[styles.checkbox, isChecked && styles.checkedBox]}
+                      onPress={() => setIsChecked(!isChecked)}>
+                      {isChecked && <Text style={styles.checkmark}>✓</Text>}
+                  </Pressable>
+                  <Text style={styles.privacyText}>
+                      I Agree to <Text style={styles.privacyLink}>Privacy Policy</Text>
+                  </Text>
+              </View>
 
-                <TouchableOpacity style={styles.button} onPress={handleNext}>
-                    <Text style={styles.buttonText}>Next</Text>
-                </TouchableOpacity>
-            </View>
-        </ScrollView>
+              <TouchableOpacity style={styles.button} onPress={handleNext}>
+                  <Text style={styles.buttonText}>Next</Text>
+              </TouchableOpacity>
+          </View>
+      </ScrollView>
+  </KeyboardAvoidingView>
     );
 };
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-  },
-  container: {
+},
+scrollContent: {
+    paddingBottom: 20, // Ajoutez un padding en bas pour éviter que le bouton ne soit caché
+},
+container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     padding: 20,
-  },
+},
+formContainer: {
+    width: '100%',
+},
   header: {
     flexDirection: 'row',
     alignItems: 'center',

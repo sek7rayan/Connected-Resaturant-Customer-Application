@@ -10,6 +10,7 @@ const SignUp3 = () => {
     const [rememberLocation, setRememberLocation] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const navigation = useNavigation();
+    console.log(params.categorie)
     const handleConfirm = async () => {
         if (!location) {
             Alert.alert('Erreur', 'Veuillez entrer votre localisation');
@@ -22,8 +23,9 @@ const SignUp3 = () => {
                 adressmaison: location,
              
             };
+           
             const maladies = params.maladies || [];
-            const categorie = params.categories || [];
+            const categorie = params.categorie || [];
 
             const response = await Api_login_register.registerClient(clientData, maladies , categorie);
             await AsyncStorage.setItem('clientId', response.data.client.id_client.toString());
@@ -61,7 +63,7 @@ const SignUp3 = () => {
                         <View style={styles.progressBar}>
                             <View style={[styles.progressFilled, { width: '100%' }]} />
                         </View>
-                        <Text style={styles.stepText}>Step 3/3</Text>
+                        <Text style={styles.stepText}>Step 4/4</Text>
                     </View>
                 </View>
 
@@ -224,7 +226,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
     buttonContainer: {
-        alignItems: 'center',
+       
         marginTop: 'auto',
     },
     button: {
@@ -233,6 +235,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         width: '40%',
         alignItems: 'center',
+        marginLeft: 120,
         marginBottom: 20,
     },
     buttonDisabled: {
@@ -243,6 +246,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 16,
     },
+    confirmButton: {
+        marginLeft: 200
+    }
 });
 
 export default SignUp3;

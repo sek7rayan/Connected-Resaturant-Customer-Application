@@ -96,6 +96,29 @@ const Api_commande = {
         }
       }
     }
+  },
+  callWaiter : async (id_client, id_table) => {
+    try {
+      const body = {
+        id_client,
+        id_table,
+      };
+      console.log("body", body);
+      const response = await axios.post(`${API_URL}/call-waiter`, body);
+        if (response.status === 200) {
+        return response.data; 
+      }
+    } catch (error) {
+      console.error(" the error is", error);
+
+      if (error.response) {
+        console.error("Erreur serveur :", error.response.data.message || "Erreur inconnue.");
+        throw new Error(error.response.data.message || "Erreur serveur");
+      } else if (error.request) {
+        console.error("Aucune réponse reçue du serveur.");
+        throw new Error("Aucune réponse reçue du serveur");
+      }
+    }
   }
   
 }
@@ -103,3 +126,4 @@ const Api_commande = {
   export default Api_commande;
 
   
+ 

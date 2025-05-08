@@ -15,14 +15,17 @@ import {
   ActivityIndicator
 } from "react-native"
 import { useNavigation } from "@react-navigation/native"
-import { FontAwesome, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { FontAwesome, MaterialIcons, MaterialCommunityIcons , Ionicons } from '@expo/vector-icons';
 import Api_reservation from "../api_reservation"
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Api_plat_pref from "../api_plat_recemendé";
 import Api_plat from "../api_plats";
 import Plat from "@/composent/plat";
-
+import Api_commande from "@/api_commande";
+import { Badge } from 'react-native-elements';
+import { db, auth } from '../firebase';
+import { collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
 
 const { width, height } = Dimensions.get("window")
 
@@ -45,8 +48,15 @@ const HomeScreen = () => {
   const [reservations, setReservations] = useState([]);
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [callWaiterModalVisible, setCallWaiterModalVisible] = useState(false);
+  const [tableNumber, setTableNumber] = useState("");
+  const [callWaiterLoading, setCallWaiterLoading] = useState(false);
+  const [callWaiterError, setCallWaiterError] = useState("");
+  const [notificationCount, setNotificationCount] = useState(0);
 
   const navigation = useNavigation();
+
+
 
   useEffect(() => {
     const loadData = async () => {
@@ -67,6 +77,51 @@ const HomeScreen = () => {
     loadData();
   }, []);
 
+
+  useEffect(  () => {
+    const fechnotif = async()=>{
+      if (!clientId) return;
+  
+    const q = query(
+      collection(db, 'client_rating_notifications'),
+      where('id_client', '==', clientId),
+      where('isRead', '==', false),
+      where('status', '==', 'sent')
+   
+    );
+    const querySnapshot = await getDocs(q);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const notificationsData = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      const createdAt = data.createdAt?.toDate?.() || null;
+      return {
+        id: doc.id,
+        ...data,
+        createdAt,
+      };
+    }).filter(order => {
+      const orderDate = order.createdAt;
+      return orderDate && orderDate >= today;
+    });
+
+     setNotificationCount(notificationsData.length);
+
+    }
+    fechnotif();
+    const intervalId = setInterval(() => {
+      fechnotif();
+    }, 10000);
+  
+    return () => clearInterval(intervalId);
+        
+
+  }, [clientId]);
+
+ 
+
+console.log(notificationCount);
   useEffect(() => {
     if (bookingModalVisible) {
       fetchTables();
@@ -79,7 +134,38 @@ const HomeScreen = () => {
       checkTableAvailability();
     }
   }, [startDate, endDate, reservations]);
-console.log(clientId)
+
+
+
+
+  const handleCallWaiter = async () => {
+    if (!tableNumber) {
+      setCallWaiterError("Veuillez entrer le numéro de table");
+      return;
+    }
+  
+    try {
+    
+      setCallWaiterLoading(true);
+      setCallWaiterError("");
+      
+      const response = await Api_commande.callWaiter(clientId, tableNumber);
+     
+      
+        alert("Serveur appelé avec succès!");
+        setCallWaiterModalVisible(false);
+        setTableNumber("");
+      
+    } catch (error) {
+      console.error("Error calling waiter:", error);
+      setCallWaiterError(error.message || "Erreur lors de l'appel du serveur");
+    } finally {
+      setCallWaiterLoading(false);
+    }
+  };
+
+
+
   const fetchRecommendedPlats = async (clientId) => {
     try {
       const clientResponse = await Api_plat_pref.getClientById(clientId);
@@ -329,31 +415,53 @@ console.log(clientId)
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
         <View style={styles.header}>
-          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-            <Text style={styles.headerText}>Home</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-              <MaterialCommunityIcons name="account-circle" size={wp(10)} color="#8B0000" />
-            </TouchableOpacity>
-          </View>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+  <Text style={styles.headerText}>Home</Text>
+  <View style={{ flexDirection: "row", alignItems: "center" }}>
+    <TouchableOpacity 
+      onPress={() => navigation.navigate('Notification')}
+      style={{ marginRight: 15, position: 'relative' }}
+    >
+      <MaterialCommunityIcons name="bell" size={wp(7)} color="#8B0000" />
+      {notificationCount > 0 && (
+        <Badge
+          value={notificationCount}
+          status="error"
+          containerStyle={{ position: 'absolute', top: -5, right: -5 }}
+        />
+      )}
+    </TouchableOpacity>
+    <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+      <MaterialCommunityIcons name="account-circle" size={wp(10)} color="#8B0000" />
+    </TouchableOpacity>
+  </View>
+</View>
 
           <View style={styles.searchRow}>
-            <View style={styles.searchContainer}>
-              <FontAwesome name="search" size={wp(5)} color="#888" />
-              <TextInput 
-                style={styles.searchInput} 
-                placeholder="Search" 
-                placeholderTextColor="#888" 
-              />
-            </View>
-            <TouchableOpacity 
-              style={styles.cartContainer}
-              onPress={() => navigation.navigate('Mycart')}
-            >
-              <FontAwesome name="shopping-cart" size={wp(6)} color="#8B0000" />
-            </TouchableOpacity>
-          </View>
+  <View style={styles.searchContainer}>
+    <FontAwesome name="search" size={wp(5)} color="#888" />
+    <TextInput 
+      style={styles.searchInput} 
+      placeholder="Search" 
+      placeholderTextColor="#888" 
+    />
+  </View>
+  <View style={styles.iconsContainer}>
+    <TouchableOpacity 
+      style={styles.iconButton}
+      onPress={() => navigation.navigate('Game')}
+    >
+      <Ionicons name="game-controller" size={wp(6)} color="#8B0000" />
+    </TouchableOpacity>
+    <TouchableOpacity 
+      style={styles.iconButton}
+      onPress={() => navigation.navigate('Mycart')}
+    >
+      <FontAwesome name="shopping-cart" size={wp(6)} color="#8B0000" />
+    </TouchableOpacity>
+  </View>
+</View>
 
           {/* Promo Banner */}
           <TouchableOpacity style={styles.promoBanner}>
@@ -400,10 +508,13 @@ console.log(clientId)
               color="#2196F3" 
               style={styles.waiterImage}
             />
-            <TouchableOpacity style={styles.callButton}>
-              <Text style={styles.callButtonText}>Call waiter</Text>
-              <MaterialIcons name="arrow-forward" size={wp(4)} color="#fff" />
-            </TouchableOpacity>
+            <TouchableOpacity 
+            style={styles.callButton}
+            onPress={() => setCallWaiterModalVisible(true)}
+          >
+            <Text style={styles.callButtonText}>Call waiter</Text>
+            <MaterialIcons name="arrow-forward" size={wp(4)} color="#fff" />
+          </TouchableOpacity>
           </View>
         </View>
 
@@ -431,13 +542,7 @@ console.log(clientId)
             </View>
 
             <ScrollView style={styles.modalBody}>
-              <Text style={styles.sectionLabel}>Select table</Text>
-
-              <View style={styles.tablesGrid}>
-                {tables.map((table) => renderTableItem(table))}
-              </View>
-
-              <Text style={styles.sectionLabel}>Start date & Time</Text>
+            <Text style={styles.sectionLabel}>Start date & Time</Text>
               <TouchableOpacity 
                 style={[styles.dateInput, dateError && !startDate && styles.inputError]}
                 onPress={() => setShowStartDatePicker(true)}
@@ -469,7 +574,7 @@ console.log(clientId)
                 />
               )}
 
-              <Text style={styles.sectionLabel}>Number of people</Text>
+<Text style={styles.sectionLabel}>Number of people</Text>
               <TextInput
                 style={styles.dateInput}
                 placeholder="1"
@@ -493,6 +598,14 @@ console.log(clientId)
                     : "Dates invalides ou table non disponible"}
                 </Text>
               )}
+              <Text style={styles.sectionLabel}>Select table</Text>
+
+              <View style={styles.tablesGrid}>
+                {tables.map((table) => renderTableItem(table))}
+              </View>
+
+            
+
             </ScrollView>
 
             <View style={styles.modalFooter}>
@@ -517,6 +630,62 @@ console.log(clientId)
           </View>
         </View>
       </Modal>
+  
+<Modal
+  animationType="none"
+  transparent={true}
+  visible={callWaiterModalVisible}
+  onRequestClose={() => setCallWaiterModalVisible(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContent}>
+      <View style={styles.modalHeader}>
+        <View>
+          <Text style={styles.modalTitle}>Call Waiter</Text>
+          <Text style={styles.modalSubtitle}>Request assistance</Text>
+        </View>
+        <TouchableOpacity onPress={() => setCallWaiterModalVisible(false)}>
+          <Text style={styles.closeButton}>✕</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.modalBody}>
+        <Text style={styles.sectionLabel_waiter}>Table Number</Text>
+        <TextInput
+          style={[styles.dateInput, callWaiterError && styles.inputError]}
+          placeholder="Enter your table number"
+          value={tableNumber}
+          onChangeText={setTableNumber}
+          keyboardType="numeric"
+        />
+        
+        {callWaiterError && (
+          <Text style={styles.errorText}>{callWaiterError}</Text>
+        )}
+      </View>
+
+      <View style={styles.modalFooter}>
+        <TouchableOpacity 
+          style={styles.cancelButton} 
+          onPress={() => setCallWaiterModalVisible(false)}
+          disabled={callWaiterLoading}
+        >
+          <Text style={styles.cancelButtonText}>Cancel</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[styles.doneButton_waiter, callWaiterLoading && styles.disabledButton]} 
+          onPress={handleCallWaiter}
+          disabled={callWaiterLoading}
+        >
+          <Text style={styles.doneButtonText}>
+            {callWaiterLoading ? "Calling..." : "Call Waiter"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
+</Modal>
     </View>
   );
 }
@@ -842,6 +1011,32 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     backgroundColor: "#888",
+  },
+  doneButton_waiter: {
+    backgroundColor: "#2196F3",
+    paddingVertical: hp(1.5),
+    paddingHorizontal: wp(5),
+    borderRadius: wp(2),
+  },
+  sectionLabel_waiter: {
+    fontSize: wp(4),
+    fontWeight: "600",
+    marginBottom: hp(1.5),
+    marginTop: hp(1),
+    color: '#2196F3'
+  },
+  iconsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconButton: {
+    marginLeft: wp(3),
+    backgroundColor: "#FFC01D",
+    height: hp(6),
+    width: wp(13),
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: wp(2.7),
   },
 });
 
