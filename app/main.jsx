@@ -18,7 +18,7 @@ import { useState, useEffect } from 'react';
 import { db, auth } from '../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { collection, query, where, getDocs, setLogLevel } from 'firebase/firestore';
-
+import GameScreen from '@/screens/game';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
@@ -121,6 +121,7 @@ console.log("Notifications:", notifications);
         <Stack.Screen name="Menu" component={MenuScreen} />
         <Stack.Screen name="Description" component={DescriptionScreen} />
         <Stack.Screen name="Mycart" component={MycartScreen} />
+     
       
         
 
@@ -136,6 +137,7 @@ const Home = () => {
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Description" component={DescriptionScreen} />
       <Stack.Screen name="Mycart" component={MycartScreen} />
+      <Stack.Screen name="Game" component={GameScreen} />
    
     </Stack.Navigator>
   );

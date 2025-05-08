@@ -15,7 +15,7 @@ import {
   ActivityIndicator
 } from "react-native"
 import { useNavigation } from "@react-navigation/native"
-import { FontAwesome, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { FontAwesome, MaterialIcons, MaterialCommunityIcons , Ionicons } from '@expo/vector-icons';
 import Api_reservation from "../api_reservation"
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -364,7 +364,6 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
         <View style={styles.header}>
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
             <Text style={styles.headerText}>Home</Text>
@@ -374,21 +373,29 @@ const HomeScreen = () => {
           </View>
 
           <View style={styles.searchRow}>
-            <View style={styles.searchContainer}>
-              <FontAwesome name="search" size={wp(5)} color="#888" />
-              <TextInput 
-                style={styles.searchInput} 
-                placeholder="Search" 
-                placeholderTextColor="#888" 
-              />
-            </View>
-            <TouchableOpacity 
-              style={styles.cartContainer}
-              onPress={() => navigation.navigate('Mycart')}
-            >
-              <FontAwesome name="shopping-cart" size={wp(6)} color="#8B0000" />
-            </TouchableOpacity>
-          </View>
+  <View style={styles.searchContainer}>
+    <FontAwesome name="search" size={wp(5)} color="#888" />
+    <TextInput 
+      style={styles.searchInput} 
+      placeholder="Search" 
+      placeholderTextColor="#888" 
+    />
+  </View>
+  <View style={styles.iconsContainer}>
+    <TouchableOpacity 
+      style={styles.iconButton}
+      onPress={() => navigation.navigate('Game')}
+    >
+      <Ionicons name="game-controller" size={wp(6)} color="#8B0000" />
+    </TouchableOpacity>
+    <TouchableOpacity 
+      style={styles.iconButton}
+      onPress={() => navigation.navigate('Mycart')}
+    >
+      <FontAwesome name="shopping-cart" size={wp(6)} color="#8B0000" />
+    </TouchableOpacity>
+  </View>
+</View>
 
           {/* Promo Banner */}
           <TouchableOpacity style={styles.promoBanner}>
@@ -951,6 +958,19 @@ const styles = StyleSheet.create({
     marginBottom: hp(1.5),
     marginTop: hp(1),
     color: '#2196F3'
+  },
+  iconsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconButton: {
+    marginLeft: wp(3),
+    backgroundColor: "#FFC01D",
+    height: hp(6),
+    width: wp(13),
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: wp(2.7),
   },
 });
 
