@@ -179,7 +179,8 @@ const styles = StyleSheet.create({
     container: {
         width: wp(42),
         marginRight: wp(4),
-        marginBottom: hp(2)
+        marginBottom: hp(2),
+        height: hp(32) 
     },
     card: {
         backgroundColor: '#fff',
@@ -193,7 +194,9 @@ const styles = StyleSheet.create({
         elevation: 3,
         borderWidth: 1,
         borderColor: 'transparent',
-        height: hp(30)
+        height: '100%', 
+        flex: 1, 
+        justifyContent: 'space-between' 
     },
     cardHovered: {
         borderColor: '#8B0000',
